@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 @RestController
 public class TestController {
@@ -22,35 +21,37 @@ public class TestController {
     @Autowired
     private BookService bookService;
 
+    private final String[] firstNames = {"Sophia", "Jackson", "Olivia", "Liam", "Emma", "Noah", "Ava", "Ethan", "Isabella", "Lucas", "Mia", "Mason", "Charlotte", "Oliver", "Amelia", "Elijah", "Harper", "Aiden", "Evelyn", "Carter"};
+    private final String[] lastNames = {"Smith", "Johnson", "Brown", "Garcia", "Miller", "Davis", "Gonzalez", "Wilson", "Anderson", "Thomas", "Jackson", "White", "Harris", "Martin", "Thompson", "Moore", "Young", "Allen", "King", "Wright"};
+
+    private void insertAuthors(int count) {
+        for (int i = 0;i < count;i++) {
+            String randomFstName = firstNames[(int) (Math.random() * firstNames.length)];
+            String randomLastName = lastNames[(int) (Math.random() * lastNames.length)];
+            bookService.saveAuthor(new Author(randomFstName + " " + randomLastName));
+        }
+    }
+
+    String[] bookNames = {"To Kill a Mockingbird", "1984", "The Great Gatsby", "Pride and Prejudice", "Animal Farm", "Brave New World", "The Catcher in the Rye", "Lord of the Flies", "The Hobbit", "The Lord of the Rings", "The Hitchhiker's Guide to the Galaxy", "The Da Vinci Code", "Harry Potter and the Philosopher's Stone", "The Hunger Games", "The Girl with the Dragon Tattoo", "Gone Girl", "The Girl on the Train", "The Fault in Our Stars", "The Alchemist", "The Kite Runner"};
+
+    private void insertBooks(int count) {
+        List<Author> authorList = bookService.getAllAuthors();
+        for (int i = 0;i < count;i++) {
+            Book newBook = new Book();
+            newBook.setAuthor(authorList.get((int) (Math.random()*authorList.size())));
+            newBook.setName(bookNames[(int) (Math.random()*bookNames.length)]);
+            newBook.setPrice((long) (Math.random() * 100000));
+            newBook.setReleaseYear(((int)(Math.random() * 50)) + 1970);
+            newBook.setImageSrc("https://s3-goods.ozstatic.by/480/225/831/10/10831225_0_Finansist_Teodor_Drayzer.jpg");
+            bookService.saveBook(newBook);
+        }
+    }
+
     @GetMapping("/insert")
     public void insert() {
         logger.info("Insert request");
-
-        Book newBook1 = new Book();
-        newBook1.setName("Финансист");
-        newBook1.setReleaseYear(2019);
-        newBook1.setPrice(1177);
-        newBook1.setImageSrc("https://s3-goods.ozstatic.by/480/225/831/10/10831225_0_Finansist_Teodor_Drayzer.jpg");
-
-        Book newBook2 = new Book();
-        newBook2.setName("Финансист");
-        newBook2.setReleaseYear(2020);
-        newBook2.setPrice(1177);
-        newBook2.setImageSrc("https://s3-goods.ozstatic.by/480/225/831/10/10831225_0_Finansist_Teodor_Drayzer.jpg");
-
-//        Author author = new Author();
-//        author.setName("John Cool");
-
-//        author = authorRepository.save(author);
-//
-//        newBook1.setAuthor(author);
-//        newBook2.setAuthor(author);
-
-//        repository.save(newBook1);
-//        repository.save(newBook2);
-//        Author savedAuthor = authorRepository.save(author);
-//        System.out.println(savedAuthor);
-
+        insertAuthors(100);
+        insertBooks(100);
     }
 
     @GetMapping("/books")

@@ -19,4 +19,9 @@ public class Author {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "author")
 //    @JoinColumn(name = "author_id")
     private Set<Book> books = new HashSet<>();
+
+    public Author(String name) {
+        this.name = name;
+        this.books = new HashSet<>();
+    }
 }
