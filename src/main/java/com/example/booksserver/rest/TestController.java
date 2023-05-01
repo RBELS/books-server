@@ -3,11 +3,15 @@ package com.example.booksserver.rest;
 import com.example.booksserver.entity.Author;
 import com.example.booksserver.entity.Book;
 import com.example.booksserver.service.BookService;
+import com.example.booksserver.userstate.Filters;
+import com.example.booksserver.userstate.UserAuthor;
 import com.example.booksserver.userstate.UserBook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
@@ -50,18 +54,24 @@ public class TestController {
     @GetMapping("/insert")
     public void insert() {
         logger.info("Insert request");
-        insertAuthors(100);
-        insertBooks(100);
+//        insertAuthors(100);
+//        insertBooks(100);
     }
 
-    @GetMapping("/books")
-    public Iterable<UserBook> getBooks() {
-        Iterable<Book> books = bookService.getAllBooks();
+    @GetMapping(value = "/books", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Iterable<UserBook> getBooks(@RequestParam(required = false) Long authorId) {
+        List<Book> books = bookService.getBooks(new Filters(authorId));
         List<UserBook> userBooksList = new ArrayList<>();
-        books.forEach(book -> {
-            userBooksList.add(new UserBook(book));
-        });
+        books.forEach(book -> userBooksList.add(new UserBook(book)));
         return userBooksList;
+    }
+
+    @GetMapping(value = "/authors", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Iterable<UserAuthor> getAuthors() {
+        Iterable<Author> authors = bookService.getAllAuthors();
+        List<UserAuthor> userAuthorsList = new ArrayList<>();
+        authors.forEach(author -> userAuthorsList.add(new UserAuthor(author)));
+        return userAuthorsList;
     }
 
 
