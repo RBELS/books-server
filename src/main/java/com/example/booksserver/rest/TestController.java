@@ -5,6 +5,7 @@ import com.example.booksserver.entity.Book;
 import com.example.booksserver.service.BookService;
 import com.example.booksserver.userstate.Filters;
 import com.example.booksserver.userstate.UserAuthor;
+import com.example.booksserver.userstate.UserBaseFilters;
 import com.example.booksserver.userstate.UserBook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +15,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -59,8 +62,12 @@ public class TestController {
     }
 
     @GetMapping(value = "/books", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Iterable<UserBook> getBooks(@RequestParam(required = false) Long authorId) {
-        List<Book> books = bookService.getBooks(new Filters(authorId));
+    public Iterable<UserBook> getBooks(
+            @RequestParam(required = false) Long authorId,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice
+    ) {
+        List<Book> books = bookService.getBooks(new Filters(authorId, minPrice, maxPrice));
         List<UserBook> userBooksList = new ArrayList<>();
         books.forEach(book -> userBooksList.add(new UserBook(book)));
         return userBooksList;
@@ -73,6 +80,16 @@ public class TestController {
         authors.forEach(author -> userAuthorsList.add(new UserAuthor(author)));
         return userAuthorsList;
     }
+
+    @GetMapping(value = "/filterBaseInfo", produces = MediaType.APPLICATION_JSON_VALUE)
+    public UserBaseFilters getBaseFilters() {
+        return new UserBaseFilters(bookService.getMinMaxPrices());
+    }
+
+//    @GetMapping("/test")
+//    public void test() {
+//        logger.info(Arrays.toString(bookService.getMinMaxPrice().toArray()));
+//    }
 
 
 }
