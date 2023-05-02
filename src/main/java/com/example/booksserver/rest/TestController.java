@@ -65,9 +65,11 @@ public class TestController {
     public Iterable<UserBook> getBooks(
             @RequestParam(required = false) Long authorId,
             @RequestParam(required = false) Double minPrice,
-            @RequestParam(required = false) Double maxPrice
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam() Integer page,
+            @RequestParam() Integer count
     ) {
-        List<Book> books = bookService.getBooks(new Filters(authorId, minPrice, maxPrice));
+        List<Book> books = bookService.getBooks(new Filters(authorId, minPrice, maxPrice, page, count));
         List<UserBook> userBooksList = new ArrayList<>();
         books.forEach(book -> userBooksList.add(new UserBook(book)));
         return userBooksList;

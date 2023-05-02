@@ -1,0 +1,120 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Book-King.org API",
+    "description": "This is an API for the Book-King.org website.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "Local server address"
+    }
+  ],
+  "paths": {
+    "/books": {
+      "get": {
+        "summary": "Get books with filters",
+        "operationId": "getBooks",
+        "description": "Get books with provided filters",
+        "parameters": [
+          {"$ref": "#/components/parameters/authorId"},
+          {"$ref": "#/components/parameters/minPrice"},
+          {"$ref": "#/components/parameters/maxPrice"},
+          {"$ref": "#/components/parameters/page"},
+          {"$ref": "#/components/parameters/count"}
+        ],
+        "responses": {
+          "200": {
+            "description": "Books list that corresponds filters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Book"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "authorId": {
+        "name": "authorId",
+        "in": "query",
+        "description": "Author id to filter by. All the authors are selected if left empty.",
+        "schema": {
+          "type": "integer",
+          "required": false
+        }
+      },
+      "minPrice": {
+        "name": "minPrice",
+        "in": "query",
+        "description": "Minimal price to filter books. -Infinity if left empty.",
+        "schema": {
+          "type": "integer",
+          "required": false
+        }
+      },
+      "maxPrice": {
+        "name": "maxPrice",
+        "in": "query",
+        "description": "Minimal price to filter books. -Infinity if left empty.",
+        "schema": {
+          "type": "integer",
+          "required": false
+        }
+      },
+      "page": {
+        "name": "page",
+        "in": "query",
+        "description": "Page number starting from 1.",
+        "schema": {
+          "type": "integer",
+          "required": true
+        }
+      },
+      "count": {
+        "name": "page",
+        "in": "query",
+        "description": "Number of elements per page.",
+        "schema": {
+          "type": "integer",
+          "required": true
+        }
+      }
+    },
+    "schemas": {
+      "Book": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "authors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "price": {
+            "type": "number",
+            "format": "double"
+          },
+          "releaseYear": {
+            "type": "integer"
+          },
+          "imageSrc": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

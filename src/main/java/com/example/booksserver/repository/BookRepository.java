@@ -1,20 +1,22 @@
 package com.example.booksserver.repository;
 
 import com.example.booksserver.entity.Book;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 
-import java.util.List;
-
-public interface BookRepository extends CrudRepository<Book, Long> {
-    List<Book> findAll();
-    List<Book> findAllByPriceBetween(long minPrice, long maxPrice);
-    List<Book> findAllByAuthor_idAndPriceBetween(long id, long minPrice, long maxPrice);
-
-    @Query("SELECT min(price) FROM Book")
-    Long findMinPrice();
+public interface BookRepository extends PagingAndSortingRepository<Book, Long>, CrudRepository<Book, Long> {
+    Page<Book> findAll(Pageable pageable);
+    Page<Book> findAllByPriceBetween(long minPrice, long maxPrice, Pageable pageable);
+    Page<Book> findAllByAuthor_idAndPriceBetween(long id, long minPrice, long maxPrice, Pageable pageable);
 
     @Query("SELECT max(price) FROM Book")
     Long findMaxPrice();
+
+    @Query("SELECT min(price) FROM Book")
+    Long findMinPrice();
 
 }

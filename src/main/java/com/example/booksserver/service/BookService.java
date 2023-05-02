@@ -8,6 +8,7 @@ import com.example.booksserver.userstate.Filters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -28,10 +29,10 @@ public class BookService {
         long maxPrice = filters.getMaxPrice() == null ? bookRepository.findMaxPrice() : filters.getMaxPrice();
 
         if (filters.getAuthorId() == null) {
-            return bookRepository.findAllByPriceBetween(minPrice, maxPrice);
+            return bookRepository.findAllByPriceBetween(minPrice, maxPrice, PageRequest.of(filters.getPage(), filters.getCount())).stream().toList();
         }
 
-        return bookRepository.findAllByAuthor_idAndPriceBetween(filters.getAuthorId(), minPrice, maxPrice);
+        return bookRepository.findAllByAuthor_idAndPriceBetween(filters.getAuthorId(), minPrice, maxPrice, PageRequest.of(filters.getPage(), filters.getCount())).stream().toList();
     }
 
     public Author saveAuthor(Author author) {
