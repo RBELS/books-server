@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -32,7 +31,7 @@ public class BookService {
             return bookRepository.findAllByPriceBetween(minPrice, maxPrice, PageRequest.of(filters.getPage(), filters.getCount())).stream().toList();
         }
 
-        return bookRepository.findAllByAuthor_idAndPriceBetween(filters.getAuthorId(), minPrice, maxPrice, PageRequest.of(filters.getPage(), filters.getCount())).stream().toList();
+        return bookRepository.findAllByAuthors_idAndPriceBetween(filters.getAuthorId(), minPrice, maxPrice, PageRequest.of(filters.getPage(), filters.getCount())).stream().toList();
     }
 
     public Author saveAuthor(Author author) {

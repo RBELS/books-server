@@ -3,9 +3,12 @@ package com.example.booksserver.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
+@Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
 @Getter @Setter @ToString
 public class Book {
     @Id
@@ -19,7 +22,7 @@ public class Book {
 
     private String imageSrc;
 
-    @ManyToOne
-    @ToString.Exclude
-    private Author author;
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable
+    private Set<Author> authors = new HashSet<>();
 }

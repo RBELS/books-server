@@ -15,10 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 @RestController
 public class TestController {
@@ -45,7 +42,11 @@ public class TestController {
         List<Author> authorList = bookService.getAllAuthors();
         for (int i = 0;i < count;i++) {
             Book newBook = new Book();
-            newBook.setAuthor(authorList.get((int) (Math.random()*authorList.size())));
+            int authorCount = ((int) (Math.random() * 3)) + 1;
+            for (int k = 0;k < authorCount;k++) {
+                Author someAuthor = authorList.get((int) (Math.random() * authorList.size()));
+                newBook.getAuthors().add(someAuthor);
+            }
             newBook.setName(bookNames[(int) (Math.random()*bookNames.length)]);
             newBook.setPrice((long) (Math.random() * 100000));
             newBook.setReleaseYear(((int)(Math.random() * 50)) + 1970);
@@ -57,6 +58,7 @@ public class TestController {
     @GetMapping("/insert")
     public void insert() {
         logger.info("Insert request");
+//        insertAuthors(100);
 //        insertAuthors(100);
 //        insertBooks(100);
     }
@@ -87,11 +89,6 @@ public class TestController {
     public UserBaseFilters getBaseFilters() {
         return new UserBaseFilters(bookService.getMinMaxPrices());
     }
-
-//    @GetMapping("/test")
-//    public void test() {
-//        logger.info(Arrays.toString(bookService.getMinMaxPrice().toArray()));
-//    }
 
 
 }

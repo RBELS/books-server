@@ -16,8 +16,8 @@ public class Author {
     private long id;
 
     private String name;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "author")
-//    @JoinColumn(name = "author_id")
+
+    @ManyToMany(cascade = CascadeType.ALL, mappedBy = "authors")
     private Set<Book> books = new HashSet<>();
 
     public Author(String name) {
