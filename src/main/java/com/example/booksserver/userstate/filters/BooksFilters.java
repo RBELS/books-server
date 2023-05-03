@@ -1,11 +1,9 @@
-package com.example.booksserver.userstate;
+package com.example.booksserver.userstate.filters;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
-@AllArgsConstructor
-public class Filters {
+public class BooksFilters {
     private final Long authorId;
     private final Long minPrice;
     private final Long maxPrice;
@@ -13,7 +11,7 @@ public class Filters {
     private final Integer page;
     private final Integer count;
 
-    public Filters(Long authorId, Double minPrice, Double maxPrice, Integer page, Integer count) {
+    public BooksFilters(Long authorId, Double minPrice, Double maxPrice, Integer page, Integer count) {
         this.authorId = authorId;
         this.minPrice = minPrice == null ? null : (long) (minPrice * 100);
         this.maxPrice = maxPrice == null ? null : (long) (maxPrice * 100);
