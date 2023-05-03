@@ -57,36 +57,36 @@
         "name": "minPrice",
         "in": "query",
         "description": "Minimal price to filter books. -Infinity if left empty.",
+        "required": false,
         "schema": {
-          "type": "integer",
-          "required": false
+          "type": "integer"
         }
       },
       "maxPrice": {
         "name": "maxPrice",
         "in": "query",
         "description": "Minimal price to filter books. -Infinity if left empty.",
+        "required": false,
         "schema": {
-          "type": "integer",
-          "required": false
+          "type": "integer"
         }
       },
       "page": {
         "name": "page",
         "in": "query",
         "description": "Page number starting from 1.",
+        "required": true,
         "schema": {
-          "type": "integer",
-          "required": true
+          "type": "integer"
         }
       },
       "count": {
-        "name": "page",
+        "name": "count",
         "in": "query",
         "description": "Number of elements per page.",
+        "required": true,
         "schema": {
-          "type": "integer",
-          "required": true
+          "type": "integer"
         }
       }
     },
@@ -95,23 +95,28 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
+            "type": "integer",
+            "example": 121
           },
           "authors": {
             "type": "array",
             "items": {
-              "type": "string"
+              "type": "string",
+              "example": "Arthur Morgan"
             }
           },
           "price": {
             "type": "number",
-            "format": "double"
+            "format": "double",
+            "example": 10.99
           },
           "releaseYear": {
-            "type": "integer"
+            "type": "integer",
+            "example": 2018
           },
           "imageSrc": {
-            "type": "string"
+            "type": "string",
+            "example": "https://s3-goods.ozstatic.by/480/225/831/10/10831225_0_Finansist_Teodor_Drayzer.jpg"
           }
         }
       }
