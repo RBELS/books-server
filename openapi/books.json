@@ -98,7 +98,7 @@
         "name": "page",
         "in": "query",
         "description": "Page number starting from 1.",
-        "required": true,
+        "required": false,
         "schema": {
           "type": "integer"
         }
@@ -107,7 +107,7 @@
         "name": "count",
         "in": "query",
         "description": "Number of elements per page.",
-        "required": true,
+        "required": false,
         "schema": {
           "type": "integer"
         }
@@ -137,7 +137,7 @@
             "type": "integer",
             "example": 2018
           },
-          "imageSrc": {
+          "mainImage": {
             "type": "string",
             "example": "https://s3-goods.ozstatic.by/480/225/831/10/10831225_0_Finansist_Teodor_Drayzer.jpg"
           }

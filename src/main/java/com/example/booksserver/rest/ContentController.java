@@ -40,8 +40,8 @@ public class ContentController {
             @RequestParam(required = false) Long authorId,
             @RequestParam(required = false) Double minPrice,
             @RequestParam(required = false) Double maxPrice,
-            @RequestParam() Integer page,
-            @RequestParam() Integer count
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer count
     ) {
         List<Book> books = contentService.getBooks(new BooksFilters(authorId, minPrice, maxPrice, page, count));
         List<UserBook> userBooksList = new ArrayList<>();

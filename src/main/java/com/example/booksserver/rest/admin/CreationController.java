@@ -1,5 +1,10 @@
 package com.example.booksserver.rest.admin;
 
+import com.example.booksserver.repository.BookRepository;
+import com.example.booksserver.service.ContentService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -10,6 +15,11 @@ import java.util.List;
 
 @RestController
 public class CreationController {
+    private final Logger logger = LoggerFactory.getLogger(getClass().getName());
+
+    @Autowired
+    private ContentService contentService;
+
     @PostMapping(value = "/books", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public void createBook(
             @RequestParam("authors") List<Long> authorIdList,
@@ -27,5 +37,6 @@ public class CreationController {
             @RequestParam("name") String authorName
     ) {
 
+        contentService.createAuthor(authorName);
     }
 }

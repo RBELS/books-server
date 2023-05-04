@@ -2,12 +2,16 @@ package com.example.booksserver.fillingtest;
 
 import com.example.booksserver.entity.Author;
 import com.example.booksserver.entity.Book;
+import com.example.booksserver.entity.image.BookImage;
+import com.example.booksserver.entity.image.ImageType;
 import com.example.booksserver.service.ContentService;
 import com.example.booksserver.userstate.filters.AuthorsFilters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 @Component
 public final class Filling {
@@ -40,7 +44,17 @@ public final class Filling {
             newBook.setName(bookNames[(int) (Math.random()*bookNames.length)]);
             newBook.setPrice((long) (Math.random() * 100000));
             newBook.setReleaseYear(((int)(Math.random() * 50)) + 1970);
-            newBook.setImageSrc("https://s3-goods.ozstatic.by/480/225/831/10/10831225_0_Finansist_Teodor_Drayzer.jpg");
+            String onlySrc = "https://s3-goods.ozstatic.by/480/225/831/10/10831225_0_Finansist_Teodor_Drayzer.jpg";
+
+            BookImage mainImage = new BookImage(null, ImageType.MAIN, onlySrc, newBook);
+            newBook.getImages().add(mainImage);
+
+            //generate content images
+            for (int k = 0;k < 3;k++) {
+                BookImage newImage = new BookImage(null, ImageType.CONTENT, onlySrc, newBook);
+                newBook.getImages().add(newImage);
+            }
+
             contentService.saveBook(newBook);
         }
     }
