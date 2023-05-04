@@ -48,11 +48,23 @@
           "$ref": "#/components/requestBodies/newBook"
         },
         "responses": {
-
+          "200": {
+            "description": "Book successfully created."
+          },
+          "400": {
+            "description": "Not enough parameters provided or parameters' formats does not meet the requirements."
+          }
         }
       }
     }
   },
+
+
+
+
+
+
+
   "components": {
     "parameters": {
       "authorId": {

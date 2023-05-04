@@ -35,8 +35,22 @@
             }
           }
         }
+      },
+      "post": {
+        "summary": "Create an author",
+        "description": "Create an author",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/newAuthor"
+        },
+        "responses": {
+          "200": {
+            "description": "Author successfully created."
+          },
+          "400": {
+            "description": "Not enough parameters provided or parameters' formats does not meet the requirements."
+          }
+        }
       }
-
 
 
 
@@ -75,6 +89,26 @@
           "name": {
             "type": "string",
             "example": "Arthur Morgan"
+          }
+        }
+      }
+    },
+    "requestBodies": {
+      "newAuthor": {
+        "required": true,
+        "content": {
+          "multipart/form-data": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "description": "New author name",
+                  "required": true,
+                  "type": "string",
+                  "example": "Arthur Morgan"
+                }
+              }
+            }
           }
         }
       }

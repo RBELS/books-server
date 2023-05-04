@@ -21,4 +21,11 @@ public class CreationController {
     ) {
 
     }
+
+    @PostMapping(value = "/authors", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public void createAuthor(
+            @RequestParam("name") String authorName
+    ) {
+
+    }
 }
