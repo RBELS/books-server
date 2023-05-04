@@ -39,6 +39,17 @@
             }
           }
         }
+      },
+      "post": {
+        "summary": "Add a book to the catalog",
+        "operationId": "addBook",
+        "description": "Add a book to the catalog. [WARNING] Need to make it an administrator privilidge",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/newBook"
+        },
+        "responses": {
+
+        }
       }
     }
   },
@@ -117,6 +128,59 @@
           "imageSrc": {
             "type": "string",
             "example": "https://s3-goods.ozstatic.by/480/225/831/10/10831225_0_Finansist_Teodor_Drayzer.jpg"
+          }
+        }
+      }
+    },
+    "requestBodies": {
+      "newBook": {
+        "required": true,
+        "content": {
+          "multipart/form-data": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "authors": {
+                  "type": "array",
+                  "required": true,
+                  "description": "Book authors' ids array. Authors with provided ids must exist.",
+                  "items": {
+                    "type": "integer",
+                    "required": true,
+                    "example": 111
+                  }
+                },
+                "name": {
+                  "type": "string",
+                  "example": "The Lord of the Rings",
+                  "description": "Book name",
+                  "required": true
+                },
+                "releaseYear": {
+                  "type": "integer",
+                  "description": "Book release year",
+                  "example": 2018,
+                  "required": true
+                },
+                "price": {
+                  "type": "number",
+                  "description": "Price for the book",
+                  "format": "double",
+                  "example": 10.99,
+                  "required": true
+                },
+                "mainImage": {
+                  "type": "string",
+                  "format": "binary",
+                  "description": "Book main image. Displayed in the content screen."
+                },
+                "images[]": {
+                  "type": "string",
+                  "format": "binary",
+                  "description": "Book images to be displayed in details screen."
+                }
+              }
+            }
           }
         }
       }
