@@ -47,7 +47,7 @@
             "description": "Author successfully created."
           },
           "400": {
-            "description": "Not enough parameters provided or parameters' formats does not meet the requirements."
+            "description": "Not enough parameters provided or parameters' formats do not meet the requirements."
           }
         }
       }

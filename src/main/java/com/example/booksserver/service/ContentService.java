@@ -19,10 +19,14 @@ import java.util.Objects;
 
 @Service
 public class ContentService {
-    @Autowired
-    private BookRepository bookRepository;
-    @Autowired
-    private AuthorRepository authorRepository;
+
+    private final BookRepository bookRepository;
+    private final AuthorRepository authorRepository;
+
+    public ContentService(BookRepository bookRepository, AuthorRepository authorRepository) {
+        this.bookRepository = bookRepository;
+        this.authorRepository = authorRepository;
+    }
 
     private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 

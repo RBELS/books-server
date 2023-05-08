@@ -6,18 +6,17 @@ import com.example.booksserver.entity.image.BookImage;
 import com.example.booksserver.entity.image.ImageType;
 import com.example.booksserver.service.ContentService;
 import com.example.booksserver.userstate.filters.AuthorsFilters;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 @Component
 public final class Filling {
 
-    @Autowired
-    private ContentService contentService;
+    private final ContentService contentService;
+
+    public Filling(ContentService contentService) {
+        this.contentService = contentService;
+    }
 
     private final String[] firstNames = {"Sophia", "Jackson", "Olivia", "Liam", "Emma", "Noah", "Ava", "Ethan", "Isabella", "Lucas", "Mia", "Mason", "Charlotte", "Oliver", "Amelia", "Elijah", "Harper", "Aiden", "Evelyn", "Carter"};
     private final String[] lastNames = {"Smith", "Johnson", "Brown", "Garcia", "Miller", "Davis", "Gonzalez", "Wilson", "Anderson", "Thomas", "Jackson", "White", "Harris", "Martin", "Thompson", "Moore", "Young", "Allen", "King", "Wright"};

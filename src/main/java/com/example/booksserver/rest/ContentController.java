@@ -24,10 +24,13 @@ public class ContentController {
 
     Logger logger = LoggerFactory.getLogger("ContentController");
 
-    @Autowired
-    private ContentService contentService;
-    @Autowired
-    private Filling dbFillComponent;
+    private final ContentService contentService;
+    private final Filling dbFillComponent;
+
+    public ContentController(ContentService contentService, Filling dbFillComponent) {
+        this.contentService = contentService;
+        this.dbFillComponent = dbFillComponent;
+    }
 
     @GetMapping("/insert")
     public void insert() {

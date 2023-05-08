@@ -6,10 +6,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.NonNullApi;
+import org.springframework.stereotype.Repository;
 
-
+@Repository
 public interface BookRepository extends PagingAndSortingRepository<Book, Long>, CrudRepository<Book, Long> {
-    Page<Book> findAll(Pageable pageable);
+    @NonNull
+    Page<Book> findAll(@NonNull Pageable pageable);
     Page<Book> findAllByPriceBetween(long minPrice, long maxPrice, Pageable pageable);
     Page<Book> findAllByAuthors_idAndPriceBetween(long id, long minPrice, long maxPrice, Pageable pageable);
 
