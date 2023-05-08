@@ -1,13 +1,11 @@
 package com.example.booksserver.fillingtest;
 
-import com.example.booksserver.dto.AuthorDTO;
 import com.example.booksserver.entity.Author;
 import com.example.booksserver.entity.Book;
 import com.example.booksserver.entity.image.BookImage;
 import com.example.booksserver.entity.image.ImageType;
 import com.example.booksserver.repository.AuthorRepository;
 import com.example.booksserver.service.ContentService;
-import com.example.booksserver.userstate.filters.AuthorsFilters;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import java.util.List;

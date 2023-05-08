@@ -1,7 +1,6 @@
 package com.example.booksserver.userstate;
 
 import com.example.booksserver.dto.AuthorDTO;
-import com.example.booksserver.entity.Author;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

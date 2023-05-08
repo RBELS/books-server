@@ -2,8 +2,6 @@ package com.example.booksserver.rest;
 
 import com.example.booksserver.dto.AuthorDTO;
 import com.example.booksserver.dto.BookDTO;
-import com.example.booksserver.entity.Author;
-import com.example.booksserver.entity.Book;
 import com.example.booksserver.fillingtest.Filling;
 import com.example.booksserver.service.ContentService;
 import com.example.booksserver.userstate.filters.AuthorsFilters;

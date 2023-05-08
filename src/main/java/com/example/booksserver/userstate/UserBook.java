@@ -2,14 +2,8 @@ package com.example.booksserver.userstate;
 
 import com.example.booksserver.dto.AuthorDTO;
 import com.example.booksserver.dto.BookDTO;
-import com.example.booksserver.entity.Author;
-import com.example.booksserver.entity.Book;
-import com.example.booksserver.entity.image.BookImage;
-import com.example.booksserver.entity.image.ImageType;
 import lombok.Getter;
 
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 public class UserBook {

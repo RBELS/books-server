@@ -3,9 +3,6 @@ package com.example.booksserver.rest.admin;
 import com.example.booksserver.dto.AuthorDTO;
 import com.example.booksserver.dto.BookDTO;
 import com.example.booksserver.service.ContentService;
-import lombok.NonNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,8 +16,6 @@ import java.util.List;
 
 @RestController
 public class CreationController {
-    private final Logger logger = LoggerFactory.getLogger(getClass().getName());
-
     private final ContentService contentService;
 
     public CreationController(ContentService contentService) {
