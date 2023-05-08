@@ -17,4 +17,6 @@ public interface AuthorRepository extends PagingAndSortingRepository<Author, Lon
     List<Author> findAll(@NonNull Sort sort);
     @NonNull
     Page<Author> findAll(@NonNull Pageable pageable);
+
+    Author findAuthorById(@NonNull Long id);
 }

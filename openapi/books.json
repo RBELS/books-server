@@ -186,7 +186,7 @@
                   "format": "binary",
                   "description": "Book main image. Displayed in the content screen."
                 },
-                "images[]": {
+                "images": {
                   "type": "string",
                   "format": "binary",
                   "description": "Book images to be displayed in details screen."

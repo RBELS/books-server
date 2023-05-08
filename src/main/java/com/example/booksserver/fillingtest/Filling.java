@@ -1,11 +1,14 @@
 package com.example.booksserver.fillingtest;
 
+import com.example.booksserver.dto.AuthorDTO;
 import com.example.booksserver.entity.Author;
 import com.example.booksserver.entity.Book;
 import com.example.booksserver.entity.image.BookImage;
 import com.example.booksserver.entity.image.ImageType;
+import com.example.booksserver.repository.AuthorRepository;
 import com.example.booksserver.service.ContentService;
 import com.example.booksserver.userstate.filters.AuthorsFilters;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import java.util.List;
 
@@ -13,9 +16,11 @@ import java.util.List;
 public final class Filling {
 
     private final ContentService contentService;
+    private final AuthorRepository authorRepository;
 
-    public Filling(ContentService contentService) {
+    public Filling(ContentService contentService, AuthorRepository authorRepository) {
         this.contentService = contentService;
+        this.authorRepository = authorRepository;
     }
 
     private final String[] firstNames = {"Sophia", "Jackson", "Olivia", "Liam", "Emma", "Noah", "Ava", "Ethan", "Isabella", "Lucas", "Mia", "Mason", "Charlotte", "Oliver", "Amelia", "Elijah", "Harper", "Aiden", "Evelyn", "Carter"};
@@ -32,7 +37,7 @@ public final class Filling {
     String[] bookNames = {"To Kill a Mockingbird", "1984", "The Great Gatsby", "Pride and Prejudice", "Animal Farm", "Brave New World", "The Catcher in the Rye", "Lord of the Flies", "The Hobbit", "The Lord of the Rings", "The Hitchhiker's Guide to the Galaxy", "The Da Vinci Code", "Harry Potter and the Philosopher's Stone", "The Hunger Games", "The Girl with the Dragon Tattoo", "Gone Girl", "The Girl on the Train", "The Fault in Our Stars", "The Alchemist", "The Kite Runner"};
 
     private void insertBooks(int count) {
-        List<Author> authorList = contentService.getAuthors(new AuthorsFilters(null, null));
+        List<Author> authorList = authorRepository.findAll(Sort.by("name", "id").ascending());
         for (int i = 0;i < count;i++) {
             Book newBook = new Book();
             int authorCount = ((int) (Math.random() * 3)) + 1;

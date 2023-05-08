@@ -1,5 +1,7 @@
 package com.example.booksserver.rest;
 
+import com.example.booksserver.dto.AuthorDTO;
+import com.example.booksserver.dto.BookDTO;
 import com.example.booksserver.entity.Author;
 import com.example.booksserver.entity.Book;
 import com.example.booksserver.fillingtest.Filling;
@@ -11,7 +13,6 @@ import com.example.booksserver.userstate.UserBaseFilters;
 import com.example.booksserver.userstate.UserBook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -46,7 +47,7 @@ public class ContentController {
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer count
     ) {
-        List<Book> books = contentService.getBooks(new BooksFilters(authorId, minPrice, maxPrice, page, count));
+        List<BookDTO> books = contentService.getBooks(new BooksFilters(authorId, minPrice, maxPrice, page, count));
         List<UserBook> userBooksList = new ArrayList<>();
         books.forEach(book -> userBooksList.add(new UserBook(book)));
         return userBooksList;
@@ -57,7 +58,7 @@ public class ContentController {
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer count
     ) {
-        Iterable<Author> authors = contentService.getAuthors(new AuthorsFilters(page, count));
+        Iterable<AuthorDTO> authors = contentService.getAuthors(new AuthorsFilters(page, count));
         List<UserAuthor> userAuthorsList = new ArrayList<>();
         authors.forEach(author -> userAuthorsList.add(new UserAuthor(author)));
         return userAuthorsList;
