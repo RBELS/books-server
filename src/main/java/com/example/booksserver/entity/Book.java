@@ -18,9 +18,13 @@ public class Book {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @Column(nullable = false)
     private String name;
 
+    @Column(nullable = false)
     private long price;
+
+    @Column(nullable = false)
     private int releaseYear;
 
     @ManyToMany(cascade = CascadeType.ALL)

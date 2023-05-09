@@ -20,7 +20,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
-public class ContentService {
+public class ContentService implements IContentService {
 
     private final BookRepository bookRepository;
     private final AuthorRepository authorRepository;
@@ -126,7 +126,7 @@ public class ContentService {
         return true;
     }
 
-    public boolean isBookValid(BookDTO bookDTO) {
+    private boolean isBookValid(BookDTO bookDTO) {
         if (bookDTO.getBookName().isBlank() || bookDTO.getAuthorList().stream().anyMatch(Objects::isNull)) {
             return false;
         }

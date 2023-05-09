@@ -3,7 +3,7 @@ package com.example.booksserver.rest;
 import com.example.booksserver.dto.AuthorDTO;
 import com.example.booksserver.dto.BookDTO;
 import com.example.booksserver.fillingtest.Filling;
-import com.example.booksserver.service.ContentService;
+import com.example.booksserver.service.IContentService;
 import com.example.booksserver.userstate.filters.AuthorsFilters;
 import com.example.booksserver.userstate.filters.BooksFilters;
 import com.example.booksserver.userstate.UserAuthor;
@@ -23,10 +23,10 @@ public class ContentController {
 
     Logger logger = LoggerFactory.getLogger("ContentController");
 
-    private final ContentService contentService;
+    private final IContentService contentService;
     private final Filling dbFillComponent;
 
-    public ContentController(ContentService contentService, Filling dbFillComponent) {
+    public ContentController(IContentService contentService, Filling dbFillComponent) {
         this.contentService = contentService;
         this.dbFillComponent = dbFillComponent;
     }

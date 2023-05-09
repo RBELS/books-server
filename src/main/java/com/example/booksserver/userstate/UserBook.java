@@ -12,9 +12,7 @@ public class UserBook {
     private final Iterable<String> authors;
     private final double price;
     private final int releaseYear;
-
-    // is not final because of constructor processing
-    private String mainImage;
+    private final String mainImage;
 
     public UserBook(BookDTO book) {
         this.id = book.getId();

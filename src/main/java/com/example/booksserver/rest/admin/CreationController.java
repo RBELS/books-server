@@ -2,7 +2,7 @@ package com.example.booksserver.rest.admin;
 
 import com.example.booksserver.dto.AuthorDTO;
 import com.example.booksserver.dto.BookDTO;
-import com.example.booksserver.service.ContentService;
+import com.example.booksserver.service.IContentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,9 +16,9 @@ import java.util.List;
 
 @RestController
 public class CreationController {
-    private final ContentService contentService;
+    private final IContentService contentService;
 
-    public CreationController(ContentService contentService) {
+    public CreationController(IContentService contentService) {
         this.contentService = contentService;
     }
 
