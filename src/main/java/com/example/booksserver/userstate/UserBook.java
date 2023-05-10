@@ -14,15 +14,12 @@ public class UserBook {
     private final int releaseYear;
     private final String mainImage;
 
-    public UserBook(BookDTO book) {
+    public UserBook(BookDTO book, String baseUrl) {
         this.id = book.getId();
         this.name = book.getBookName();
         this.authors = book.getAuthorList().stream().map(AuthorDTO::getName).toList();
         this.price = book.getPrice() / 100.0;
         this.releaseYear = book.getReleaseYear();
-
-        // set images ??bad solution??
-        // a single main image always exists for any book
-        this.mainImage = book.getMainImageSrc();
+        this.mainImage = baseUrl + book.getMainFile().getId();
     }
 }

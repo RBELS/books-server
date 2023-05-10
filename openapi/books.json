@@ -71,9 +71,9 @@
         "name": "authorId",
         "in": "query",
         "description": "Author id to filter by. All the authors are selected if left empty.",
+        "required": false,
         "schema": {
-          "type": "integer",
-          "required": false
+          "type": "integer"
         }
       },
       "minPrice": {

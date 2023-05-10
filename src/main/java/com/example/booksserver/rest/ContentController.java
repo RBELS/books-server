@@ -1,5 +1,6 @@
 package com.example.booksserver.rest;
 
+import com.example.booksserver.config.AppConfig;
 import com.example.booksserver.dto.AuthorDTO;
 import com.example.booksserver.dto.BookDTO;
 import com.example.booksserver.fillingtest.Filling;
@@ -25,10 +26,14 @@ public class ContentController {
 
     private final IContentService contentService;
     private final Filling dbFillComponent;
+    private final String baseImageUrl;
 
-    public ContentController(IContentService contentService, Filling dbFillComponent) {
+    public ContentController(IContentService contentService, Filling dbFillComponent, AppConfig appConfig) {
         this.contentService = contentService;
         this.dbFillComponent = dbFillComponent;
+
+        // TODO: HOW TO HIDE THIS??
+        this.baseImageUrl = appConfig.getServerAddress() + "/static/image/";
     }
 
     @GetMapping("/insert")
@@ -47,7 +52,7 @@ public class ContentController {
     ) {
         List<BookDTO> books = contentService.getBooks(new BooksFilters(authorId, minPrice, maxPrice, page, count));
         List<UserBook> userBooksList = new ArrayList<>();
-        books.forEach(book -> userBooksList.add(new UserBook(book)));
+        books.forEach(book -> userBooksList.add(new UserBook(book, baseImageUrl)));
         return userBooksList;
     }
 

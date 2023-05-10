@@ -16,7 +16,7 @@ public class BookDTO {
     private String bookName;
     private int releaseYear;
     private double price;
-    private String mainImageSrc;
-    private List<String> imagesSrcList = new ArrayList<>();
+    private BookImageDTO mainFile;
+    private List<BookImageDTO> imagesFileList = new ArrayList<>();
     private List<AuthorDTO> authorList = new ArrayList<>();
 }

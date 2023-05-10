@@ -16,7 +16,8 @@ public class BookImage {
     @Enumerated(EnumType.STRING)
     private ImageType type;
 
-    private String source;
+    @Lob
+    private byte[] content;
 
     @ManyToOne
     @JoinColumn

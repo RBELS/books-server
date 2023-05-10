@@ -48,12 +48,12 @@ public final class Filling {
             newBook.setReleaseYear(((int)(Math.random() * 50)) + 1970);
             String onlySrc = "https://s3-goods.ozstatic.by/480/225/831/10/10831225_0_Finansist_Teodor_Drayzer.jpg";
 
-            BookImage mainImage = new BookImage(null, ImageType.MAIN, onlySrc, newBook);
+            BookImage mainImage = new BookImage(null, ImageType.MAIN, new byte[] {}, newBook);
             newBook.getImages().add(mainImage);
 
             //generate content images
             for (int k = 0;k < 3;k++) {
-                BookImage newImage = new BookImage(null, ImageType.CONTENT, onlySrc, newBook);
+                BookImage newImage = new BookImage(null, ImageType.CONTENT, new byte[] {}, newBook);
                 newBook.getImages().add(newImage);
             }
 

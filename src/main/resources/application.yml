@@ -1,0 +1,8 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: "jdbc:postgresql://localhost:32768/BooksDB"
+    username: "postgres"
+    password: "postgrespw"
+  jpa:
+    generate-ddl: true

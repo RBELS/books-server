@@ -2,6 +2,7 @@ package com.example.booksserver.service;
 
 import com.example.booksserver.dto.AuthorDTO;
 import com.example.booksserver.dto.BookDTO;
+import com.example.booksserver.dto.BookImageDTO;
 import com.example.booksserver.entity.Author;
 import com.example.booksserver.entity.Book;
 import com.example.booksserver.entity.image.BookImage;
@@ -13,6 +14,7 @@ import com.example.booksserver.userstate.filters.BooksFilters;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
@@ -30,7 +32,8 @@ public class ContentService implements IContentService {
         this.authorRepository = authorRepository;
     }
 
-    // Return DTO?
+
+    @Transactional
     public List<BookDTO> getBooks(BooksFilters filters) {
         int page = Objects.isNull(filters.getPage()) ? 0 : filters.getPage();
         int count = Objects.isNull(filters.getCount()) ? BooksFilters.DEFAULT_COUNT_PER_PAGE : filters.getCount();
@@ -57,10 +60,11 @@ public class ContentService implements IContentService {
             dto.setReleaseYear(bookEntity.getReleaseYear());
             dto.setAuthorList(bookEntity.getAuthors().stream().map(author -> new AuthorDTO(author.getId(), author.getName())).toList());
             bookEntity.getImages().forEach(bookImage -> {
+                BookImageDTO bookImageDTO = new BookImageDTO(bookImage.getId(), bookImage.getType(), bookImage.getContent());
                 if (bookImage.getType() == ImageType.MAIN) {
-                    dto.setMainImageSrc(bookImage.getSource());
+                    dto.setMainFile(bookImageDTO);
                 } else {
-                    dto.getImagesSrcList().add(bookImage.getSource());
+                    dto.getImagesFileList().add(bookImageDTO);
                 }
             });
             return dto;
@@ -107,13 +111,10 @@ public class ContentService implements IContentService {
 
 
 
-
-
     private boolean isAuthorValid(AuthorDTO authorDTO) {
         return !authorDTO.getName().isBlank();
     }
 
-    // Do i need to pass an object here? (DTO)
     public boolean createAuthor(AuthorDTO newAuthorDTO) {
         boolean authorValid = isAuthorValid(newAuthorDTO);
         if (!authorValid) {
@@ -133,7 +134,7 @@ public class ContentService implements IContentService {
         return true;
     }
 
-    public boolean createBook(BookDTO newBookDTO) {
+    public boolean createBook(BookDTO newBookDTO)  {
         if (!isBookValid(newBookDTO)) {
             return false;
         }
@@ -142,8 +143,10 @@ public class ContentService implements IContentService {
         entity.setPrice((long) (newBookDTO.getPrice() * 100.0));
         entity.setReleaseYear(newBookDTO.getReleaseYear());
 
-        entity.getImages().add(new BookImage(null, ImageType.MAIN, newBookDTO.getMainImageSrc(), entity));
-        newBookDTO.getImagesSrcList().forEach(src -> entity.getImages().add(new BookImage(null, ImageType.CONTENT, src, entity)));
+        entity.getImages().add(new BookImage(null, ImageType.MAIN, newBookDTO.getMainFile().getContent(), entity));
+        newBookDTO.getImagesFileList().forEach(src -> {
+            entity.getImages().add(new BookImage(null, ImageType.CONTENT, src.getContent(), entity));
+        });
 
         entity.setAuthors(newBookDTO.getAuthorList().stream()
                 .map(authorDTO -> authorRepository.findAuthorById(authorDTO.getId()))
