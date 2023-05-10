@@ -2,11 +2,13 @@ package com.example.booksserver.rest.admin;
 
 import com.example.booksserver.dto.AuthorDTO;
 import com.example.booksserver.dto.BookDTO;
+import com.example.booksserver.rest.request.AuthorPostRequest;
 import com.example.booksserver.service.IContentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -43,11 +45,11 @@ public class CreationController {
         return new ResponseEntity<>(isOk ? HttpStatus.OK : HttpStatus.BAD_REQUEST);
     }
 
-    @PostMapping(value = "/authors", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/authors", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> createAuthor(
-            @RequestParam("name") String authorName
+            @RequestBody AuthorPostRequest request
     ) {
-        AuthorDTO newAuthorDTO = new AuthorDTO(null, authorName);
+        AuthorDTO newAuthorDTO = new AuthorDTO(null, request.getName());
         boolean isOk = contentService.createAuthor(newAuthorDTO);
 
         return new ResponseEntity<>(isOk ? HttpStatus.OK : HttpStatus.BAD_REQUEST);
