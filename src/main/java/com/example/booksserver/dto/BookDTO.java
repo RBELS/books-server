@@ -13,10 +13,10 @@ import java.util.List;
 @Getter @Setter
 public class BookDTO {
     private Long id;
-    private String bookName;
+    private String name;
     private int releaseYear;
     private double price;
     private BookImageDTO mainFile;
     private List<BookImageDTO> imagesFileList = new ArrayList<>();
-    private List<AuthorDTO> authorList = new ArrayList<>();
+    private List<AuthorDTO> authors = new ArrayList<>();
 }

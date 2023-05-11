@@ -29,7 +29,7 @@ public class Book {
 
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable
-    private Set<Author> authors = new HashSet<>();
+    private List<Author> authors = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "book")
     private List<BookImage> images = new ArrayList<>();

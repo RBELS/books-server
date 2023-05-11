@@ -16,8 +16,8 @@ public class UserBook {
 
     public UserBook(BookDTO book, String baseUrl) {
         this.id = book.getId();
-        this.name = book.getBookName();
-        this.authors = book.getAuthorList().stream().map(AuthorDTO::getName).toList();
+        this.name = book.getName();
+        this.authors = book.getAuthors().stream().map(AuthorDTO::getName).toList();
         this.price = book.getPrice() / 100.0;
         this.releaseYear = book.getReleaseYear();
         this.mainImage = baseUrl + book.getMainFile().getId();
