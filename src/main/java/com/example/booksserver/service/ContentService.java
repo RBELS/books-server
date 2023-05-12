@@ -2,11 +2,8 @@ package com.example.booksserver.service;
 
 import com.example.booksserver.dto.AuthorDTO;
 import com.example.booksserver.dto.BookDTO;
-import com.example.booksserver.dto.BookImageDTO;
 import com.example.booksserver.entity.Author;
 import com.example.booksserver.entity.Book;
-import com.example.booksserver.entity.image.BookImage;
-import com.example.booksserver.entity.image.ImageType;
 import com.example.booksserver.map.AuthorMapper;
 import com.example.booksserver.map.BookMapper;
 import com.example.booksserver.repository.AuthorRepository;
@@ -15,8 +12,10 @@ import com.example.booksserver.userstate.filters.AuthorsFilters;
 import com.example.booksserver.userstate.filters.BooksFilters;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Arrays;
 import java.util.List;
@@ -104,15 +103,14 @@ public class ContentService implements IContentService {
         return !authorDTO.getName().isBlank();
     }
 
-    public boolean createAuthor(AuthorDTO newAuthorDTO) {
+    public void createAuthor(AuthorDTO newAuthorDTO) throws ResponseStatusException {
         boolean authorValid = isAuthorValid(newAuthorDTO);
         if (!authorValid) {
-            return false;
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
 
         Author authorEntity = authorMapper.dtoToEntity(newAuthorDTO);
         authorRepository.save(authorEntity);
-        return true;
     }
 
     private boolean isBookValid(BookDTO bookDTO) {
@@ -122,14 +120,12 @@ public class ContentService implements IContentService {
         return true;
     }
 
-    public boolean createBook(BookDTO newBookDTO)  {
+    public void createBook(BookDTO newBookDTO) throws ResponseStatusException {
         if (!isBookValid(newBookDTO)) {
-            return false;
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
 
         Book entity = bookMapper.dtoToEntity(newBookDTO);
         bookRepository.save(entity);
-
-        return true;
     }
 }

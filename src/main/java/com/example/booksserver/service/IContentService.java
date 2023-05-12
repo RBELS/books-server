@@ -4,6 +4,7 @@ import com.example.booksserver.dto.AuthorDTO;
 import com.example.booksserver.dto.BookDTO;
 import com.example.booksserver.userstate.filters.AuthorsFilters;
 import com.example.booksserver.userstate.filters.BooksFilters;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -12,7 +13,7 @@ public interface IContentService {
     List<AuthorDTO> getAuthors(AuthorsFilters filters);
     AuthorDTO getAuthorById(Long authorId);
     List<Double> getMinMaxPrices();
-    boolean createAuthor(AuthorDTO newAuthorDTO);
-    boolean createBook(BookDTO newBookDTO);
+    void createAuthor(AuthorDTO newAuthorDTO) throws ResponseStatusException;
+    void createBook(BookDTO newBookDTO) throws ResponseStatusException;
 
 }

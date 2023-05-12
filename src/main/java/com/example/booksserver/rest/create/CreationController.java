@@ -1,9 +1,10 @@
-package com.example.booksserver.rest.admin;
+package com.example.booksserver.rest.create;
 
 import com.example.booksserver.dto.AuthorDTO;
 import com.example.booksserver.dto.BookDTO;
 import com.example.booksserver.dto.BookImageDTO;
 import com.example.booksserver.entity.image.ImageType;
+import com.example.booksserver.map.ImageMapper;
 import com.example.booksserver.rest.request.AuthorPostRequest;
 import com.example.booksserver.service.IContentService;
 import org.springframework.http.HttpStatus;
@@ -22,9 +23,11 @@ import java.util.List;
 @RestController
 public class CreationController {
     private final IContentService contentService;
+    private final ImageMapper imageMapper;
 
-    public CreationController(IContentService contentService) {
+    public CreationController(IContentService contentService, ImageMapper imageMapper) {
         this.contentService = contentService;
+        this.imageMapper = imageMapper;
     }
 
     @PostMapping(value = "/books", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -39,30 +42,22 @@ public class CreationController {
         List<AuthorDTO> authorDTOList = authorIdList.stream().map(contentService::getAuthorById).toList();
 
         BookImageDTO mainImageDTO;
+        List<BookImageDTO> contentImageDTOList;
+
         try {
-            mainImageDTO = new BookImageDTO(null, ImageType.MAIN, mainImageFile.getBytes());
+            mainImageDTO = imageMapper.fileToDto(mainImageFile, ImageType.MAIN);
+            contentImageDTOList = imageMapper.fileToDto(contentImageFileList, ImageType.CONTENT);
         } catch (IOException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
-
-        List<BookImageDTO> contentImageDTOList = contentImageFileList.stream().map(contentImageFile -> {
-            BookImageDTO contentImageDTO;
-            try {
-                contentImageDTO = new BookImageDTO(null, ImageType.CONTENT, contentImageFile.getBytes());
-            } catch (IOException e) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-            }
-            return contentImageDTO;
-        }).toList();
-
 
         BookDTO dto = new BookDTO(
             null, bookName, releaseYear, price,
                mainImageDTO, contentImageDTOList, authorDTOList
         );
-        boolean isOk = contentService.createBook(dto);
+        contentService.createBook(dto);
 
-        return new ResponseEntity<>(isOk ? HttpStatus.OK : HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping(value = "/authors", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -70,8 +65,8 @@ public class CreationController {
             @RequestBody AuthorPostRequest request
     ) {
         AuthorDTO newAuthorDTO = new AuthorDTO(null, request.getName());
-        boolean isOk = contentService.createAuthor(newAuthorDTO);
+        contentService.createAuthor(newAuthorDTO);
 
-        return new ResponseEntity<>(isOk ? HttpStatus.OK : HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
