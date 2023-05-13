@@ -1,14 +1,14 @@
 {
   "inputs": [
     {
-      "inputFile": "./src/main/resources/api/books.yaml"
+      "inputFile": "./src/main/resources/api/books.yml"
     },
     {
-      "inputFile": "./src/main/resources/api/authors.yaml"
+      "inputFile": "./src/main/resources/api/authors.yml"
     },
     {
-      "inputFile": "./src/main/resources/api/static.yaml"
+      "inputFile": "./src/main/resources/api/static.yml"
     }
   ],
-  "output": "./src/main/resources/api/api.yaml"
+  "output": "./src/main/resources/api/api.yml"
 }

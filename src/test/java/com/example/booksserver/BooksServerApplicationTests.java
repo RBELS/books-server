@@ -8,6 +8,7 @@ class BooksServerApplicationTests {
 
     @Test
     void contextLoads() {
+        System.out.println("load");
     }
 
 }

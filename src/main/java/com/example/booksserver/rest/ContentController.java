@@ -32,7 +32,7 @@ public class ContentController {
         this.contentService = contentService;
         this.dbFillComponent = dbFillComponent;
 
-        // TODO: HOW TO HIDE THIS??
+        // TODO: HIDE THIS
         this.baseImageUrl = appConfig.getServerAddress() + "/static/image/";
     }
 

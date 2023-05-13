@@ -76,10 +76,11 @@ public class ContentService implements IContentService {
         List<Author> entityList;
         if (Objects.isNull(filters.getPage()) || Objects.isNull(filters.getCount())) {
             entityList = authorRepository.findAll(authorsAscSort);
+        } else {
+            entityList = authorRepository.findAll(
+                    PageRequest.of(filters.getPage(), filters.getCount(), authorsAscSort)
+            ).getContent();
         }
-        entityList = authorRepository.findAll(
-                PageRequest.of(filters.getPage(), filters.getCount(), authorsAscSort)
-        ).getContent();
 
         return authorMapper.entityToDto(entityList);
     }
