@@ -6,3 +6,23 @@ spring:
     password: postgrespw
   jpa:
     generate-ddl: true
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            client-id: books-server
+            authorization-grant-type: authorization_code
+            scope: openid
+        provider:
+          keycloak:
+            user-name-attribute: preferred_username
+      resourceserver:
+        jwt:
+          issuer-uri: http://192.168.64.11:8080/realms/BookServerKeycloak
+          jwk-set-uri: http://192.168.64.11:8080/realms/BookServerKeycloak/protocol/openid-connect/certs
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
