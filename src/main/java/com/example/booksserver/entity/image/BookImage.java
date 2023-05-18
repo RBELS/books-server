@@ -13,7 +13,7 @@ public class BookImage {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.ORDINAL)
     private ImageType type;
 
     @Lob

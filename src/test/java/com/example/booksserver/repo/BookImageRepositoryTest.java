@@ -11,6 +11,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import static org.assertj.core.api.Assertions.*;
 
 @DataJpaTest
@@ -56,5 +59,24 @@ public class BookImageRepositoryTest {
     public void testImages() {
         long count = bookImageRepository.count();
         assertThat(count).isEqualTo(4);
+    }
+
+    @Test
+    public void testImageContents() {
+        List<BookImage> imageList = bookImageRepository.findAll();
+        AtomicInteger mainCount = new AtomicInteger(), contentCount = new AtomicInteger();
+
+        imageList.forEach(bookImage -> {
+            if (bookImage.getType() == ImageType.MAIN) {
+                mainCount.incrementAndGet();
+            } else if (bookImage.getType() == ImageType.CONTENT) {
+                contentCount.incrementAndGet();
+            }
+            assertThat(bookImage.getBook()).isNotNull();
+            assertThat(bookImage.getContent()).isNotEmpty();
+        });
+
+        assertThat(mainCount.get()).isEqualTo(1);
+        assertThat(contentCount.get()).isEqualTo(3);
     }
 }

@@ -13,7 +13,7 @@ import java.util.List;
 @Getter @Setter
 public class BookDTO {
     private Long id;
-    private String name;
+    private String name = "";
     private int releaseYear;
     private double price;
     private BookImageDTO mainFile;

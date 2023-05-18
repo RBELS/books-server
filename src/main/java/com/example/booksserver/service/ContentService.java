@@ -69,16 +69,16 @@ public class ContentService implements IContentService {
         bookRepository.save(book);
     }
 
-    private final Sort authorsAscSort = Sort.by("name", "id").ascending();
+    private static final Sort AUTHORS_ASC_SORT = Sort.by("name", "id").ascending();
 
     // Return DTO?
     public List<AuthorDTO> getAuthors(AuthorsFilters filters) {
         List<Author> entityList;
         if (Objects.isNull(filters.getPage()) || Objects.isNull(filters.getCount())) {
-            entityList = authorRepository.findAll(authorsAscSort);
+            entityList = authorRepository.findAll(AUTHORS_ASC_SORT);
         } else {
             entityList = authorRepository.findAll(
-                    PageRequest.of(filters.getPage(), filters.getCount(), authorsAscSort)
+                    PageRequest.of(filters.getPage(), filters.getCount(), AUTHORS_ASC_SORT)
             ).getContent();
         }
 
@@ -115,7 +115,10 @@ public class ContentService implements IContentService {
     }
 
     private boolean isBookValid(BookDTO bookDTO) {
-        if (bookDTO.getName().isBlank() || bookDTO.getAuthors().stream().anyMatch(Objects::isNull)) {
+        if (
+                bookDTO.getName().isBlank() || bookDTO.getAuthors().isEmpty()
+                || bookDTO.getReleaseYear() < 0 || bookDTO.getPrice() < 0
+        ) {
             return false;
         }
         return true;
