@@ -8,4 +8,9 @@ public class AuthorsFilters extends PaginationFilters {
     public AuthorsFilters(Integer page, Integer count) {
         super(page, count);
     }
+
+    @Override
+    protected int getDefaultCount() {
+        return 20;
+    }
 }

@@ -9,9 +9,10 @@ import com.example.booksserver.userstate.filters.AuthorsFilters;
 import com.example.booksserver.userstate.filters.BooksFilters;
 import com.example.booksserver.userstate.UserAuthor;
 import com.example.booksserver.userstate.UserBaseFilters;
-import com.example.booksserver.userstate.UserBook;
+import com.example.booksserver.userstate.response.GetBooksResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.convert.Delimiter;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -43,17 +44,16 @@ public class ContentController {
     }
 
     @GetMapping(value = "/books", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Iterable<UserBook> getBooks(
-            @RequestParam(required = false) Long authorId,
+    public GetBooksResponse getBooks(
+            @Delimiter(",") @RequestParam(required = false) List<Long> authors,
             @RequestParam(required = false) Double minPrice,
             @RequestParam(required = false) Double maxPrice,
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer count
     ) {
-        List<BookDTO> books = contentService.getBooks(new BooksFilters(authorId, minPrice, maxPrice, page, count));
-        List<UserBook> userBooksList = new ArrayList<>();
-        books.forEach(book -> userBooksList.add(new UserBook(book, baseImageUrl)));
-        return userBooksList;
+        BooksFilters filters = new BooksFilters(authors, minPrice, maxPrice, page, count);
+        List<BookDTO> books = contentService.getBooks(filters);
+        return new GetBooksResponse(filters, books, baseImageUrl);
     }
 
     @GetMapping(value = "/authors", produces = MediaType.APPLICATION_JSON_VALUE)

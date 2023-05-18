@@ -99,7 +99,7 @@ public class ContentServiceTest {
         when(bookRepository.findMinPrice()).thenReturn(1000L);
         when(bookRepository.findMaxPrice()).thenReturn(2000L);
 
-        when(bookRepository.findAllByAuthors_idAndPriceBetween(anyLong(), anyLong(), anyLong(), any(Pageable.class))).thenReturn(mock(Page.class));
+        when(bookRepository.findAllByAuthors_idInAndPriceBetween(anyList(), anyLong(), anyLong(), any(Pageable.class))).thenReturn(mock(Page.class));
         when(bookRepository.findAllByPriceBetween(anyLong(), anyLong(), any(Pageable.class))).thenReturn(mock(Page.class));
 
         when(bookMapper.entityToDto(any(Book.class))).thenReturn(mock(BookDTO.class));
@@ -109,7 +109,7 @@ public class ContentServiceTest {
         dtoList = contentService.getBooks(new BooksFilters(null, null, null, 0, 20));
         assertThat(dtoList).isNotNull();
 
-        dtoList = contentService.getBooks(new BooksFilters(1L, 10.00, 20.00, null, null));
+        dtoList = contentService.getBooks(new BooksFilters(List.of(1L), 10.00, 20.00, null, null));
         assertThat(dtoList).isNotNull();
     }
 

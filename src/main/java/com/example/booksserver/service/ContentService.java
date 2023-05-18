@@ -10,6 +10,7 @@ import com.example.booksserver.repository.AuthorRepository;
 import com.example.booksserver.repository.BookRepository;
 import com.example.booksserver.userstate.filters.AuthorsFilters;
 import com.example.booksserver.userstate.filters.BooksFilters;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -44,19 +45,20 @@ public class ContentService implements IContentService {
         long minPrice = filters.getMinPrice() == null ? bookRepository.findMinPrice() : filters.getMinPrice();
         long maxPrice = filters.getMaxPrice() == null ? bookRepository.findMaxPrice() : filters.getMaxPrice();
 
-        List<Book> entityList;
-        if (filters.getAuthorId() == null) {
-            entityList = bookRepository.findAllByPriceBetween(minPrice, maxPrice, PageRequest.of(page, count)).stream().toList();
+        Page<Book> entityPage;
+        if (filters.getAuthorIdList().isEmpty()) {
+            entityPage = bookRepository.findAllByPriceBetween(minPrice, maxPrice, PageRequest.of(page, count));
         } else {
-            entityList = bookRepository
-                    .findAllByAuthors_idAndPriceBetween(
-                            filters.getAuthorId(),
+            entityPage = bookRepository
+                    .findAllByAuthors_idInAndPriceBetween(
+                            filters.getAuthorIdList(),
                             minPrice, maxPrice,
                             PageRequest.of(page, count)
-                    ).getContent();
+                    );
         }
 
-        return bookMapper.entityToDto(entityList);
+        filters.setOutTotalPages(entityPage.getTotalPages());
+        return bookMapper.entityToDto(entityPage.getContent());
     }
 
     // TESTS ONLY

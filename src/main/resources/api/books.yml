@@ -13,7 +13,7 @@ paths:
       operationId: getBooks
       description: Get books with provided filters
       parameters:
-        - $ref: '#/components/parameters/authorId'
+        - $ref: '#/components/parameters/authors'
         - $ref: '#/components/parameters/minPrice'
         - $ref: '#/components/parameters/maxPrice'
         - $ref: '#/components/parameters/page'
@@ -24,9 +24,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Book'
+                $ref: "#/components/schemas/bookResponse"
     post:
       summary: Add a book to the catalog
       operationId: addBook
@@ -40,13 +38,14 @@ paths:
           description: Not enough parameters provided or parameters' formats does not meet the requirements.
 components:
   parameters:
-    authorId:
-      name: authorId
+    authors:
+      name: authors
       in: query
-      description: Author id to filter by. All the authors are selected if left empty.
+      description: Author ids to filter by comma separated. All the authors are selected if left empty.
       required: false
       schema:
-        type: integer
+        type: string
+        example: "1,2,3"
     minPrice:
       name: minPrice
       in: query
@@ -76,6 +75,55 @@ components:
       schema:
         type: integer
   schemas:
+    author:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/authorId"
+        name:
+          type: string
+          example: "Arthur Morgan"
+    authorId:
+      type: integer
+      example: 111
+    bookResponse:
+      type: object
+      properties:
+        page:
+          type: integer
+          required: true
+          example: 1
+        count:
+          type: integer
+          required: true
+          example: 20
+        totalPages:
+          type: integer
+          required: true
+          example: 10
+        filters:
+          type: object
+          properties:
+            minPrice:
+              type: number
+              format: double
+              required: false
+              example: 10.00
+            maxPrice:
+              type: number
+              format: double
+              required: false
+              example: 20.00
+            authors:
+              type: array
+              required: false
+              items:
+                $ref: "#/components/schemas/authorId"
+        content:
+          type: array
+          required: true
+          items:
+            $ref: "#/components/schemas/Book"
     Book:
       type: object
       properties:
@@ -87,8 +135,7 @@ components:
           required:
             - items
           items:
-            type: string
-            example: Arthur Morgan
+            $ref: "#/components/schemas/author"
         price:
           type: number
           format: double
@@ -99,6 +146,22 @@ components:
         mainImage:
           type: string
           example: https://s3-goods.ozstatic.by/480/225/831/10/10831225_0_Finansist_Teodor_Drayzer.jpg
+    errorStatus:
+      type: object
+      properties:
+        code:
+          type: string
+        internalCode:
+          type: string
+        devMessage:
+          type: string
+        userMessage:
+          type: object
+          properties:
+            lang_en:
+              type: string
+            lang_ru:
+              type: string
   requestBodies:
     newBook:
       required: true
