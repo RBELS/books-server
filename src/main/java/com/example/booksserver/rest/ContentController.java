@@ -9,6 +9,7 @@ import com.example.booksserver.userstate.filters.AuthorsFilters;
 import com.example.booksserver.userstate.filters.BooksFilters;
 import com.example.booksserver.userstate.UserAuthor;
 import com.example.booksserver.userstate.UserBaseFilters;
+import com.example.booksserver.userstate.response.GetAuthorsResponse;
 import com.example.booksserver.userstate.response.GetBooksResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,14 +58,13 @@ public class ContentController {
     }
 
     @GetMapping(value = "/authors", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Iterable<UserAuthor> getAuthors(
+    public GetAuthorsResponse getAuthors(
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer count
     ) {
-        Iterable<AuthorDTO> authors = contentService.getAuthors(new AuthorsFilters(page, count));
-        List<UserAuthor> userAuthorsList = new ArrayList<>();
-        authors.forEach(author -> userAuthorsList.add(new UserAuthor(author)));
-        return userAuthorsList;
+        AuthorsFilters filters = new AuthorsFilters(page, count);
+        List<AuthorDTO> authors = contentService.getAuthors(filters);
+        return new GetAuthorsResponse(filters, authors);
     }
 
     @GetMapping(value = "/filterBaseInfo", produces = MediaType.APPLICATION_JSON_VALUE)

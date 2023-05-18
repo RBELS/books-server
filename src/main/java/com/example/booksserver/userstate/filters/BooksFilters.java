@@ -1,14 +1,13 @@
 package com.example.booksserver.userstate.filters;
 
 import lombok.Getter;
-import org.springframework.data.domain.Page;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 @Getter
-public class BooksFilters extends PaginationFilters {
+public class BooksFilters extends PaginatedFilters {
     public static final int DEFAULT_COUNT_PER_PAGE = 20;
 
     private final List<Long> authorIdList;

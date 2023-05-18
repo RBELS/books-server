@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Getter
-public class GetBooksResponse {
+public class GetBooksResponse extends PaginatedResponse {
     @Getter
     public static class ResponseFilters {
         private final Double minPrice;
@@ -23,16 +23,11 @@ public class GetBooksResponse {
         }
     }
 
-    private final Integer page;
-    private final Integer count;
-    private final Integer totalPages;
     private final ResponseFilters filters;
     private final List<UserBook> content;
 
     public GetBooksResponse(BooksFilters booksFilters, List<BookDTO> content, String baseImgUrl) {
-        this.page = booksFilters.getPage() + 1;
-        this.count = booksFilters.getCount();
-        this.totalPages = booksFilters.getOutTotalPages();
+        super(booksFilters);
         this.filters = new ResponseFilters(booksFilters);
         this.content = content.stream().map(bookDTO -> new UserBook(bookDTO, baseImgUrl)).toList();
     }

@@ -73,18 +73,12 @@ public class ContentService implements IContentService {
 
     private static final Sort AUTHORS_ASC_SORT = Sort.by("name", "id").ascending();
 
-    // Return DTO?
     public List<AuthorDTO> getAuthors(AuthorsFilters filters) {
-        List<Author> entityList;
-        if (Objects.isNull(filters.getPage()) || Objects.isNull(filters.getCount())) {
-            entityList = authorRepository.findAll(AUTHORS_ASC_SORT);
-        } else {
-            entityList = authorRepository.findAll(
-                    PageRequest.of(filters.getPage(), filters.getCount(), AUTHORS_ASC_SORT)
-            ).getContent();
-        }
-
-        return authorMapper.entityToDto(entityList);
+        Page<Author> entityPage = authorRepository.findAll(
+                PageRequest.of(filters.getPage(), filters.getCount(), AUTHORS_ASC_SORT)
+        );
+        filters.setOutTotalPages(entityPage.getTotalPages());
+        return authorMapper.entityToDto(entityPage.getContent());
     }
 
     public AuthorDTO getAuthorById(Long authorId) {
@@ -99,8 +93,6 @@ public class ContentService implements IContentService {
     public List<Double> getMinMaxPrices() {
         return Arrays.asList(bookRepository.findMinPrice() / 100.0, bookRepository.findMaxPrice() / 100.0);
     }
-
-
 
     private boolean isAuthorValid(AuthorDTO authorDTO) {
         return !authorDTO.getName().isBlank();

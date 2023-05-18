@@ -4,7 +4,7 @@ import lombok.Getter;
 
 
 @Getter
-public class AuthorsFilters extends PaginationFilters {
+public class AuthorsFilters extends PaginatedFilters {
     public AuthorsFilters(Integer page, Integer count) {
         super(page, count);
     }

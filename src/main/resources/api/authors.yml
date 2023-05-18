@@ -20,9 +20,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/author'
+                $ref: "#/components/schemas/getAuthorsResponse"
     post:
       summary: Create an author
       description: Create an author
@@ -50,6 +48,22 @@ components:
       schema:
         type: integer
   schemas:
+    getAuthorsResponse:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 1
+        count:
+          type: integer
+          example: 20
+        totalPages:
+          type: integer
+          example: 10
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/author"
     author:
       description: Author object.
       type: object
