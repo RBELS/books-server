@@ -9,7 +9,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Getter @Setter
+@Data
 public class Author {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

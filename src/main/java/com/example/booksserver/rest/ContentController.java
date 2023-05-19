@@ -26,21 +26,13 @@ public class ContentController {
     Logger logger = LoggerFactory.getLogger("ContentController");
 
     private final IContentService contentService;
-    private final Filling dbFillComponent;
     private final String baseImageUrl;
 
-    public ContentController(IContentService contentService, Filling dbFillComponent, AppConfig appConfig) {
+    public ContentController(IContentService contentService, AppConfig appConfig) {
         this.contentService = contentService;
-        this.dbFillComponent = dbFillComponent;
 
         // TODO: HIDE THIS
         this.baseImageUrl = appConfig.getServerAddress() + "/static/image/";
-    }
-
-    @GetMapping("/insert")
-    public void insert() {
-        logger.info("[TEST] Insert request");
-        dbFillComponent.insertInitialData(200, 100);
     }
 
     @GetMapping(value = "/books", produces = MediaType.APPLICATION_JSON_VALUE)
