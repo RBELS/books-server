@@ -7,7 +7,6 @@ import com.example.booksserver.fillingtest.Filling;
 import com.example.booksserver.service.IContentService;
 import com.example.booksserver.userstate.filters.AuthorsFilters;
 import com.example.booksserver.userstate.filters.BooksFilters;
-import com.example.booksserver.userstate.UserAuthor;
 import com.example.booksserver.userstate.UserBaseFilters;
 import com.example.booksserver.userstate.response.GetAuthorsResponse;
 import com.example.booksserver.userstate.response.GetBooksResponse;

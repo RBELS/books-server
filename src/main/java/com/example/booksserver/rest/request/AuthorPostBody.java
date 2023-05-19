@@ -8,6 +8,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter @Setter
-public class AuthorPostRequest {
+public class AuthorPostBody {
     private String name;
 }

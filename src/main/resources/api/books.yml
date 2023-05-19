@@ -36,6 +36,10 @@ paths:
           description: Book successfully created.
         '400':
           description: Not enough parameters provided or parameters' formats does not meet the requirements.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorStatus"
 components:
   parameters:
     authors:

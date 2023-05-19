@@ -5,11 +5,13 @@ import com.example.booksserver.dto.BookDTO;
 import com.example.booksserver.dto.BookImageDTO;
 import com.example.booksserver.entity.image.ImageType;
 import com.example.booksserver.map.ImageMapper;
-import com.example.booksserver.rest.request.AuthorPostRequest;
+import com.example.booksserver.rest.request.AuthorPostBody;
 import com.example.booksserver.service.IContentService;
+import com.example.booksserver.userstate.response.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.ErrorResponseException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -45,10 +47,13 @@ public class CreationController {
         List<BookImageDTO> contentImageDTOList;
 
         try {
+            if (mainImageFile.isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            }
             mainImageDTO = imageMapper.fileToDto(mainImageFile, ImageType.MAIN);
             contentImageDTOList = imageMapper.fileToDto(contentImageFileList, ImageType.CONTENT);
         } catch (IOException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
         BookDTO dto = new BookDTO(
@@ -62,7 +67,7 @@ public class CreationController {
 
     @PostMapping(value = "/authors", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> createAuthor(
-            @RequestBody AuthorPostRequest request
+            @RequestBody AuthorPostBody request
     ) {
         AuthorDTO newAuthorDTO = new AuthorDTO(null, request.getName());
         contentService.createAuthor(newAuthorDTO);
