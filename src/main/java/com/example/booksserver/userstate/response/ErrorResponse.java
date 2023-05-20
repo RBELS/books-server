@@ -1,15 +1,5 @@
 package com.example.booksserver.userstate.response;
 
-// {
-//     "code": "string",
-//     "internalCode": "string",
-//     "devMessage": "string",
-//     "userMessage": {
-//         "lang_en": "string",
-//         "lang_ru": "string"
-//     }
-// }
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,7 +15,6 @@ public class ErrorResponse {
     public static final Map<InternalErrorCode, String> devMessages;
     public static final Map<InternalErrorCode, String> langEnMessages;
     public static final Map<InternalErrorCode, String> langRuMessages;
-    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     static {
         devMessages = new HashMap<>();
@@ -86,15 +75,6 @@ public class ErrorResponse {
             this.langEn = langEnMessages.get(errorCode);
             this.langRu = langRuMessages.get(errorCode);
         }
-
-        @Override
-        public String toString() {
-            try {
-                return objectMapper.writeValueAsString(this);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
-        }
     }
 
     private final String code;
@@ -109,12 +89,4 @@ public class ErrorResponse {
         this.userMessage = new UserMessage(errorCode);
     }
 
-    @Override
-    public String toString() {
-        try {
-            return objectMapper.writeValueAsString(this);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-    }
 }

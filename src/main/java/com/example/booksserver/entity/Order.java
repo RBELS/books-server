@@ -30,6 +30,7 @@ public class Order {
     @JoinColumn(name = "order_id", referencedColumnName = "id")
     private List<OrderItem> orderItems = new ArrayList<>();
 
+    @Column(nullable = false)
     @CreationTimestamp
     private Date dateCreated;
 }
