@@ -26,6 +26,9 @@ public class Order {
     @Column(nullable = false)
     private String name;
 
+    @Column(nullable = false)
+    private String email;
+
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "order_id", referencedColumnName = "id")
     private List<OrderItem> orderItems = new ArrayList<>();

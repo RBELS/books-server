@@ -11,6 +11,7 @@ public class OrderDTO {
     private String address;
     private String phone;
     private String name;
+    private String email;
     private List<OrderItemDTO> orderItems;
     private Date dateCreated;
 }
