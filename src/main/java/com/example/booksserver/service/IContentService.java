@@ -12,8 +12,9 @@ public interface IContentService {
     List<BookDTO> getBooks(BooksFilters filters);
     List<AuthorDTO> getAuthors(AuthorsFilters filters);
     AuthorDTO getAuthorById(Long authorId);
+    BookDTO getBookById(Long bookId);
     List<Double> getMinMaxPrices();
-    void createAuthor(AuthorDTO newAuthorDTO) throws ResponseStatusException;
-    void createBook(BookDTO newBookDTO) throws ResponseStatusException;
+    AuthorDTO createAuthor(AuthorDTO newAuthorDTO) throws ResponseStatusException;
+    BookDTO createBook(BookDTO newBookDTO) throws ResponseStatusException;
 
 }

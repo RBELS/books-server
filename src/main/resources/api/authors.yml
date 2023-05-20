@@ -29,6 +29,19 @@ paths:
       responses:
         '200':
           description: Author successfully created.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - status
+                  - author
+                properties:
+                  status:
+                    type: string
+                    example: "SUCCESS"
+                  author:
+                    $ref: "#/components/schemas/author"
         '400':
           description: Not enough parameters provided or parameters' formats do not meet the requirements.
 components:

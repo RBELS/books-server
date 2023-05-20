@@ -34,6 +34,19 @@ paths:
       responses:
         '200':
           description: Book successfully created.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - status
+                  - book
+                properties:
+                  status:
+                    type: string
+                    example: "SUCCESS"
+                  book:
+                    $ref: "#/components/schemas/Book"
         '400':
           description: Not enough parameters provided or parameters' formats does not meet the requirements.
           content:
@@ -92,18 +105,21 @@ components:
       example: 111
     bookResponse:
       type: object
+      required:
+        - page
+        - count
+        - totalPages
+        - filters
+        - content
       properties:
         page:
           type: integer
-          required: true
           example: 1
         count:
           type: integer
-          required: true
           example: 20
         totalPages:
           type: integer
-          required: true
           example: 10
         filters:
           type: object
@@ -111,21 +127,17 @@ components:
             minPrice:
               type: number
               format: double
-              required: false
               example: 10.00
             maxPrice:
               type: number
               format: double
-              required: false
               example: 20.00
             authors:
               type: array
-              required: false
               items:
                 $ref: "#/components/schemas/authorId"
         content:
           type: array
-          required: true
           items:
             $ref: "#/components/schemas/Book"
     Book:

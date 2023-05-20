@@ -28,9 +28,12 @@ paths:
     patch:
       parameters:
         - name: orderNo
-          in: query
+          in: path
           required: true
           example: 123
+          schema:
+            type: integer
+
       responses:
         200:
           description: "Order canceled."
@@ -65,18 +68,23 @@ components:
           example: 2
     cardInfo:
       type: object
+      required:
+        - number
+        - cvv
+        - name
       properties:
         number:
           type: string
-          required: true
         cvv:
           type: string
-          required: true
         name:
           type: string
-          required: true
     personalInfo:
       type: object
+      required:
+        - address
+        - email
+        - name
       properties:
         books:
           type: array
@@ -84,13 +92,12 @@ components:
             $ref: "#/components/schemas/book"
         address:
           type: string
-          required: true
         email:
           type: string
-          required: true
         name:
           type: string
-          required: true
+        phone:
+          type: string
     errorStatus:
       type: object
       properties:

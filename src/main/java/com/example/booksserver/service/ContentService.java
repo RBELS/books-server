@@ -21,6 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class ContentService implements IContentService {
@@ -82,10 +83,19 @@ public class ContentService implements IContentService {
     }
 
     public AuthorDTO getAuthorById(Long authorId) {
-        Author entity = authorRepository.findAuthorById(authorId);
+        Optional<Author> entity = authorRepository.findById(authorId);
         AuthorDTO resultDTO = null;
-        if (!Objects.isNull(entity)) {
-            resultDTO = authorMapper.entityToDto(entity);
+        if (entity.isPresent()) {
+            resultDTO = authorMapper.entityToDto(entity.get());
+        }
+        return resultDTO;
+    }
+
+    public BookDTO getBookById(Long bookId) {
+        Optional<Book> entity = bookRepository.findById(bookId);
+        BookDTO resultDTO = null;
+        if (entity.isPresent()) {
+            resultDTO = bookMapper.entityToDto(entity.get());
         }
         return resultDTO;
     }
@@ -98,14 +108,15 @@ public class ContentService implements IContentService {
         return !authorDTO.getName().isBlank();
     }
 
-    public void createAuthor(AuthorDTO newAuthorDTO) throws ResponseStatusException {
+    public AuthorDTO createAuthor(AuthorDTO newAuthorDTO) throws ResponseStatusException {
         boolean authorValid = isAuthorValid(newAuthorDTO);
         if (!authorValid) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
 
         Author authorEntity = authorMapper.dtoToEntity(newAuthorDTO);
-        authorRepository.save(authorEntity);
+        authorEntity = authorRepository.save(authorEntity);
+        return authorMapper.entityToDto(authorEntity);
     }
 
     private boolean isBookValid(BookDTO bookDTO) {
@@ -118,12 +129,13 @@ public class ContentService implements IContentService {
         return true;
     }
 
-    public void createBook(BookDTO newBookDTO) throws ResponseStatusException {
+    public BookDTO createBook(BookDTO newBookDTO) throws ResponseStatusException {
         if (!isBookValid(newBookDTO)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
 
         Book entity = bookMapper.dtoToEntity(newBookDTO);
-        bookRepository.save(entity);
+        entity = bookRepository.save(entity);
+        return bookMapper.entityToDto(entity);
     }
 }
