@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 public class StockDTO {
     private Long id;
-    private Integer available = 0;
-    private Integer ordered = 0;
-    private Integer inDelivery = 0;
+    private Integer available;
+    private Integer ordered;
+    private Integer inDelivery;
 }

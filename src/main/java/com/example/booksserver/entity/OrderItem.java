@@ -13,7 +13,7 @@ public class OrderItem {
     private Long id;
 
     @JoinColumn(nullable = false)
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.MERGE)
     private Book book;
 
     @Column(nullable = false)

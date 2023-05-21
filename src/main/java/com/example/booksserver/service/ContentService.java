@@ -91,6 +91,7 @@ public class ContentService implements IContentService {
         return resultDTO;
     }
 
+    @Transactional
     public BookDTO getBookById(Long bookId) {
         Optional<Book> entity = bookRepository.findById(bookId);
         BookDTO resultDTO = null;

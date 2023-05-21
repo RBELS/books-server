@@ -65,7 +65,7 @@ public class CreationController {
         BookDTO dto = new BookDTO(
                 null, bookName, releaseYear, price,
                 mainImageDTO, contentImageDTOList, authorDTOList,
-                new StockDTO()
+                new StockDTO(null, 10, 0, 0)
         );
         dto = contentService.createBook(dto);
 

@@ -18,6 +18,7 @@ public class Author {
     @Column(nullable = false)
     private String name;
 
+    @ToString.Exclude
     @ManyToMany(cascade = CascadeType.ALL, mappedBy = "authors")
     private Set<Book> books = new HashSet<>();
 

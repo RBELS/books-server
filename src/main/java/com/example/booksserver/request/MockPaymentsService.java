@@ -2,6 +2,7 @@ package com.example.booksserver.request;
 
 import com.example.booksserver.dto.OrderDTO;
 import com.example.booksserver.request.response.PaymentInfoResponse;
+import com.example.booksserver.request.response.PaymentsErrorResponse;
 import com.example.booksserver.userstate.CardInfo;
 import org.springframework.stereotype.Service;
 
