@@ -7,18 +7,18 @@ import lombok.NoArgsConstructor;
 @Entity
 @Data
 @NoArgsConstructor
-public class OrderItem {
+@Table(name = "stock")
+public class Stock {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @JoinColumn(nullable = false)
-    @ManyToOne(cascade = CascadeType.ALL)
-    private Book book;
+    @Column(nullable = false)
+    private Integer available;
 
     @Column(nullable = false)
-    private Integer count;
+    private Integer inDelivery;
 
     @Column(nullable = false)
-    private Long price;
+    private Integer ordered;
 }

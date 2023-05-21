@@ -17,4 +17,5 @@ public class BookDTO {
     private BookImageDTO mainFile;
     private List<BookImageDTO> imagesFileList = new ArrayList<>();
     private List<AuthorDTO> authors = new ArrayList<>();
+    private StockDTO stock;
 }

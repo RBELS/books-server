@@ -32,4 +32,8 @@ public class Book {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "book")
     private List<BookImage> images = new ArrayList<>();
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "stock_id", referencedColumnName = "id")
+    private Stock stock;
 }

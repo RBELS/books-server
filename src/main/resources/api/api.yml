@@ -13,7 +13,7 @@ paths:
       operationId: getBooks
       description: Get books with provided filters
       parameters:
-        - $ref: '#/components/parameters/authorId'
+        - $ref: '#/components/parameters/authors'
         - $ref: '#/components/parameters/minPrice'
         - $ref: '#/components/parameters/maxPrice'
         - $ref: '#/components/parameters/page'
@@ -24,9 +24,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Book'
+                $ref: '#/components/schemas/bookResponse'
     post:
       summary: Add a book to the catalog
       operationId: addBook
@@ -38,10 +36,27 @@ paths:
       responses:
         '200':
           description: Book successfully created.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - status
+                  - book
+                properties:
+                  status:
+                    type: string
+                    example: SUCCESS
+                  book:
+                    $ref: '#/components/schemas/Book'
         '400':
           description: >-
             Not enough parameters provided or parameters' formats does not meet
             the requirements.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorStatus'
   /authors:
     get:
       summary: Get authors.
@@ -55,9 +70,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/author'
+                $ref: '#/components/schemas/getAuthorsResponse'
     post:
       summary: Create an author
       description: Create an author
@@ -66,6 +79,19 @@ paths:
       responses:
         '200':
           description: Author successfully created.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - status
+                  - author
+                properties:
+                  status:
+                    type: string
+                    example: SUCCESS
+                  author:
+                    $ref: '#/components/schemas/author1'
         '400':
           description: >-
             Not enough parameters provided or parameters' formats do not meet
@@ -86,10 +112,112 @@ paths:
             image/png: {}
         '404':
           description: Image with the provided imageId was not found.
+  /orders:
+    post:
+      requestBody:
+        $ref: '#/components/requestBodies/paymentBody'
+      responses:
+        '200':
+          description: Payment ok.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/paymentOkResponse'
+        '400':
+          description: >-
+            Bad request. Not enough parameters provided or payment can not be
+            completed with provided parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/paymentBadResponse'
+  '/orders/{orderNo}/cancel':
+    patch:
+      parameters:
+        - name: orderNo
+          in: path
+          required: true
+          example: 123
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Order canceled.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: SUCCESS
+                  orderNo:
+                    type: string
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorStatus'
 components:
   schemas:
+    author:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/authorId'
+        name:
+          type: string
+          example: Arthur Morgan
+    authorId:
+      type: integer
+      example: 111
+    bookResponse:
+      type: object
+      required:
+        - page
+        - count
+        - totalPages
+        - filters
+        - content
+      properties:
+        page:
+          type: integer
+          example: 1
+        count:
+          type: integer
+          example: 20
+        totalPages:
+          type: integer
+          example: 10
+        filters:
+          type: object
+          properties:
+            minPrice:
+              type: number
+              format: double
+              example: 10
+            maxPrice:
+              type: number
+              format: double
+              example: 20
+            authors:
+              type: array
+              items:
+                $ref: '#/components/schemas/authorId'
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/Book'
     Book:
       type: object
+      required:
+        - id
+        - authors
+        - price
+        - releaseYear
+        - available
+        - mainImage
       properties:
         id:
           type: integer
@@ -99,8 +227,7 @@ components:
           required:
             - items
           items:
-            type: string
-            example: Arthur Morgan
+            $ref: '#/components/schemas/author'
         price:
           type: number
           format: double
@@ -108,11 +235,46 @@ components:
         releaseYear:
           type: integer
           example: 2018
+        available:
+          type: integer
+          example: 13
         mainImage:
           type: string
           example: >-
             https://s3-goods.ozstatic.by/480/225/831/10/10831225_0_Finansist_Teodor_Drayzer.jpg
-    author:
+    errorStatus:
+      type: object
+      properties:
+        code:
+          type: string
+        internalCode:
+          type: string
+        devMessage:
+          type: string
+        userMessage:
+          type: object
+          properties:
+            lang_en:
+              type: string
+            lang_ru:
+              type: string
+    getAuthorsResponse:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 1
+        count:
+          type: integer
+          example: 20
+        totalPages:
+          type: integer
+          example: 10
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/author1'
+    author1:
       description: Author object.
       type: object
       properties:
@@ -122,14 +284,71 @@ components:
         name:
           type: string
           example: Arthur Morgan
+    book:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 111
+        count:
+          type: integer
+          example: 2
+    cardInfo:
+      type: object
+      required:
+        - number
+        - cvv
+        - name
+      properties:
+        number:
+          type: string
+        cvv:
+          type: string
+        name:
+          type: string
+    personalInfo:
+      type: object
+      required:
+        - address
+        - email
+        - name
+      properties:
+        books:
+          type: array
+          items:
+            $ref: '#/components/schemas/book'
+        address:
+          type: string
+        email:
+          type: string
+        name:
+          type: string
+        phone:
+          type: string
+    paymentOkResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        orderNo:
+          type: string
+        books:
+          type: array
+          items:
+            $ref: '#/components/schemas/book'
+    paymentBadResponse:
+      $ref: '#/components/schemas/errorStatus'
   parameters:
-    authorId:
-      name: authorId
+    authors:
+      name: authors
       in: query
-      description: Author id to filter by. All the authors are selected if left empty.
+      description: >-
+        Author ids to filter by comma separated. All the authors are selected if
+        left empty.
       required: false
       schema:
-        type: integer
+        type: string
+        example: '1,2,3'
     minPrice:
       name: minPrice
       in: query
@@ -224,7 +443,7 @@ components:
     newAuthor:
       required: true
       content:
-        multipart/form-data:
+        application/json:
           schema:
             type: object
             required:
@@ -234,3 +453,13 @@ components:
                 description: New author name
                 type: string
                 example: Arthur Morgan
+    paymentBody:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              card:
+                $ref: '#/components/schemas/cardInfo'
+              info:
+                $ref: '#/components/schemas/personalInfo'

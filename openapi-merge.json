@@ -8,6 +8,9 @@
     },
     {
       "inputFile": "./src/main/resources/api/files.yml"
+    },
+    {
+      "inputFile": "./src/main/resources/api/orders.yml"
     }
   ],
   "output": "./src/main/resources/api/api.yml"

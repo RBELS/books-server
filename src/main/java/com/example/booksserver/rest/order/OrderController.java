@@ -49,7 +49,8 @@ public class OrderController {
         }).toList();
         orderDTO.getOrderItems().addAll(orderItemDTOList);
 
-        //return PostOrdersResponse
-        return null;
+        OrderDTO resultDTO = orderService.createOrder(orderDTO, request.getCard());
+
+        return new PostOrdersResponse(resultDTO);
     }
 }

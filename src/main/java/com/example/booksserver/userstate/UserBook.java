@@ -11,6 +11,7 @@ public class UserBook {
     private final Iterable<UserAuthor> authors;
     private final double price;
     private final int releaseYear;
+    private final int available;
     private final String mainImage;
 
     public UserBook(BookDTO book, String baseUrl) {
@@ -20,5 +21,6 @@ public class UserBook {
         this.price = book.getPrice() / 100.0;
         this.releaseYear = book.getReleaseYear();
         this.mainImage = baseUrl + book.getMainFile().getId();
+        this.available = book.getStock().getAvailable();
     }
 }

@@ -1,5 +1,7 @@
 package com.example.booksserver.userstate.request;
 
+import com.example.booksserver.dto.OrderDTO;
+import com.example.booksserver.dto.OrderItemDTO;
 import com.example.booksserver.userstate.CardInfo;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,6 +19,11 @@ public class PostOrdersRequest {
     public static class OrdersBook {
         private Long id;
         private Integer count;
+
+        public OrdersBook(OrderItemDTO orderItemDTO) {
+            this.id = orderItemDTO.getBook().getId();
+            this.count = orderItemDTO.getCount();
+        }
     }
 
     @NoArgsConstructor

@@ -4,6 +4,7 @@ import com.example.booksserver.config.AppConfig;
 import com.example.booksserver.dto.AuthorDTO;
 import com.example.booksserver.dto.BookDTO;
 import com.example.booksserver.dto.BookImageDTO;
+import com.example.booksserver.dto.StockDTO;
 import com.example.booksserver.entity.image.ImageType;
 import com.example.booksserver.map.ImageMapper;
 import com.example.booksserver.userstate.request.PostAuthorsRequest;
@@ -62,8 +63,9 @@ public class CreationController {
         }
 
         BookDTO dto = new BookDTO(
-            null, bookName, releaseYear, price,
-               mainImageDTO, contentImageDTOList, authorDTOList
+                null, bookName, releaseYear, price,
+                mainImageDTO, contentImageDTOList, authorDTOList,
+                new StockDTO()
         );
         dto = contentService.createBook(dto);
 

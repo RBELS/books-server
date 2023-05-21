@@ -142,6 +142,13 @@ components:
             $ref: "#/components/schemas/Book"
     Book:
       type: object
+      required:
+        - id
+        - authors
+        - price
+        - releaseYear
+        - available
+        - mainImage
       properties:
         id:
           type: integer
@@ -159,6 +166,9 @@ components:
         releaseYear:
           type: integer
           example: 2018
+        available:
+          type: integer
+          example: 13
         mainImage:
           type: string
           example: https://s3-goods.ozstatic.by/480/225/831/10/10831225_0_Finansist_Teodor_Drayzer.jpg
