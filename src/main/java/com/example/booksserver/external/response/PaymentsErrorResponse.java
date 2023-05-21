@@ -1,9 +1,11 @@
-package com.example.booksserver.request.response;
+package com.example.booksserver.external.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import lombok.ToString;
 
 @Data
+@ToString
 public class PaymentsErrorResponse {
     @Data
     public static class UserMessage {

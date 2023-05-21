@@ -1,6 +1,6 @@
-package com.example.booksserver.request;
+package com.example.booksserver.external;
 
-import com.example.booksserver.request.response.PaymentsErrorResponse;
+import com.example.booksserver.external.response.PaymentsErrorResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

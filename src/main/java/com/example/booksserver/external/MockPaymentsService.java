@@ -1,8 +1,7 @@
-package com.example.booksserver.request;
+package com.example.booksserver.external;
 
 import com.example.booksserver.dto.OrderDTO;
-import com.example.booksserver.request.response.PaymentInfoResponse;
-import com.example.booksserver.request.response.PaymentsErrorResponse;
+import com.example.booksserver.external.response.PaymentsInfoResponse;
 import com.example.booksserver.userstate.CardInfo;
 import org.springframework.stereotype.Service;
 
@@ -12,12 +11,15 @@ import java.util.concurrent.atomic.AtomicLong;
 @Service("mockPaymentsService")
 public class MockPaymentsService implements IPaymentsRequestService {
     @Override
-    public PaymentInfoResponse processPayment(OrderDTO orderDTO, CardInfo cardInfo) throws PaymentException {
-        PaymentInfoResponse resultResponse = new PaymentInfoResponse();
+    public PaymentsInfoResponse processPayment(OrderDTO orderDTO, CardInfo cardInfo) throws PaymentException {
+        PaymentsInfoResponse resultResponse = new PaymentsInfoResponse();
         resultResponse.setId(String.valueOf(0L));
 
         AtomicLong totalSum = new AtomicLong(0L);
-        orderDTO.getOrderItems().forEach(orderItemDto -> totalSum.addAndGet(orderItemDto.getPrice()));
+        orderDTO.getOrderItems()
+                .forEach(orderItemDto ->
+                        totalSum.addAndGet(orderItemDto.getPrice() * orderItemDto.getCount())
+                );
 
         resultResponse.setSum(new BigDecimal(String.format("%.2f", totalSum.get() / 100.0)));
         resultResponse.setStatus("SUCCESS");
@@ -27,17 +29,17 @@ public class MockPaymentsService implements IPaymentsRequestService {
     }
 
     @Override
-    public PaymentInfoResponse getPaymentInfo(long orderId) throws PaymentException {
+    public PaymentsInfoResponse getPaymentInfo(long orderId) throws PaymentException {
         return mockPaymentInfoResponse(orderId);
     }
 
     @Override
-    public PaymentInfoResponse cancelPayment(long orderId) throws PaymentException {
+    public PaymentsInfoResponse cancelPayment(long orderId) throws PaymentException {
         return mockPaymentInfoResponse(orderId);
     }
 
-    private PaymentInfoResponse mockPaymentInfoResponse(long orderId) {
-        PaymentInfoResponse resultResponse = new PaymentInfoResponse();
+    private PaymentsInfoResponse mockPaymentInfoResponse(long orderId) {
+        PaymentsInfoResponse resultResponse = new PaymentsInfoResponse();
         resultResponse.setId(String.valueOf(0L));
 
         resultResponse.setSum(new BigDecimal(String.format("%.2f", 1000L / 100.0)));

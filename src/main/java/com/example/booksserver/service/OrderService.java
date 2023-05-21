@@ -3,20 +3,18 @@ package com.example.booksserver.service;
 import com.example.booksserver.dto.OrderDTO;
 import com.example.booksserver.dto.StockDTO;
 import com.example.booksserver.entity.Order;
-import com.example.booksserver.entity.OrderItem;
 import com.example.booksserver.map.OrderMapper;
 import com.example.booksserver.repository.BookRepository;
 import com.example.booksserver.repository.OrderRepository;
-import com.example.booksserver.request.IPaymentsRequestService;
-import com.example.booksserver.request.PaymentException;
-import com.example.booksserver.request.response.PaymentInfoResponse;
-import com.example.booksserver.request.response.PaymentsErrorResponse;
+import com.example.booksserver.external.IPaymentsRequestService;
+import com.example.booksserver.external.PaymentException;
+import com.example.booksserver.external.response.PaymentsInfoResponse;
+import com.example.booksserver.external.response.PaymentsErrorResponse;
 import com.example.booksserver.userstate.CardInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -80,16 +78,16 @@ public class OrderService implements IOrderService {
 
         //send payment request to the external service
         //check payment status
-        PaymentInfoResponse paymentInfoResponse;
+        PaymentsInfoResponse paymentsInfoResponse;
         try {
-            paymentInfoResponse = mockPaymentsService.processPayment(orderDTO, cardInfo);
+            paymentsInfoResponse = mockPaymentsService.processPayment(orderDTO, cardInfo);
         } catch (PaymentException e) {
             PaymentsErrorResponse errorResponse = e.getErrorResponse();
             log.warn(errorResponse.toString());
             //if failed - rollback
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
-        log.info(paymentInfoResponse.toString());
+        log.info(paymentsInfoResponse.toString());
 
         return orderMapper.entityToDto(orderEntity);
     }
