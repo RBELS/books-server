@@ -1,0 +1,17 @@
+{
+  "inputs": [
+    {
+      "inputFile": "./src/main/resources/api/books.yml"
+    },
+    {
+      "inputFile": "./src/main/resources/api/authors.yml"
+    },
+    {
+      "inputFile": "./src/main/resources/api/files.yml"
+    },
+    {
+      "inputFile": "./src/main/resources/api/orders.yml"
+    }
+  ],
+  "output": "./src/main/resources/api/api.yml"
+}

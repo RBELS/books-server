@@ -2,34 +2,40 @@ package com.example.booksserver.service;
 
 import com.example.booksserver.dto.AuthorDTO;
 import com.example.booksserver.dto.BookDTO;
-import com.example.booksserver.dto.BookImageDTO;
 import com.example.booksserver.entity.Author;
 import com.example.booksserver.entity.Book;
-import com.example.booksserver.entity.image.BookImage;
-import com.example.booksserver.entity.image.ImageType;
+import com.example.booksserver.map.AuthorMapper;
+import com.example.booksserver.map.BookMapper;
 import com.example.booksserver.repository.AuthorRepository;
 import com.example.booksserver.repository.BookRepository;
 import com.example.booksserver.userstate.filters.AuthorsFilters;
 import com.example.booksserver.userstate.filters.BooksFilters;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Service
 public class ContentService implements IContentService {
 
     private final BookRepository bookRepository;
     private final AuthorRepository authorRepository;
+    private final AuthorMapper authorMapper;
+    private final BookMapper bookMapper;
 
-    public ContentService(BookRepository bookRepository, AuthorRepository authorRepository) {
+    public ContentService(BookRepository bookRepository, AuthorRepository authorRepository, AuthorMapper authorMapper, BookMapper bookMapper) {
         this.bookRepository = bookRepository;
         this.authorRepository = authorRepository;
+        this.authorMapper = authorMapper;
+        this.bookMapper = bookMapper;
     }
 
 
@@ -40,35 +46,20 @@ public class ContentService implements IContentService {
         long minPrice = filters.getMinPrice() == null ? bookRepository.findMinPrice() : filters.getMinPrice();
         long maxPrice = filters.getMaxPrice() == null ? bookRepository.findMaxPrice() : filters.getMaxPrice();
 
-        List<Book> entityList;
-        if (filters.getAuthorId() == null) {
-            entityList = bookRepository.findAllByPriceBetween(minPrice, maxPrice, PageRequest.of(page, count)).stream().toList();
+        Page<Book> entityPage;
+        if (filters.getAuthorIdList().isEmpty()) {
+            entityPage = bookRepository.findAllByPriceBetween(minPrice, maxPrice, PageRequest.of(page, count));
         } else {
-            entityList = bookRepository
-                    .findAllByAuthors_idAndPriceBetween(
-                            filters.getAuthorId(),
+            entityPage = bookRepository
+                    .findAllByAuthors_idInAndPriceBetween(
+                            filters.getAuthorIdList(),
                             minPrice, maxPrice,
                             PageRequest.of(page, count)
-                    ).getContent();
+                    );
         }
 
-        return entityList.stream().map(bookEntity -> {
-            BookDTO dto = new BookDTO();
-            dto.setBookName(bookEntity.getName());
-            dto.setPrice(bookEntity.getPrice());
-            dto.setId(bookEntity.getId());
-            dto.setReleaseYear(bookEntity.getReleaseYear());
-            dto.setAuthorList(bookEntity.getAuthors().stream().map(author -> new AuthorDTO(author.getId(), author.getName())).toList());
-            bookEntity.getImages().forEach(bookImage -> {
-                BookImageDTO bookImageDTO = new BookImageDTO(bookImage.getId(), bookImage.getType(), bookImage.getContent());
-                if (bookImage.getType() == ImageType.MAIN) {
-                    dto.setMainFile(bookImageDTO);
-                } else {
-                    dto.getImagesFileList().add(bookImageDTO);
-                }
-            });
-            return dto;
-        }).toList();
+        filters.setOutTotalPages(entityPage.getTotalPages());
+        return bookMapper.entityToDto(entityPage.getContent());
     }
 
     // TESTS ONLY
@@ -81,26 +72,31 @@ public class ContentService implements IContentService {
         bookRepository.save(book);
     }
 
-    private final Sort authorsAscSort = Sort.by("name", "id").ascending();
+    private static final Sort AUTHORS_ASC_SORT = Sort.by("name", "id").ascending();
 
-    // Return DTO?
     public List<AuthorDTO> getAuthors(AuthorsFilters filters) {
-        List<Author> entityList;
-        if (Objects.isNull(filters.getPage()) || Objects.isNull(filters.getCount())) {
-            entityList = authorRepository.findAll(authorsAscSort);
-        }
-        entityList = authorRepository.findAll(
-                PageRequest.of(filters.getPage(), filters.getCount(), authorsAscSort)
-        ).getContent();
-
-        return entityList.stream().map(authorEntity -> new AuthorDTO(authorEntity.getId(), authorEntity.getName())).toList();
+        Page<Author> entityPage = authorRepository.findAll(
+                PageRequest.of(filters.getPage(), filters.getCount(), AUTHORS_ASC_SORT)
+        );
+        filters.setOutTotalPages(entityPage.getTotalPages());
+        return authorMapper.entityToDto(entityPage.getContent());
     }
 
     public AuthorDTO getAuthorById(Long authorId) {
-        Author entity = authorRepository.findAuthorById(authorId);
+        Optional<Author> entity = authorRepository.findById(authorId);
         AuthorDTO resultDTO = null;
-        if (!Objects.isNull(entity)) {
-            resultDTO = new AuthorDTO(entity.getId(), entity.getName());
+        if (entity.isPresent()) {
+            resultDTO = authorMapper.entityToDto(entity.get());
+        }
+        return resultDTO;
+    }
+
+    @Transactional
+    public BookDTO getBookById(Long bookId) {
+        Optional<Book> entity = bookRepository.findById(bookId);
+        BookDTO resultDTO = null;
+        if (entity.isPresent()) {
+            resultDTO = bookMapper.entityToDto(entity.get());
         }
         return resultDTO;
     }
@@ -109,51 +105,38 @@ public class ContentService implements IContentService {
         return Arrays.asList(bookRepository.findMinPrice() / 100.0, bookRepository.findMaxPrice() / 100.0);
     }
 
-
-
     private boolean isAuthorValid(AuthorDTO authorDTO) {
         return !authorDTO.getName().isBlank();
     }
 
-    public boolean createAuthor(AuthorDTO newAuthorDTO) {
+    public AuthorDTO createAuthor(AuthorDTO newAuthorDTO) throws ResponseStatusException {
         boolean authorValid = isAuthorValid(newAuthorDTO);
         if (!authorValid) {
-            return false;
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
 
-        Author authorEntity = new Author();
-        authorEntity.setName(newAuthorDTO.getName());
-        authorRepository.save(authorEntity);
-        return true;
+        Author authorEntity = authorMapper.dtoToEntity(newAuthorDTO);
+        authorEntity = authorRepository.save(authorEntity);
+        return authorMapper.entityToDto(authorEntity);
     }
 
     private boolean isBookValid(BookDTO bookDTO) {
-        if (bookDTO.getBookName().isBlank() || bookDTO.getAuthorList().stream().anyMatch(Objects::isNull)) {
+        if (
+                bookDTO.getName().isBlank() || bookDTO.getAuthors().isEmpty()
+                || bookDTO.getReleaseYear() < 0 || bookDTO.getPrice() < 0
+        ) {
             return false;
         }
         return true;
     }
 
-    public boolean createBook(BookDTO newBookDTO)  {
+    public BookDTO createBook(BookDTO newBookDTO) throws ResponseStatusException {
         if (!isBookValid(newBookDTO)) {
-            return false;
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
-        Book entity = new Book();
-        entity.setName(newBookDTO.getBookName());
-        entity.setPrice((long) (newBookDTO.getPrice() * 100.0));
-        entity.setReleaseYear(newBookDTO.getReleaseYear());
 
-        entity.getImages().add(new BookImage(null, ImageType.MAIN, newBookDTO.getMainFile().getContent(), entity));
-        newBookDTO.getImagesFileList().forEach(src -> {
-            entity.getImages().add(new BookImage(null, ImageType.CONTENT, src.getContent(), entity));
-        });
-
-        entity.setAuthors(newBookDTO.getAuthorList().stream()
-                .map(authorDTO -> authorRepository.findAuthorById(authorDTO.getId()))
-                .collect(Collectors.toSet()));
-
-        bookRepository.save(entity);
-
-        return true;
+        Book entity = bookMapper.dtoToEntity(newBookDTO);
+        entity = bookRepository.save(entity);
+        return bookMapper.entityToDto(entity);
     }
 }

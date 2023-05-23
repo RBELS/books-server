@@ -1,22 +1,21 @@
 package com.example.booksserver.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter @Setter
+@Data
+@ToString
 public class BookDTO {
     private Long id;
-    private String bookName;
+    private String name = "";
     private int releaseYear;
     private double price;
     private BookImageDTO mainFile;
     private List<BookImageDTO> imagesFileList = new ArrayList<>();
-    private List<AuthorDTO> authorList = new ArrayList<>();
+    private List<AuthorDTO> authors = new ArrayList<>();
+    private StockDTO stock;
 }

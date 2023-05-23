@@ -1,11 +1,16 @@
-package com.example.booksserver.rest.admin;
+package com.example.booksserver.rest.create;
 
+import com.example.booksserver.config.AppConfig;
 import com.example.booksserver.dto.AuthorDTO;
 import com.example.booksserver.dto.BookDTO;
 import com.example.booksserver.dto.BookImageDTO;
+import com.example.booksserver.dto.StockDTO;
 import com.example.booksserver.entity.image.ImageType;
-import com.example.booksserver.rest.request.AuthorPostRequest;
+import com.example.booksserver.map.ImageMapper;
+import com.example.booksserver.userstate.request.PostAuthorsRequest;
 import com.example.booksserver.service.IContentService;
+import com.example.booksserver.userstate.response.PostAuthorsResponse;
+import com.example.booksserver.userstate.response.PostBooksResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -22,13 +27,19 @@ import java.util.List;
 @RestController
 public class CreationController {
     private final IContentService contentService;
+    private final ImageMapper imageMapper;
+    private final String baseImageUrl;
 
-    public CreationController(IContentService contentService) {
+    public CreationController(IContentService contentService, ImageMapper imageMapper, AppConfig appConfig) {
         this.contentService = contentService;
+        this.imageMapper = imageMapper;
+
+        // TODO: Hide this
+        this.baseImageUrl = appConfig.getServerAddress() + "/static/image/";
     }
 
     @PostMapping(value = "/books", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Void> createBook(
+    public ResponseEntity<PostBooksResponse> createBook(
             @RequestParam("authors") List<Long> authorIdList,
             @RequestParam("name") String bookName,
             @RequestParam("releaseYear") Integer releaseYear,
@@ -39,39 +50,35 @@ public class CreationController {
         List<AuthorDTO> authorDTOList = authorIdList.stream().map(contentService::getAuthorById).toList();
 
         BookImageDTO mainImageDTO;
-        try {
-            mainImageDTO = new BookImageDTO(null, ImageType.MAIN, mainImageFile.getBytes());
-        } catch (IOException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        }
+        List<BookImageDTO> contentImageDTOList;
 
-        List<BookImageDTO> contentImageDTOList = contentImageFileList.stream().map(contentImageFile -> {
-            BookImageDTO contentImageDTO;
-            try {
-                contentImageDTO = new BookImageDTO(null, ImageType.CONTENT, contentImageFile.getBytes());
-            } catch (IOException e) {
+        try {
+            if (mainImageFile.isEmpty()) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
             }
-            return contentImageDTO;
-        }).toList();
-
+            mainImageDTO = imageMapper.fileToDto(mainImageFile, ImageType.MAIN);
+            contentImageDTOList = imageMapper.fileToDto(contentImageFileList, ImageType.CONTENT);
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
 
         BookDTO dto = new BookDTO(
-            null, bookName, releaseYear, price,
-               mainImageDTO, contentImageDTOList, authorDTOList
+                null, bookName, releaseYear, price,
+                mainImageDTO, contentImageDTOList, authorDTOList,
+                new StockDTO(null, 10, 0, 0)
         );
-        boolean isOk = contentService.createBook(dto);
+        dto = contentService.createBook(dto);
 
-        return new ResponseEntity<>(isOk ? HttpStatus.OK : HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new PostBooksResponse(dto, baseImageUrl), HttpStatus.OK);
     }
 
     @PostMapping(value = "/authors", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> createAuthor(
-            @RequestBody AuthorPostRequest request
+    public ResponseEntity<PostAuthorsResponse> createAuthor(
+            @RequestBody PostAuthorsRequest request
     ) {
         AuthorDTO newAuthorDTO = new AuthorDTO(null, request.getName());
-        boolean isOk = contentService.createAuthor(newAuthorDTO);
+        AuthorDTO createdAuthorDTO = contentService.createAuthor(newAuthorDTO);
 
-        return new ResponseEntity<>(isOk ? HttpStatus.OK : HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new PostAuthorsResponse(createdAuthorDTO), HttpStatus.OK);
     }
 }

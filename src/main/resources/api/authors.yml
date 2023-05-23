@@ -1,0 +1,104 @@
+openapi: 3.0.3
+info:
+  title: Book-King.org API
+  description: This is an API for the Book-King.org website.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+    description: Local server address
+paths:
+  /authors:
+    get:
+      summary: Get authors.
+      description: Get all or paginated authors in alphabetic order.
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/count'
+      responses:
+        '200':
+          description: Success. Authors list that corresponds filters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/getAuthorsResponse"
+    post:
+      summary: Create an author
+      description: Create an author
+      requestBody:
+        $ref: '#/components/requestBodies/newAuthor'
+      responses:
+        '200':
+          description: Author successfully created.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - status
+                  - author
+                properties:
+                  status:
+                    type: string
+                    example: "SUCCESS"
+                  author:
+                    $ref: "#/components/schemas/author"
+        '400':
+          description: Not enough parameters provided or parameters' formats do not meet the requirements.
+components:
+  parameters:
+    page:
+      name: page
+      required: false
+      in: query
+      description: Page number starting with 1.
+      schema:
+        type: integer
+    count:
+      name: count
+      required: false
+      in: query
+      description: Elements per page number.
+      schema:
+        type: integer
+  schemas:
+    getAuthorsResponse:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 1
+        count:
+          type: integer
+          example: 20
+        totalPages:
+          type: integer
+          example: 10
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/author"
+    author:
+      description: Author object.
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 111
+        name:
+          type: string
+          example: Arthur Morgan
+  requestBodies:
+    newAuthor:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - name
+            properties:
+              name:
+                description: New author name
+                type: string
+                example: Arthur Morgan
+

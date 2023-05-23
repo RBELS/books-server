@@ -11,8 +11,7 @@ import java.util.Set;
 
 @Entity
 @NoArgsConstructor
-@AllArgsConstructor
-@Getter @Setter
+@Data
 public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -29,8 +28,12 @@ public class Book {
 
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable
-    private Set<Author> authors = new HashSet<>();
+    private List<Author> authors = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "book")
     private List<BookImage> images = new ArrayList<>();
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "stock_id", referencedColumnName = "id")
+    private Stock stock;
 }

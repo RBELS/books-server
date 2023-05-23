@@ -1,0 +1,232 @@
+openapi: 3.0.3
+info:
+  title: Book-King.org API
+  description: This is an API for the Book-King.org website.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+    description: Local server address
+paths:
+  /books:
+    get:
+      summary: Get books with filters
+      operationId: getBooks
+      description: Get books with provided filters
+      parameters:
+        - $ref: '#/components/parameters/authors'
+        - $ref: '#/components/parameters/minPrice'
+        - $ref: '#/components/parameters/maxPrice'
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/count'
+      responses:
+        '200':
+          description: Books list that corresponds filters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/bookResponse"
+    post:
+      summary: Add a book to the catalog
+      operationId: addBook
+      description: Add a book to the catalog. [WARNING] Need to make it an administrator privilidge
+      requestBody:
+        $ref: '#/components/requestBodies/newBook'
+      responses:
+        '200':
+          description: Book successfully created.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - status
+                  - book
+                properties:
+                  status:
+                    type: string
+                    example: "SUCCESS"
+                  book:
+                    $ref: "#/components/schemas/Book"
+        '400':
+          description: Not enough parameters provided or parameters' formats does not meet the requirements.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorStatus"
+components:
+  parameters:
+    authors:
+      name: authors
+      in: query
+      description: Author ids to filter by comma separated. All the authors are selected if left empty.
+      required: false
+      schema:
+        type: string
+        example: "1,2,3"
+    minPrice:
+      name: minPrice
+      in: query
+      description: Minimal price to filter books. -Infinity if left empty.
+      required: false
+      schema:
+        type: integer
+    maxPrice:
+      name: maxPrice
+      in: query
+      description: Minimal price to filter books. -Infinity if left empty.
+      required: false
+      schema:
+        type: integer
+    page:
+      name: page
+      in: query
+      description: Page number starting from 1.
+      required: false
+      schema:
+        type: integer
+    count:
+      name: count
+      in: query
+      description: Number of elements per page.
+      required: false
+      schema:
+        type: integer
+  schemas:
+    author:
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/authorId"
+        name:
+          type: string
+          example: "Arthur Morgan"
+    authorId:
+      type: integer
+      example: 111
+    bookResponse:
+      type: object
+      required:
+        - page
+        - count
+        - totalPages
+        - filters
+        - content
+      properties:
+        page:
+          type: integer
+          example: 1
+        count:
+          type: integer
+          example: 20
+        totalPages:
+          type: integer
+          example: 10
+        filters:
+          type: object
+          properties:
+            minPrice:
+              type: number
+              format: double
+              example: 10.00
+            maxPrice:
+              type: number
+              format: double
+              example: 20.00
+            authors:
+              type: array
+              items:
+                $ref: "#/components/schemas/authorId"
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/Book"
+    Book:
+      type: object
+      required:
+        - id
+        - authors
+        - price
+        - releaseYear
+        - available
+        - mainImage
+      properties:
+        id:
+          type: integer
+          example: 121
+        authors:
+          type: array
+          required:
+            - items
+          items:
+            $ref: "#/components/schemas/author"
+        price:
+          type: number
+          format: double
+          example: 10.99
+        releaseYear:
+          type: integer
+          example: 2018
+        available:
+          type: integer
+          example: 13
+        mainImage:
+          type: string
+          example: https://s3-goods.ozstatic.by/480/225/831/10/10831225_0_Finansist_Teodor_Drayzer.jpg
+    errorStatus:
+      type: object
+      properties:
+        code:
+          type: string
+        internalCode:
+          type: string
+        devMessage:
+          type: string
+        userMessage:
+          type: object
+          properties:
+            lang_en:
+              type: string
+            lang_ru:
+              type: string
+  requestBodies:
+    newBook:
+      required: true
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            required:
+              - authors
+              - name
+              - releaseYear
+              - price
+              - mainImage
+              - images
+            properties:
+              authors:
+                type: array
+                description: Book authors' ids array. Authors with provided ids must exist.
+                items:
+                  type: integer
+                  example: 111
+              name:
+                type: string
+                example: The Lord of the Rings
+                description: Book name
+              releaseYear:
+                type: integer
+                description: Book release year
+                example: 2018
+              price:
+                type: number
+                description: Price for the book
+                format: double
+                example: 10.99
+              mainImage:
+                type: string
+                format: binary
+                description: Book main image. Displayed in the content screen.
+              images:
+                type: string
+                format: binary
+                description: Book images to be displayed in details screen.

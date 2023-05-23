@@ -9,15 +9,16 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Getter @Setter
+@Data
 public class Author {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
+    private Long id;
 
     @Column(nullable = false)
     private String name;
 
+    @ToString.Exclude
     @ManyToMany(cascade = CascadeType.ALL, mappedBy = "authors")
     private Set<Book> books = new HashSet<>();
 

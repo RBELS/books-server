@@ -1,7 +1,7 @@
 package com.example.booksserver.rest;
 
 import com.example.booksserver.dto.BookImageDTO;
-import com.example.booksserver.service.IStaticService;
+import com.example.booksserver.service.IFilesService;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
@@ -16,11 +16,11 @@ import java.util.Objects;
 
 @RestController
 @RequestMapping("/static")
-public class StaticController {
+public class FilesController {
 
-    private final IStaticService staticService;
+    private final IFilesService staticService;
 
-    public StaticController(IStaticService staticService) {
+    public FilesController(IFilesService staticService) {
         this.staticService = staticService;
     }
 
@@ -29,9 +29,6 @@ public class StaticController {
             @PathVariable Long imageId
     ) {
         BookImageDTO imageDTO = staticService.getImageById(imageId);
-        if (Objects.isNull(imageDTO)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
         byte[] imageBytes = imageDTO.getContent();
         return new ByteArrayResource(imageBytes);
     }

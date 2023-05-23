@@ -1,0 +1,144 @@
+openapi: 3.0.3
+info:
+  title: Book-King.org API
+  description: This is an API for the Book-King.org website.
+  version: 1.0.0
+servers:
+  - url: http://remoteaddress.com:8080
+    description: Foreign payment service
+paths:
+  /orders:
+    post:
+      requestBody:
+        $ref: "#/components/requestBodies/paymentBody"
+      responses:
+        200:
+          description: "Payment ok."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/paymentOkResponse"
+        400:
+          description: "Bad request. Not enough parameters provided or payment can not be completed with provided parameters."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/paymentBadResponse"
+  /orders/{orderNo}/cancel:
+    patch:
+      parameters:
+        - name: orderNo
+          in: path
+          required: true
+          example: 123
+          schema:
+            type: integer
+
+      responses:
+        200:
+          description: "Order canceled."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: SUCCESS
+                  orderNo:
+                    type: string
+        400:
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorStatus"
+
+
+components:
+  schemas:
+    book:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 111
+        count:
+          type: integer
+          example: 2
+    cardInfo:
+      type: object
+      required:
+        - number
+        - cvv
+        - name
+      properties:
+        number:
+          type: string
+        cvv:
+          type: string
+        name:
+          type: string
+    personalInfo:
+      type: object
+      required:
+        - address
+        - email
+        - name
+      properties:
+        books:
+          type: array
+          items:
+            $ref: "#/components/schemas/book"
+        address:
+          type: string
+        email:
+          type: string
+        name:
+          type: string
+        phone:
+          type: string
+    errorStatus:
+      type: object
+      properties:
+        code:
+          type: string
+        internalCode:
+          type: string
+        devMessage:
+          type: string
+        userMessage:
+          type: object
+          properties:
+            lang_en:
+              type: string
+            lang_ru:
+              type: string
+    paymentOkResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        orderNo:
+          type: string
+        books:
+          type: array
+          items:
+            $ref: "#/components/schemas/book"
+    paymentBadResponse:
+      $ref: "#/components/schemas/errorStatus"
+
+
+
+  requestBodies:
+    paymentBody:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              card:
+                $ref: "#/components/schemas/cardInfo"
+              info:
+                $ref: "#/components/schemas/personalInfo"
+
