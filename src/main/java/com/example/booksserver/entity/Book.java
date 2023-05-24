@@ -4,10 +4,13 @@ import com.example.booksserver.entity.image.BookImage;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Entity
 @NoArgsConstructor
@@ -21,12 +24,12 @@ public class Book {
     private String name;
 
     @Column(nullable = false)
-    private long price;
+    private BigDecimal price;
 
     @Column(nullable = false)
-    private int releaseYear;
+    private Integer releaseYear;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.MERGE)
     @JoinTable
     private List<Author> authors = new ArrayList<>();
 

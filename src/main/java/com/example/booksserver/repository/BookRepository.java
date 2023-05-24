@@ -18,9 +18,11 @@ public interface BookRepository extends PagingAndSortingRepository<Book, Long>, 
     Page<Book> findAllByPriceBetween(long minPrice, long maxPrice, Pageable pageable);
     Page<Book> findAllByAuthors_idInAndPriceBetween(List<Long> id, long minPrice, long maxPrice, Pageable pageable);
 
+    // TODO: replcae query
     @Query("SELECT max(price) FROM Book")
     Long findMaxPrice();
 
+    // TODO: replcae query
     @Query("SELECT min(price) FROM Book")
     Long findMinPrice();
 }

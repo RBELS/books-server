@@ -1,4 +1,4 @@
-package com.example.booksserver.service;
+package com.example.booksserver.service.impl;
 
 import com.example.booksserver.dto.AuthorDTO;
 import com.example.booksserver.dto.BookDTO;
@@ -8,6 +8,7 @@ import com.example.booksserver.map.AuthorMapper;
 import com.example.booksserver.map.BookMapper;
 import com.example.booksserver.repository.AuthorRepository;
 import com.example.booksserver.repository.BookRepository;
+import com.example.booksserver.service.IContentService;
 import com.example.booksserver.userstate.filters.AuthorsFilters;
 import com.example.booksserver.userstate.filters.BooksFilters;
 import org.springframework.data.domain.Page;
@@ -39,10 +40,13 @@ public class ContentService implements IContentService {
     }
 
 
+    // TODO: Return Page, not List
     @Transactional
     public List<BookDTO> getBooks(BooksFilters filters) {
         int page = Objects.isNull(filters.getPage()) ? 0 : filters.getPage();
         int count = Objects.isNull(filters.getCount()) ? BooksFilters.DEFAULT_COUNT_PER_PAGE : filters.getCount();
+        // TODO:
+
         long minPrice = filters.getMinPrice() == null ? bookRepository.findMinPrice() : filters.getMinPrice();
         long maxPrice = filters.getMaxPrice() == null ? bookRepository.findMaxPrice() : filters.getMaxPrice();
 
@@ -123,7 +127,7 @@ public class ContentService implements IContentService {
     private boolean isBookValid(BookDTO bookDTO) {
         if (
                 bookDTO.getName().isBlank() || bookDTO.getAuthors().isEmpty()
-                || bookDTO.getReleaseYear() < 0 || bookDTO.getPrice() < 0
+                || bookDTO.getReleaseYear() < 0 || bookDTO.getPrice().doubleValue() < 0
         ) {
             return false;
         }

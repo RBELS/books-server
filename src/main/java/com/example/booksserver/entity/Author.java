@@ -26,4 +26,14 @@ public class Author {
         this.name = name;
         this.books = new HashSet<>();
     }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode() + name.hashCode() + books.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return true;
+    }
 }

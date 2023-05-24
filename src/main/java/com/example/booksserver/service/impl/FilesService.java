@@ -1,9 +1,10 @@
-package com.example.booksserver.service;
+package com.example.booksserver.service.impl;
 
 import com.example.booksserver.dto.BookImageDTO;
 import com.example.booksserver.entity.image.BookImage;
 import com.example.booksserver.map.ImageMapper;
 import com.example.booksserver.repository.BookImageRepository;
+import com.example.booksserver.service.IFilesService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;

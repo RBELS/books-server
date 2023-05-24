@@ -17,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
+
 @RestController
 public class TestController {
     private final Filling dbFillComponent;
@@ -67,7 +69,7 @@ public class TestController {
         order.setPhone("phone number here");
         order.setName("Artyom");
         OrderItem item = new OrderItem();
-        item.setPrice(1000L);
+        item.setPrice(new BigDecimal("10.00"));
         item.setCount(3);
 
         order.getOrderItems().add(item);

@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -63,7 +64,7 @@ public class CreationController {
         }
 
         BookDTO dto = new BookDTO(
-                null, bookName, releaseYear, price,
+                null, bookName, releaseYear, BigDecimal.valueOf(price),
                 mainImageDTO, contentImageDTOList, authorDTOList,
                 new StockDTO(null, 10, 0, 0)
         );

@@ -11,6 +11,7 @@ import com.example.booksserver.map.BookMapper;
 import com.example.booksserver.repository.AuthorRepository;
 import com.example.booksserver.repository.BookImageRepository;
 import com.example.booksserver.repository.BookRepository;
+import com.example.booksserver.service.impl.ContentService;
 import com.example.booksserver.userstate.filters.AuthorsFilters;
 import com.example.booksserver.userstate.filters.BooksFilters;
 import org.junit.jupiter.api.Test;
@@ -25,6 +26,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.Mockito.*;
 import static org.assertj.core.api.Assertions.*;
@@ -52,7 +54,7 @@ public class ContentServiceTest {
     @Test
     public void testGetAuthorById() {
         Author author = mock(Author.class);
-        when(authorRepository.findAuthorById(any(Long.class))).thenReturn(author);
+        when(authorRepository.findById(any(Long.class))).thenReturn(Optional.of(author));
         AuthorDTO authorDTO = mock(AuthorDTO.class);
         when(authorMapper.entityToDto(any(Author.class))).thenReturn(authorDTO);
 
@@ -138,7 +140,7 @@ public class ContentServiceTest {
         assertThrows(ResponseStatusException.class, () -> contentService.createBook(bookDTO));
         bookDTO.setName("Some Book Name");
         assertThrows(ResponseStatusException.class, () -> contentService.createBook(bookDTO));
-        bookDTO.setPrice(10.00);
+        bookDTO.setPrice(1000L);
         assertThrows(ResponseStatusException.class, () -> contentService.createBook(bookDTO));
         bookDTO.setReleaseYear(2022);
         assertThrows(ResponseStatusException.class, () -> contentService.createBook(bookDTO));
@@ -147,10 +149,10 @@ public class ContentServiceTest {
         bookDTO.getAuthors().add(new AuthorDTO(101L, "Arthur Morgan"));
         assertDoesNotThrow(() -> contentService.createBook(bookDTO));
 
-        bookDTO.setPrice(-20.0);
+        bookDTO.setPrice(-2000L);
         assertThrows(ResponseStatusException.class, () -> contentService.createBook(bookDTO));
 
-        bookDTO.setPrice(10.00);
+        bookDTO.setPrice(1000L);
         bookDTO.setReleaseYear(-20);
         assertThrows(ResponseStatusException.class, () -> contentService.createBook(bookDTO));
 

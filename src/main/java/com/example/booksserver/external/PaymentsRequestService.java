@@ -25,6 +25,7 @@ public class PaymentsRequestService implements IPaymentsRequestService {
         String requestUrl = paymentServiceAddress + "/payments";
         try {
             infoResponse = restTemplate.postForEntity(requestUrl, new PostPaymentsRequest(orderDTO, cardInfo), PaymentsInfoResponse.class);
+            // TODO: Use RestClientException and RestServerException
         } catch (HttpClientErrorException | HttpServerErrorException e) {
             PaymentsErrorResponse errorResponse = e.getResponseBodyAs(PaymentsErrorResponse.class);
             if (!Objects.isNull(errorResponse)) {

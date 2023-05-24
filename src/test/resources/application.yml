@@ -6,3 +6,4 @@ spring:
     password: testpw
   jpa:
     generate-ddl: true
+

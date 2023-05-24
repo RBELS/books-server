@@ -5,9 +5,11 @@ import com.example.booksserver.entity.Book;
 import com.example.booksserver.entity.image.BookImage;
 import com.example.booksserver.entity.image.ImageType;
 import com.example.booksserver.repository.AuthorRepository;
-import com.example.booksserver.service.ContentService;
+import com.example.booksserver.service.impl.ContentService;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
+
+import java.math.BigDecimal;
 import java.util.List;
 
 @Component
@@ -44,7 +46,7 @@ public final class Filling {
                 newBook.getAuthors().add(someAuthor);
             }
             newBook.setName(bookNames[(int) (Math.random()*bookNames.length)]);
-            newBook.setPrice((long) (Math.random() * 100000));
+            newBook.setPrice(new BigDecimal("12.5"));
             newBook.setReleaseYear(((int)(Math.random() * 50)) + 1970);
             String onlySrc = "https://s3-goods.ozstatic.by/480/225/831/10/10831225_0_Finansist_Teodor_Drayzer.jpg";
 

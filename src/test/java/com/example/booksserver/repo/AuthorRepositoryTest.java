@@ -1,6 +1,7 @@
 package com.example.booksserver.repo;
 
 import com.example.booksserver.entity.Author;
+import com.example.booksserver.entity.Book;
 import com.example.booksserver.repository.AuthorRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,6 +10,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -52,10 +55,31 @@ public class AuthorRepositoryTest {
 
     @Test
     public void findAuthorById() {
-        Author author = authorRepository.findAuthorById(1L);
+        // TODO: replace
+        Author author = authorRepository.findById(1L).get();
         assertThat(author).isNotNull();
         assertThat(author.getId()).isEqualTo(1L);
         assertThat(author.getName()).isNotBlank();
         assertThat(author.getBooks()).hasSize(0);
+    }
+
+    @Test
+    public void test() {
+        Author author = new Author();
+        author.setId(1L);
+        author.setName("name");
+
+        Book book = new Book();
+        book.setId(1L);
+        book.setAuthors(Stream.of(author).toList());
+
+        author.setBooks(Stream.of(book).collect(Collectors.toSet()));
+
+        System.err.println(author.hashCode());
+        System.err.println(author.toString());
+
+        System.err.println(book.hashCode());
+        System.err.println(book.toString());
+
     }
 }
