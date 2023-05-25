@@ -6,7 +6,7 @@ import com.example.booksserver.userstate.CardInfo;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service("mockPaymentsService")
 public class MockPaymentsService implements IPaymentsRequestService {
@@ -15,13 +15,13 @@ public class MockPaymentsService implements IPaymentsRequestService {
         PaymentsInfoResponse resultResponse = new PaymentsInfoResponse();
         resultResponse.setId(String.valueOf(0L));
 
-        AtomicLong totalSum = new AtomicLong(0L);
-        orderDTO.getOrderItems()
-                .forEach(orderItemDto ->
-                        totalSum.addAndGet(orderItemDto.getPrice() * orderItemDto.getCount())
-                );
+        AtomicReference<BigDecimal> totalSum = new AtomicReference<>(BigDecimal.ZERO);
+        orderDTO.getOrderItems().forEach(orderItemDto -> {
+            BigDecimal bufPrice = orderItemDto.getPrice().multiply(new BigDecimal(orderItemDto.getCount()));
+            totalSum.set(totalSum.get().add(bufPrice));
+        });
 
-        resultResponse.setSum(new BigDecimal(String.format("%.2f", totalSum.get() / 100.0)));
+        resultResponse.setSum(totalSum.get());
         resultResponse.setStatus("SUCCESS");
         resultResponse.setCard(cardInfo);
         resultResponse.setExternalId(String.valueOf(orderDTO.getId()));

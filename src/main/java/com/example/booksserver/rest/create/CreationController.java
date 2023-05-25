@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -43,7 +44,7 @@ public class CreationController {
             @RequestParam("authors") List<Long> authorIdList,
             @RequestParam("name") String bookName,
             @RequestParam("releaseYear") Integer releaseYear,
-            @RequestParam("price") Double price,
+            @RequestParam("price") BigDecimal price,
             @RequestParam("mainImage") MultipartFile mainImageFile,
             @RequestParam(value = "images", required = false) List<MultipartFile> contentImageFileList
     ) {

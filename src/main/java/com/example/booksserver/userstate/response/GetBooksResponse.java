@@ -4,7 +4,9 @@ import com.example.booksserver.dto.BookDTO;
 import com.example.booksserver.userstate.UserBook;
 import com.example.booksserver.userstate.filters.BooksFilters;
 import lombok.Getter;
+import org.springframework.data.domain.Page;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 
@@ -12,13 +14,13 @@ import java.util.Objects;
 public class GetBooksResponse extends PaginatedResponse {
     @Getter
     public static class ResponseFilters {
-        private final Double minPrice;
-        private final Double maxPrice;
+        private final BigDecimal minPrice;
+        private final BigDecimal maxPrice;
         private final List<Long> authors;
 
         public ResponseFilters(BooksFilters booksFilters) {
-            this.minPrice = Objects.isNull(booksFilters.getMinPrice()) ? null : booksFilters.getMinPrice() / 100.0;
-            this.maxPrice = Objects.isNull(booksFilters.getMaxPrice()) ? null : booksFilters.getMaxPrice() / 100.0;
+            this.minPrice = booksFilters.getMinPrice();
+            this.maxPrice = booksFilters.getMaxPrice();
             this.authors = booksFilters.getAuthorIdList();
         }
     }
@@ -26,8 +28,8 @@ public class GetBooksResponse extends PaginatedResponse {
     private final ResponseFilters filters;
     private final List<UserBook> content;
 
-    public GetBooksResponse(BooksFilters booksFilters, List<BookDTO> content, String baseImgUrl) {
-        super(booksFilters);
+    public GetBooksResponse(BooksFilters booksFilters, Page<BookDTO> content, String baseImgUrl) {
+        super(content);
         this.filters = new ResponseFilters(booksFilters);
         this.content = content.stream().map(bookDTO -> new UserBook(bookDTO, baseImgUrl)).toList();
     }

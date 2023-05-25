@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -20,5 +22,5 @@ public class OrderItem {
     private Integer count;
 
     @Column(nullable = false)
-    private Long price;
+    private BigDecimal price;
 }

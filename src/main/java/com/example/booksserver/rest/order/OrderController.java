@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 public class OrderController {
@@ -29,8 +30,6 @@ public class OrderController {
     public PostOrdersResponse order(
             @RequestBody PostOrdersRequest request
     ) {
-        // extract cardInfo
-        CardInfo cardInfo = request.getCard();
         // create an order dto
         OrderDTO orderDTO = OrderDTO.builder()
                 .email(request.getInfo().getEmail())
@@ -44,7 +43,7 @@ public class OrderController {
             return OrderItemDTO.builder()
                     .book(bookDTO)
                     .count(ordersBook.getCount())
-                    .price((long) (bookDTO.getPrice() * 100.0))
+                    .price(bookDTO.getPrice())
                     .build();
         }).toList();
         orderDTO.getOrderItems().addAll(orderItemDTOList);

@@ -9,18 +9,24 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface BookRepository extends PagingAndSortingRepository<Book, Long>, ListCrudRepository<Book, Long> {
     @NonNull
     Page<Book> findAll(@NonNull Pageable pageable);
-    Page<Book> findAllByPriceBetween(long minPrice, long maxPrice, Pageable pageable);
-    Page<Book> findAllByAuthors_idInAndPriceBetween(List<Long> id, long minPrice, long maxPrice, Pageable pageable);
+    Page<Book> findAllByPriceBetween(BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable);
+    Page<Book> findAllByAuthors_idInAndPriceBetween(List<Long> id, BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable);
+    Page<Book> findAllByAuthors_idIn(List<Long> id, Pageable pageable);
+
+    // TODO: replace query
 
     @Query("SELECT max(price) FROM Book")
-    Long findMaxPrice();
+    Optional<BigDecimal> findMaxPrice();
 
+    // TODO: replace query
     @Query("SELECT min(price) FROM Book")
-    Long findMinPrice();
+    Optional<BigDecimal> findMinPrice();
 }

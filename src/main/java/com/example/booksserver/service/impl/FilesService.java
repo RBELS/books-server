@@ -1,9 +1,10 @@
-package com.example.booksserver.service;
+package com.example.booksserver.service.impl;
 
 import com.example.booksserver.dto.BookImageDTO;
 import com.example.booksserver.entity.image.BookImage;
 import com.example.booksserver.map.ImageMapper;
 import com.example.booksserver.repository.BookImageRepository;
+import com.example.booksserver.service.IFilesService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -22,12 +23,8 @@ public class FilesService implements IFilesService {
 
     @Override
     public BookImageDTO getImageById(Long imageId) throws ResponseStatusException {
-        Optional<BookImage> imageEntityOpt = bookImageRepository.findById(imageId);
-        if (imageEntityOpt.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
-
-        BookImage imageEntity = imageEntityOpt.get();
-        return imageMapper.entityToDto(imageEntity);
+        Optional<BookImage> imageEntityOptional = bookImageRepository.findById(imageId);
+        BookImage resultEntity = imageEntityOptional.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        return imageMapper.entityToDto(resultEntity);
     }
 }

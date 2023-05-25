@@ -41,4 +41,12 @@ public abstract class BookMapper {
             }
         });
     }
+
+    public Page<BookDTO> entityToDtoPage(Page<Book> books) {
+        return books.map(this::entityToDto);
+    }
+
+    public Page<Book> dtoToEntityPage(Page<BookDTO> bookDTOS) {
+        return bookDTOS.map(this::dtoToEntity);
+    }
 }

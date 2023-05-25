@@ -26,3 +26,33 @@ logging:
     org:
       springframework:
         security: DEBUG
+external:
+  payment-service:
+    host: http://external.domain:8080
+    post-payment-mapping: /payments
+responses:
+  error:
+    devMessages: '{
+      BOOK_BAD_AUTHORS: "Authors do not match the provided pattern.",
+      BOOK_BAD_NAME: "Book name does not match the provided pattern.",
+      BOOK_BAD_RELEASE_YEAR: "Book release year does not match the provided pattern.",
+      BOOK_BAD_PRICE: "Book price does not match the provided pattern.",
+      BOOK_BAD_IMAGES: "Book images were not provided or some of them have bad format.",
+      INTERNAL_ERROR_IMAGES: "Impossible to parse provided images."
+    }'
+    langEnMessages: '{
+      BOOK_BAD_AUTHORS: "Authors do not match the provided pattern.",
+      BOOK_BAD_NAME: "Book name does not match the provided pattern.",
+      BOOK_BAD_RELEASE_YEAR: "Book release year does not match the provided pattern.",
+      BOOK_BAD_PRICE: "Book price does not match the provided pattern.",
+      BOOK_BAD_IMAGES: "Book images were not provided or some of them have bad format.",
+      INTERNAL_ERROR_IMAGES: "Impossible to parse provided images."
+    }'
+    langRuMessages: '{
+      BOOK_BAD_AUTHORS: "Информация об авторах не удовлетворяет спецификации.",
+      BOOK_BAD_NAME: "Название книги не удовлетворяет спецификации.",
+      BOOK_BAD_RELEASE_YEAR: "Год выпуска книги не удовлетворяет спецификации.",
+      BOOK_BAD_PRICE: "Цена книги не удовлетворяет спецификации.",
+      BOOK_BAD_IMAGES: "Переданные изображения не предоставлены либо некоторые из них имеют не подходящий формат.",
+      INTERNAL_ERROR_IMAGES: "Невозможно обработать переданные изображения."
+    }'

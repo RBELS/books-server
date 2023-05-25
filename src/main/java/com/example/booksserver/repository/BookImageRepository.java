@@ -9,7 +9,4 @@ import java.util.Optional;
 
 @Repository
 public interface BookImageRepository extends ListCrudRepository<BookImage, Long> {
-    @NonNull
-    @Override
-    Optional<BookImage> findById(@NonNull Long aLong);
 }

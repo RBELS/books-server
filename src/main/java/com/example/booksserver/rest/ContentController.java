@@ -1,50 +1,49 @@
 package com.example.booksserver.rest;
 
+import com.example.booksserver.components.ErrorResponseFactory;
 import com.example.booksserver.config.AppConfig;
 import com.example.booksserver.dto.AuthorDTO;
 import com.example.booksserver.dto.BookDTO;
-import com.example.booksserver.fillingtest.Filling;
 import com.example.booksserver.service.IContentService;
 import com.example.booksserver.userstate.filters.AuthorsFilters;
 import com.example.booksserver.userstate.filters.BooksFilters;
 import com.example.booksserver.userstate.UserBaseFilters;
 import com.example.booksserver.userstate.response.GetAuthorsResponse;
 import com.example.booksserver.userstate.response.GetBooksResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.convert.Delimiter;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 @RestController
 public class ContentController {
-
-    Logger logger = LoggerFactory.getLogger("ContentController");
-
     private final IContentService contentService;
     private final String baseImageUrl;
+    private final ErrorResponseFactory errorResponseFactory;
 
-    public ContentController(IContentService contentService, AppConfig appConfig) {
+    public ContentController(IContentService contentService, AppConfig appConfig, ErrorResponseFactory errorResponseFactory) {
         this.contentService = contentService;
 
         // TODO: HIDE THIS
         this.baseImageUrl = appConfig.getServerAddress() + "/static/image/";
+        this.errorResponseFactory = errorResponseFactory;
     }
 
     @GetMapping(value = "/books", produces = MediaType.APPLICATION_JSON_VALUE)
     public GetBooksResponse getBooks(
             @Delimiter(",") @RequestParam(required = false) List<Long> authors,
-            @RequestParam(required = false) Double minPrice,
-            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(required = false) BigDecimal minPrice,
+            @RequestParam(required = false) BigDecimal maxPrice,
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer count
     ) {
         BooksFilters filters = new BooksFilters(authors, minPrice, maxPrice, page, count);
-        List<BookDTO> books = contentService.getBooks(filters);
+        Page<BookDTO> books = contentService.getBooks(filters);
         return new GetBooksResponse(filters, books, baseImageUrl);
     }
 
@@ -54,8 +53,8 @@ public class ContentController {
             @RequestParam(required = false) Integer count
     ) {
         AuthorsFilters filters = new AuthorsFilters(page, count);
-        List<AuthorDTO> authors = contentService.getAuthors(filters);
-        return new GetAuthorsResponse(filters, authors);
+        Page<AuthorDTO> authors = contentService.getAuthors(filters);
+        return new GetAuthorsResponse(authors);
     }
 
     @GetMapping(value = "/filterBaseInfo", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -63,4 +62,8 @@ public class ContentController {
         return new UserBaseFilters(contentService.getMinMaxPrices());
     }
 
+    @GetMapping("/test")
+    public void test() {
+        System.out.println();
+    }
 }
