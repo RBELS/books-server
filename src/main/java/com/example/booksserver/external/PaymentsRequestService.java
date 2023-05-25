@@ -6,6 +6,7 @@ import com.example.booksserver.external.response.PaymentsInfoResponse;
 import com.example.booksserver.external.response.PaymentsErrorResponse;
 import com.example.booksserver.userstate.CardInfo;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
@@ -17,12 +18,16 @@ import java.util.Objects;
 @Slf4j
 @Service("paymentsService")
 public class PaymentsRequestService implements IPaymentsRequestService {
-    private static final String paymentServiceAddress = "http://external.domain:8080";
+    @Value("${external.payment-service.host}")
+    private String paymentServiceAddress;
+    @Value("${external.payment-service.post-payment-mapping}")
+    private String postPaymentsMapping;
+
     @Override
     public PaymentsInfoResponse processPayment(OrderDTO orderDTO, CardInfo cardInfo) throws PaymentException {
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<PaymentsInfoResponse> infoResponse;
-        String requestUrl = paymentServiceAddress + "/payments";
+        String requestUrl = paymentServiceAddress + postPaymentsMapping;
         try {
             infoResponse = restTemplate.postForEntity(requestUrl, new PostPaymentsRequest(orderDTO, cardInfo), PaymentsInfoResponse.class);
             // TODO: Use RestClientException and RestServerException

@@ -30,8 +30,6 @@ public class OrderController {
     public PostOrdersResponse order(
             @RequestBody PostOrdersRequest request
     ) {
-        // extract cardInfo
-        CardInfo cardInfo = request.getCard();
         // create an order dto
         OrderDTO orderDTO = OrderDTO.builder()
                 .email(request.getInfo().getEmail())

@@ -44,7 +44,7 @@ public class CreationController {
             @RequestParam("authors") List<Long> authorIdList,
             @RequestParam("name") String bookName,
             @RequestParam("releaseYear") Integer releaseYear,
-            @RequestParam("price") Double price,
+            @RequestParam("price") BigDecimal price,
             @RequestParam("mainImage") MultipartFile mainImageFile,
             @RequestParam(value = "images", required = false) List<MultipartFile> contentImageFileList
     ) {
@@ -64,7 +64,7 @@ public class CreationController {
         }
 
         BookDTO dto = new BookDTO(
-                null, bookName, releaseYear, BigDecimal.valueOf(price),
+                null, bookName, releaseYear, price,
                 mainImageDTO, contentImageDTOList, authorDTOList,
                 new StockDTO(null, 10, 0, 0)
         );

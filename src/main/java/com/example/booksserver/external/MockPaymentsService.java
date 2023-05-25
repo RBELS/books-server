@@ -6,7 +6,6 @@ import com.example.booksserver.userstate.CardInfo;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Service("mockPaymentsService")

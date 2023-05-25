@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -42,103 +43,80 @@ public class ContentService implements IContentService {
 
     // TODO: Return Page, not List
     @Transactional
-    public List<BookDTO> getBooks(BooksFilters filters) {
+    public Page<BookDTO> getBooks(BooksFilters filters) {
         int page = Objects.isNull(filters.getPage()) ? 0 : filters.getPage();
         int count = Objects.isNull(filters.getCount()) ? BooksFilters.DEFAULT_COUNT_PER_PAGE : filters.getCount();
-        // TODO:
-
-        long minPrice = filters.getMinPrice() == null ? bookRepository.findMinPrice() : filters.getMinPrice();
-        long maxPrice = filters.getMaxPrice() == null ? bookRepository.findMaxPrice() : filters.getMaxPrice();
+        PageRequest pageRequest = PageRequest.of(page, count);
 
         Page<Book> entityPage;
-        if (filters.getAuthorIdList().isEmpty()) {
-            entityPage = bookRepository.findAllByPriceBetween(minPrice, maxPrice, PageRequest.of(page, count));
+        if (!Objects.isNull(filters.getMinPrice()) && !Objects.isNull(filters.getMaxPrice())) {
+            if (filters.getAuthorIdList().isEmpty()) {
+                entityPage = bookRepository.findAllByPriceBetween(filters.getMinPrice(), filters.getMaxPrice(), pageRequest);
+            } else {
+                entityPage = bookRepository
+                        .findAllByAuthors_idInAndPriceBetween(
+                                filters.getAuthorIdList(),
+                                filters.getMinPrice(), filters.getMaxPrice(),
+                                pageRequest
+                        );
+            }
         } else {
-            entityPage = bookRepository
-                    .findAllByAuthors_idInAndPriceBetween(
-                            filters.getAuthorIdList(),
-                            minPrice, maxPrice,
-                            PageRequest.of(page, count)
-                    );
+            if (filters.getAuthorIdList().isEmpty()) {
+                entityPage = bookRepository.findAll(pageRequest);
+            } else {
+                entityPage = bookRepository.findAllByAuthors_idIn(filters.getAuthorIdList(), pageRequest);
+            }
         }
 
-        filters.setOutTotalPages(entityPage.getTotalPages());
-        return bookMapper.entityToDto(entityPage.getContent());
-    }
-
-    // TESTS ONLY
-    public void saveAuthor(Author author) {
-        authorRepository.save(author);
-    }
-
-    // TESTS ONLY
-    public void saveBook(Book book) {
-        bookRepository.save(book);
+        return bookMapper.entityToDtoPage(entityPage);
     }
 
     private static final Sort AUTHORS_ASC_SORT = Sort.by("name", "id").ascending();
 
-    public List<AuthorDTO> getAuthors(AuthorsFilters filters) {
+    public Page<AuthorDTO> getAuthors(AuthorsFilters filters) {
         Page<Author> entityPage = authorRepository.findAll(
                 PageRequest.of(filters.getPage(), filters.getCount(), AUTHORS_ASC_SORT)
         );
-        filters.setOutTotalPages(entityPage.getTotalPages());
-        return authorMapper.entityToDto(entityPage.getContent());
+        return authorMapper.entityToDtoPage(entityPage);
     }
 
     public AuthorDTO getAuthorById(Long authorId) {
         Optional<Author> entity = authorRepository.findById(authorId);
-        AuthorDTO resultDTO = null;
-        if (entity.isPresent()) {
-            resultDTO = authorMapper.entityToDto(entity.get());
-        }
-        return resultDTO;
+        return authorMapper.entityToDto(entity.orElse(null));
     }
 
     @Transactional
     public BookDTO getBookById(Long bookId) {
         Optional<Book> entity = bookRepository.findById(bookId);
-        BookDTO resultDTO = null;
-        if (entity.isPresent()) {
-            resultDTO = bookMapper.entityToDto(entity.get());
-        }
-        return resultDTO;
+        return bookMapper.entityToDto(entity.orElse(null));
     }
 
-    public List<Double> getMinMaxPrices() {
-        return Arrays.asList(bookRepository.findMinPrice() / 100.0, bookRepository.findMaxPrice() / 100.0);
+    public List<BigDecimal> getMinMaxPrices() {
+        return Arrays.asList(bookRepository.findMinPrice().orElse(null), bookRepository.findMaxPrice().orElse(null));
     }
 
-    private boolean isAuthorValid(AuthorDTO authorDTO) {
-        return !authorDTO.getName().isBlank();
+    private void validateAuthor(AuthorDTO authorDTO) throws ResponseStatusException {
+        if (authorDTO.getName().isBlank()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
     }
 
     public AuthorDTO createAuthor(AuthorDTO newAuthorDTO) throws ResponseStatusException {
-        boolean authorValid = isAuthorValid(newAuthorDTO);
-        if (!authorValid) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        }
-
+        validateAuthor(newAuthorDTO);
         Author authorEntity = authorMapper.dtoToEntity(newAuthorDTO);
         authorEntity = authorRepository.save(authorEntity);
         return authorMapper.entityToDto(authorEntity);
     }
 
-    private boolean isBookValid(BookDTO bookDTO) {
+    private void validateBook(BookDTO bookDTO) throws ResponseStatusException {
         if (
                 bookDTO.getName().isBlank() || bookDTO.getAuthors().isEmpty()
                 || bookDTO.getReleaseYear() < 0 || bookDTO.getPrice().doubleValue() < 0
         ) {
-            return false;
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
-        return true;
     }
 
     public BookDTO createBook(BookDTO newBookDTO) throws ResponseStatusException {
-        if (!isBookValid(newBookDTO)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        }
-
+        validateBook(newBookDTO);
         Book entity = bookMapper.dtoToEntity(newBookDTO);
         entity = bookRepository.save(entity);
         return bookMapper.entityToDto(entity);

@@ -23,12 +23,8 @@ public class FilesService implements IFilesService {
 
     @Override
     public BookImageDTO getImageById(Long imageId) throws ResponseStatusException {
-        Optional<BookImage> imageEntityOpt = bookImageRepository.findById(imageId);
-        if (imageEntityOpt.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
-
-        BookImage imageEntity = imageEntityOpt.get();
-        return imageMapper.entityToDto(imageEntity);
+        Optional<BookImage> imageEntityOptional = bookImageRepository.findById(imageId);
+        BookImage resultEntity = imageEntityOptional.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        return imageMapper.entityToDto(resultEntity);
     }
 }

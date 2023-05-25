@@ -21,13 +21,9 @@
 8. Нужно изменить модель книг. Должна быть таблица stock, с полями id, book_id, total, available.
 
 
-9. orElse orElseGet в Optional
-
 
 1. StackOverflow
 2. Все мокирование в тесты
-3. Все зашлушки из main в test
+3. Все заглушки из main в test
+
 4. Обработка исключений на уровне контроллера, либо интерсептор
-5. Конфигурация в yaml, @Value
-6. orElse orElse orElseThrow -> Optional
-7. 
