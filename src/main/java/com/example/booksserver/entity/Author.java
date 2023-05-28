@@ -2,6 +2,7 @@ package com.example.booksserver.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.Accessors;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -10,6 +11,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Entity
 @Data
+@Accessors(chain = true)
 public class Author {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -25,15 +27,5 @@ public class Author {
     public Author(String name) {
         this.name = name;
         this.books = new HashSet<>();
-    }
-
-    @Override
-    public int hashCode() {
-        return id.hashCode() + name.hashCode() + books.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        return true;
     }
 }

@@ -1,10 +1,11 @@
 package com.example.booksserver.rest;
 
-import com.example.booksserver.components.ErrorResponseFactory;
 import com.example.booksserver.config.AppConfig;
 import com.example.booksserver.dto.AuthorDTO;
 import com.example.booksserver.dto.BookDTO;
+import com.example.booksserver.entity.Author;
 import com.example.booksserver.service.IContentService;
+import com.example.booksserver.userstate.UserAuthor;
 import com.example.booksserver.userstate.filters.AuthorsFilters;
 import com.example.booksserver.userstate.filters.BooksFilters;
 import com.example.booksserver.userstate.UserBaseFilters;
@@ -24,14 +25,12 @@ import java.util.*;
 public class ContentController {
     private final IContentService contentService;
     private final String baseImageUrl;
-    private final ErrorResponseFactory errorResponseFactory;
 
-    public ContentController(IContentService contentService, AppConfig appConfig, ErrorResponseFactory errorResponseFactory) {
+    public ContentController(IContentService contentService, AppConfig appConfig) {
         this.contentService = contentService;
 
         // TODO: HIDE THIS
         this.baseImageUrl = appConfig.getServerAddress() + "/static/image/";
-        this.errorResponseFactory = errorResponseFactory;
     }
 
     @GetMapping(value = "/books", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -57,6 +56,13 @@ public class ContentController {
         return new GetAuthorsResponse(authors);
     }
 
+    @GetMapping(value = "/authors/all", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<UserAuthor> getAllAuthors() {
+        List<AuthorDTO> dtoList = contentService.getAllAuthors();
+        return dtoList.stream().map(UserAuthor::new).toList();
+    }
+
+    // TODO: Add to OpenAPI spec.
     @GetMapping(value = "/filterBaseInfo", produces = MediaType.APPLICATION_JSON_VALUE)
     public UserBaseFilters getBaseFilters() {
         return new UserBaseFilters(contentService.getMinMaxPrices());
@@ -64,6 +70,6 @@ public class ContentController {
 
     @GetMapping("/test")
     public void test() {
-        System.out.println();
+        AuthorDTO authorDTO = contentService.getAuthorById(6353L);
     }
 }

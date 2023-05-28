@@ -13,6 +13,7 @@ import java.util.List;
 public interface IContentService {
     Page<BookDTO> getBooks(BooksFilters filters);
     Page<AuthorDTO> getAuthors(AuthorsFilters filters);
+    List<AuthorDTO> getAllAuthors();
     AuthorDTO getAuthorById(Long authorId);
     BookDTO getBookById(Long bookId);
     List<BigDecimal> getMinMaxPrices();

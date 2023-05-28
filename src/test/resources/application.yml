@@ -1,31 +1,13 @@
 spring:
   datasource:
-    driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:32768/BooksDB
-    username: postgres
-    password: postgrespw
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:db;DB_CLOSE_DELAY=-1
+    username: test
+    password: testpw
   jpa:
     generate-ddl: true
-  security:
-    oauth2:
-      client:
-        registration:
-          keycloak:
-            client-id: books-server
-            authorization-grant-type: authorization_code
-            scope: openid
-        provider:
-          keycloak:
-            user-name-attribute: preferred_username
-      resourceserver:
-        jwt:
-          issuer-uri: http://192.168.64.11:8080/realms/BookServerKeycloak
-          jwk-set-uri: http://192.168.64.11:8080/realms/BookServerKeycloak/protocol/openid-connect/certs
-logging:
-  level:
-    org:
-      springframework:
-        security: DEBUG
+
+
 external:
   payment-service:
     host: http://external.domain:8080

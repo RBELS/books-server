@@ -1,5 +1,7 @@
 package com.example.booksserver.service.impl;
 
+import com.example.booksserver.components.ErrorResponseFactory;
+import com.example.booksserver.components.ResponseStatusWithBodyExceptionFactory;
 import com.example.booksserver.dto.AuthorDTO;
 import com.example.booksserver.dto.BookDTO;
 import com.example.booksserver.entity.Author;
@@ -32,12 +34,14 @@ public class ContentService implements IContentService {
     private final AuthorRepository authorRepository;
     private final AuthorMapper authorMapper;
     private final BookMapper bookMapper;
+    private final ResponseStatusWithBodyExceptionFactory exceptionFactory;
 
-    public ContentService(BookRepository bookRepository, AuthorRepository authorRepository, AuthorMapper authorMapper, BookMapper bookMapper) {
+    public ContentService(BookRepository bookRepository, AuthorRepository authorRepository, AuthorMapper authorMapper, BookMapper bookMapper, ResponseStatusWithBodyExceptionFactory exceptionFactory) {
         this.bookRepository = bookRepository;
         this.authorRepository = authorRepository;
         this.authorMapper = authorMapper;
         this.bookMapper = bookMapper;
+        this.exceptionFactory = exceptionFactory;
     }
 
 
@@ -54,7 +58,7 @@ public class ContentService implements IContentService {
                 entityPage = bookRepository.findAllByPriceBetween(filters.getMinPrice(), filters.getMaxPrice(), pageRequest);
             } else {
                 entityPage = bookRepository
-                        .findAllByAuthors_idInAndPriceBetween(
+                        .findDistinctAllByAuthors_idInAndPriceBetween(
                                 filters.getAuthorIdList(),
                                 filters.getMinPrice(), filters.getMaxPrice(),
                                 pageRequest
@@ -64,7 +68,7 @@ public class ContentService implements IContentService {
             if (filters.getAuthorIdList().isEmpty()) {
                 entityPage = bookRepository.findAll(pageRequest);
             } else {
-                entityPage = bookRepository.findAllByAuthors_idIn(filters.getAuthorIdList(), pageRequest);
+                entityPage = bookRepository.findDistinctByAuthors_idIn(filters.getAuthorIdList(), pageRequest);
             }
         }
 
@@ -78,6 +82,11 @@ public class ContentService implements IContentService {
                 PageRequest.of(filters.getPage(), filters.getCount(), AUTHORS_ASC_SORT)
         );
         return authorMapper.entityToDtoPage(entityPage);
+    }
+
+    public List<AuthorDTO> getAllAuthors() {
+        List<Author> entityList = authorRepository.findAll(AUTHORS_ASC_SORT);
+        return authorMapper.entityToDto(entityList);
     }
 
     public AuthorDTO getAuthorById(Long authorId) {
@@ -96,7 +105,11 @@ public class ContentService implements IContentService {
     }
 
     private void validateAuthor(AuthorDTO authorDTO) throws ResponseStatusException {
-        if (authorDTO.getName().isBlank()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        if (authorDTO.getName().isBlank())
+            throw exceptionFactory.create(
+                    HttpStatus.BAD_REQUEST,
+                    ErrorResponseFactory.InternalErrorCode.AUTHOR_BAD_NAME
+            );
     }
 
     public AuthorDTO createAuthor(AuthorDTO newAuthorDTO) throws ResponseStatusException {
@@ -107,11 +120,14 @@ public class ContentService implements IContentService {
     }
 
     private void validateBook(BookDTO bookDTO) throws ResponseStatusException {
-        if (
-                bookDTO.getName().isBlank() || bookDTO.getAuthors().isEmpty()
-                || bookDTO.getReleaseYear() < 0 || bookDTO.getPrice().doubleValue() < 0
-        ) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        if (bookDTO.getName().isBlank()) {
+           throw exceptionFactory.create(HttpStatus.BAD_REQUEST, ErrorResponseFactory.InternalErrorCode.BOOK_BAD_NAME);
+        } else if (bookDTO.getAuthors().isEmpty() || bookDTO.getAuthors().contains(null)) {
+            throw exceptionFactory.create(HttpStatus.BAD_REQUEST, ErrorResponseFactory.InternalErrorCode.BOOK_BAD_AUTHORS);
+        } else if (bookDTO.getReleaseYear() < 0) {
+            throw exceptionFactory.create(HttpStatus.BAD_REQUEST, ErrorResponseFactory.InternalErrorCode.BOOK_BAD_RELEASE_YEAR);
+        } else if (bookDTO.getPrice().doubleValue() < 0) {
+            throw exceptionFactory.create(HttpStatus.BAD_REQUEST, ErrorResponseFactory.InternalErrorCode.BOOK_BAD_PRICE);
         }
     }
 

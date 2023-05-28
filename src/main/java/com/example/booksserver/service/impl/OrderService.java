@@ -1,5 +1,7 @@
 package com.example.booksserver.service.impl;
 
+import com.example.booksserver.components.ErrorResponseFactory;
+import com.example.booksserver.components.ResponseStatusWithBodyExceptionFactory;
 import com.example.booksserver.dto.OrderDTO;
 import com.example.booksserver.dto.StockDTO;
 import com.example.booksserver.entity.Order;
@@ -26,35 +28,42 @@ public class OrderService implements IOrderService {
     private final OrderMapper orderMapper;
     private final IPaymentsRequestService mockPaymentsService;
     private final BookRepository bookRepository;
+    private final ResponseStatusWithBodyExceptionFactory exceptionFactory;
 
     public OrderService(
             OrderRepository orderRepository,
             OrderMapper orderMapper,
             @Qualifier("mockPaymentsService") IPaymentsRequestService mockPaymentsService,
-            BookRepository bookRepository
+            BookRepository bookRepository,
+            ResponseStatusWithBodyExceptionFactory exceptionFactory
     ) {
         this.orderRepository = orderRepository;
         this.orderMapper = orderMapper;
         this.mockPaymentsService = mockPaymentsService;
         this.bookRepository = bookRepository;
+        this.exceptionFactory = exceptionFactory;
     }
 
     private void validateOrder(OrderDTO orderDTO) throws ResponseStatusException {
-        if (
-                orderDTO.getEmail().isBlank() || orderDTO.getAddress().isBlank()
-                || orderDTO.getName().isBlank() || orderDTO.getPhone().isBlank()
-                || orderDTO.getOrderItems().isEmpty()
-        ) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        if (orderDTO.getEmail().isBlank()) {
+            throw exceptionFactory.create(HttpStatus.BAD_REQUEST, ErrorResponseFactory.InternalErrorCode.ORDER_BAD_EMAIL);
+        } else if (orderDTO.getAddress().isBlank()) {
+            throw exceptionFactory.create(HttpStatus.BAD_REQUEST, ErrorResponseFactory.InternalErrorCode.ORDER_BAD_ADDRESS);
+        } else if (orderDTO.getName().isBlank()) {
+            throw exceptionFactory.create(HttpStatus.BAD_REQUEST, ErrorResponseFactory.InternalErrorCode.ORDER_BAD_NAME);
+        } else if (orderDTO.getPhone().isBlank()) {
+            throw exceptionFactory.create(HttpStatus.BAD_REQUEST, ErrorResponseFactory.InternalErrorCode.ORDER_BAD_PHONE);
+        } else if (orderDTO.getOrderItems().isEmpty()) {
+            throw exceptionFactory.create(HttpStatus.BAD_REQUEST, ErrorResponseFactory.InternalErrorCode.ORDER_NO_ITEMS);
         } else if (orderDTO.getOrderItems().contains(null)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            throw exceptionFactory.create(HttpStatus.BAD_REQUEST, ErrorResponseFactory.InternalErrorCode.ORDER_ITEM_NOT_FOUND);
         }
 
         orderDTO.getOrderItems().forEach(orderItemDto -> {
             int availableBooks = orderItemDto.getBook().getStock().getAvailable();
             int orderBooks = orderItemDto.getCount();
             if (orderBooks > availableBooks) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+                throw exceptionFactory.create(HttpStatus.BAD_REQUEST, ErrorResponseFactory.InternalErrorCode.ORDER_ITEM_NOT_IN_STOCK);
             }
         });
     }
@@ -86,7 +95,7 @@ public class OrderService implements IOrderService {
             PaymentsErrorResponse errorResponse = e.getErrorResponse();
             log.warn(errorResponse.toString());
             //if failed - rollback
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            throw exceptionFactory.create(HttpStatus.BAD_REQUEST, ErrorResponseFactory.InternalErrorCode.PAYMENT_ERROR);
         }
         log.info(paymentsInfoResponse.toString());
 

@@ -29,7 +29,7 @@ public class Book {
     @Column(nullable = false)
     private Integer releaseYear;
 
-    @ManyToMany(cascade = CascadeType.MERGE)
+    @ManyToMany(cascade = {CascadeType.MERGE})
     @JoinTable
     private List<Author> authors = new ArrayList<>();
 
