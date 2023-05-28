@@ -3,6 +3,7 @@ package com.example.booksserver.entity;
 import com.example.booksserver.entity.image.BookImage;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Entity
 @NoArgsConstructor
 @Data
+@Accessors(chain = true)
 public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

@@ -1,4 +1,4 @@
-package com.example.booksserver.mapper;
+package com.example.booksserver.map;
 
 import com.example.booksserver.dto.AuthorDTO;
 import com.example.booksserver.entity.Author;
@@ -19,7 +19,6 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 public class AuthorMapperTest {
@@ -30,7 +29,7 @@ public class AuthorMapperTest {
     private AuthorMapper authorMapper;
 
     @Test
-    public void testEntityToDto() {
+    public void entityToDto() {
         Author entity = new Author()
                 .setId(20L)
                 .setName("Arthur Morgan");
@@ -45,7 +44,7 @@ public class AuthorMapperTest {
     }
 
     @Test
-    public void testDtoToEntity() {
+    public void dtoToEntity() {
         AuthorDTO dto = new AuthorDTO()
                 .setId(20L)
                 .setName("Arthur Morgan");
@@ -73,7 +72,7 @@ public class AuthorMapperTest {
     }
 
     @Test
-    public void testEntityToDtoList() {
+    public void entityToDtoList() {
         List<Author> entityList = Arrays.asList(
                 new Author().setId(20L).setName("name1"),
                 new Author().setId(30L).setName("name2"),
@@ -84,7 +83,7 @@ public class AuthorMapperTest {
     }
 
     @Test
-    public void testDtoToEntityList() {
+    public void dtoToEntityList() {
         List<AuthorDTO> dtoList = Arrays.asList(
                 new AuthorDTO().setId(20L).setName("name1"),
                 new AuthorDTO().setId(30L).setName("name2"),
@@ -103,7 +102,7 @@ public class AuthorMapperTest {
     }
 
     @Test
-    public void testEntityToDtoPage() {
+    public void entityToDtoPage() {
         List<Author> entityList = Arrays.asList(
                 new Author().setId(20L).setName("name1"),
                 new Author().setId(30L).setName("name2"),
@@ -118,7 +117,7 @@ public class AuthorMapperTest {
     }
 
     @Test
-    public void testDtoToEntityPage() {
+    public void dtoToEntityPage() {
         List<AuthorDTO> dtoList = Arrays.asList(
                 new AuthorDTO().setId(20L).setName("name1"),
                 new AuthorDTO().setId(30L).setName("name2"),
