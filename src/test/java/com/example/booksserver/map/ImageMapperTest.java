@@ -72,7 +72,7 @@ class ImageMapperTest {
     }
 
     private void compareEntityToDtoList(List<BookImage> entityList, List<BookImageDTO> dtoList) {
-        assertThat(entityList.size()).isEqualTo(dtoList.size());
+        assertThat(entityList).hasSameSizeAs(dtoList);
         for (int i = 0;i < entityList.size();i++) {
             compareEntityToDto(entityList.get(i), dtoList.get(i));
         }

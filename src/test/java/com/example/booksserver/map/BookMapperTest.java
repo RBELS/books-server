@@ -81,7 +81,7 @@ class BookMapperTest {
     }
 
     private void compareEntityToDtoList(List<Book> entityList, List<BookDTO> dtoList) {
-        assertThat(entityList.size()).isEqualTo(dtoList.size());
+        assertThat(entityList).hasSameSizeAs(dtoList);
 
         for (int i = 0;i < entityList.size();i++) {
             compareEntityToDto(entityList.get(i), dtoList.get(i));

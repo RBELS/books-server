@@ -58,7 +58,7 @@ public class AuthorMapperTest {
     }
 
     private void compareEntityToDtoList(List<Author> entityList, List<AuthorDTO> dtoList) {
-        assertThat(dtoList.size()).isEqualTo(entityList.size());
+        assertThat(dtoList).hasSameSizeAs(entityList);
 
         for (int i = 0;i < entityList.size();i++) {
             Author entity = entityList.get(i);
