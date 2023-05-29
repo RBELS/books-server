@@ -14,17 +14,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/static")
 public class FilesController {
 
-    private final IFilesService staticService;
+    private final IFilesService filesService;
 
-    public FilesController(IFilesService staticService) {
-        this.staticService = staticService;
+    public FilesController(IFilesService filesService) {
+        this.filesService = filesService;
     }
 
     @GetMapping(value = "/image/{imageId}", produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_GIF_VALUE})
-    private Resource downloadImage(
+    public Resource downloadImage(
             @PathVariable Long imageId
     ) {
-        BookImageDTO imageDTO = staticService.getImageById(imageId);
+        BookImageDTO imageDTO = filesService.getImageById(imageId);
         byte[] imageBytes = imageDTO.getContent();
         return new ByteArrayResource(imageBytes);
     }

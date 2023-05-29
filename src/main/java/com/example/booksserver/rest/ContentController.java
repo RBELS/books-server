@@ -28,8 +28,6 @@ public class ContentController {
 
     public ContentController(IContentService contentService, AppConfig appConfig) {
         this.contentService = contentService;
-
-        // TODO: HIDE THIS
         this.baseImageUrl = appConfig.getServerAddress() + "/static/image/";
     }
 
@@ -66,10 +64,5 @@ public class ContentController {
     @GetMapping(value = "/filterBaseInfo", produces = MediaType.APPLICATION_JSON_VALUE)
     public UserBaseFilters getBaseFilters() {
         return new UserBaseFilters(contentService.getMinMaxPrices());
-    }
-
-    @GetMapping("/test")
-    public void test() {
-        AuthorDTO authorDTO = contentService.getAuthorById(6353L);
     }
 }

@@ -1,20 +1,23 @@
 package com.example.booksserver.userstate;
 
 import com.example.booksserver.dto.BookDTO;
+import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
 
-@Getter
+@Data
+@NoArgsConstructor
 public class UserBook {
-    private final long id;
-    private final String name;
-    private final Iterable<UserAuthor> authors;
-    private final BigDecimal price;
-    private final int releaseYear;
-    private final int available;
-    private final String mainImage;
+    private long id;
+    private String name;
+    private Iterable<UserAuthor> authors;
+    private BigDecimal price;
+    private int releaseYear;
+    private int available;
+    private String mainImage;
 
     public UserBook(BookDTO book, String baseUrl) {
         this.id = book.getId();
