@@ -10,7 +10,6 @@ import java.util.List;
 public abstract class StockMapper {
     public abstract StockDTO entityToDto(Stock entity);
     public abstract Stock dtoToEntity(StockDTO dto);
-
     public abstract List<StockDTO> entityToDto(List<Stock> entity);
     public abstract List<Stock> dtoToEntity(List<StockDTO> dto);
 }

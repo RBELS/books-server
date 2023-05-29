@@ -10,7 +10,6 @@ import java.util.List;
 public abstract class OrderItemMapper {
     public abstract OrderItemDTO entityToDto(OrderItem entity);
     public abstract OrderItem dtoToEntity(OrderItemDTO dto);
-
     public abstract List<OrderItemDTO> entityToDto(List<OrderItem> entity);
     public abstract List<OrderItem> dtoToEntity(List<OrderItemDTO> dto);
 

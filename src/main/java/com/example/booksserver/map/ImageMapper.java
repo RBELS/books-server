@@ -18,8 +18,8 @@ public abstract class ImageMapper {
     public abstract List<BookImageDTO> entityToDto(List<BookImage> entityList);
     public abstract BookImage dtoToEntity(BookImageDTO dto);
     public abstract List<BookImage> dtoToEntity(List<BookImageDTO> dtoList);
+
     public BookImageDTO fileToDto(MultipartFile imageFile, ImageType imageType) throws IOException {
-        // null, ImageType.MAIN, mainImageFile.getBytes()
         return new BookImageDTO(null, imageType, imageFile.getBytes());
     }
 
