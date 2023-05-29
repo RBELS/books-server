@@ -12,13 +12,17 @@ import java.util.List;
 @Data
 @Accessors(chain = true)
 @ToString
+@Builder
 public class BookDTO {
     private Long id;
+    @Builder.Default
     private String name = "";
     private Integer releaseYear;
     private BigDecimal price;
     private BookImageDTO mainFile;
+    @Builder.Default
     private List<BookImageDTO> imagesFileList = new ArrayList<>();
+    @Builder.Default
     private List<AuthorDTO> authors = new ArrayList<>();
     private StockDTO stock;
 }

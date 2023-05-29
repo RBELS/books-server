@@ -44,8 +44,6 @@ public class ContentService implements IContentService {
         this.exceptionFactory = exceptionFactory;
     }
 
-
-    // TODO: Return Page, not List
     @Transactional
     public Page<BookDTO> getBooks(BooksFilters filters) {
         int page = Objects.isNull(filters.getPage()) ? 0 : filters.getPage();
