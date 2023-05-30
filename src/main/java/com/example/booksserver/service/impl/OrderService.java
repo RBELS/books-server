@@ -87,7 +87,7 @@ public class OrderService implements IOrderService {
 
         //send payment request to the external service
         //check payment status
-        PaymentsInfoResponse paymentsInfoResponse;
+        PaymentsInfoResponse paymentsInfoResponse = null;
         try {
             paymentsInfoResponse = paymentsService.processPayment(orderDTO, cardInfo);
         } catch (PaymentException e) {
