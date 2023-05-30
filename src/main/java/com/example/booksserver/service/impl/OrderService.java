@@ -15,7 +15,6 @@ import com.example.booksserver.external.response.PaymentsErrorResponse;
 import com.example.booksserver.service.IOrderService;
 import com.example.booksserver.userstate.CardInfo;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,20 +25,20 @@ import org.springframework.web.server.ResponseStatusException;
 public class OrderService implements IOrderService {
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
-    private final IPaymentsRequestService mockPaymentsService;
+    private final IPaymentsRequestService paymentsService;
     private final BookRepository bookRepository;
     private final ResponseStatusWithBodyExceptionFactory exceptionFactory;
 
     public OrderService(
             OrderRepository orderRepository,
             OrderMapper orderMapper,
-            @Qualifier("mockPaymentsService") IPaymentsRequestService mockPaymentsService,
+            IPaymentsRequestService paymentsService,
             BookRepository bookRepository,
             ResponseStatusWithBodyExceptionFactory exceptionFactory
     ) {
         this.orderRepository = orderRepository;
         this.orderMapper = orderMapper;
-        this.mockPaymentsService = mockPaymentsService;
+        this.paymentsService = paymentsService;
         this.bookRepository = bookRepository;
         this.exceptionFactory = exceptionFactory;
     }
@@ -90,7 +89,7 @@ public class OrderService implements IOrderService {
         //check payment status
         PaymentsInfoResponse paymentsInfoResponse;
         try {
-            paymentsInfoResponse = mockPaymentsService.processPayment(orderDTO, cardInfo);
+            paymentsInfoResponse = paymentsService.processPayment(orderDTO, cardInfo);
         } catch (PaymentException e) {
             PaymentsErrorResponse errorResponse = e.getErrorResponse();
             log.warn(errorResponse.toString());

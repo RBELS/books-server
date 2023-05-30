@@ -8,15 +8,14 @@ import com.example.booksserver.userstate.CardInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.*;
 
 import java.util.Objects;
 
 @Slf4j
-@Service("paymentsService")
+@Service
 public class PaymentsRequestService implements IPaymentsRequestService {
     @Value("${external.payment-service.host}")
     private String paymentServiceAddress;
@@ -30,8 +29,7 @@ public class PaymentsRequestService implements IPaymentsRequestService {
         String requestUrl = paymentServiceAddress + postPaymentsMapping;
         try {
             infoResponse = restTemplate.postForEntity(requestUrl, new PostPaymentsRequest(orderDTO, cardInfo), PaymentsInfoResponse.class);
-            // TODO: Use RestClientException and RestServerException
-        } catch (HttpClientErrorException | HttpServerErrorException e) {
+        } catch (RestClientResponseException e) {
             PaymentsErrorResponse errorResponse = e.getResponseBodyAs(PaymentsErrorResponse.class);
             if (!Objects.isNull(errorResponse)) {
                 log.info(errorResponse.toString());
