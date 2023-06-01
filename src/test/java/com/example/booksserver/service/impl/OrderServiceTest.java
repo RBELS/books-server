@@ -8,7 +8,7 @@ import com.example.booksserver.dto.OrderDTO;
 import com.example.booksserver.dto.OrderItemDTO;
 import com.example.booksserver.dto.StockDTO;
 import com.example.booksserver.entity.Book;
-import com.example.booksserver.entity.Order;
+import com.example.booksserver.entity.order.Order;
 import com.example.booksserver.external.IPaymentsRequestService;
 import com.example.booksserver.external.PaymentException;
 import com.example.booksserver.external.response.PaymentsInfoResponse;

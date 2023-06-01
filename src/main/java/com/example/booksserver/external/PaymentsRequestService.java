@@ -1,6 +1,7 @@
 package com.example.booksserver.external;
 
 import com.example.booksserver.dto.OrderDTO;
+import com.example.booksserver.entity.order.OrderStatus;
 import com.example.booksserver.external.request.PostPaymentsRequest;
 import com.example.booksserver.external.response.PaymentsInfoResponse;
 import com.example.booksserver.external.response.PaymentsErrorResponse;
@@ -8,7 +9,6 @@ import com.example.booksserver.userstate.CardInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.*;
 
@@ -20,29 +20,31 @@ public class PaymentsRequestService implements IPaymentsRequestService {
     @Value("${external.payment-service.host}")
     private String paymentServiceAddress;
     @Value("${external.payment-service.post-payment-mapping}")
-    private String postPaymentsMapping;
+    private String paymentsMapping;
 
     @Override
     public PaymentsInfoResponse processPayment(OrderDTO orderDTO, CardInfo cardInfo) throws PaymentException {
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<PaymentsInfoResponse> infoResponse;
-        String requestUrl = paymentServiceAddress + postPaymentsMapping;
+        String requestUrl = paymentServiceAddress + paymentsMapping;
         try {
             infoResponse = restTemplate.postForEntity(requestUrl, new PostPaymentsRequest(orderDTO, cardInfo), PaymentsInfoResponse.class);
         } catch (RestClientResponseException e) {
             PaymentsErrorResponse errorResponse = e.getResponseBodyAs(PaymentsErrorResponse.class);
             if (!Objects.isNull(errorResponse)) {
                 log.info(errorResponse.toString());
-                throw new PaymentException(errorResponse);
+                throw new PaymentException(OrderStatus.FAIL, errorResponse);
             } else {
                 log.error(requestUrl + " endpoint returned an unknown error response body type.");
-                throw new PaymentException(null);
+                throw new PaymentException(OrderStatus.FAIL, null);
             }
+        } catch (RestClientException e) {
+            throw new PaymentException(OrderStatus.PENDING, null);
         }
 
         if (Objects.isNull(infoResponse.getBody())) {
             log.error(requestUrl + " endpoint returned an unknown response body type.");
-            throw new PaymentException(null);
+            throw new PaymentException(OrderStatus.FAIL, null);
         }
 
         return infoResponse.getBody();
@@ -50,7 +52,19 @@ public class PaymentsRequestService implements IPaymentsRequestService {
 
     @Override
     public PaymentsInfoResponse getPaymentInfo(long orderId) throws PaymentException {
-        return null;
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<PaymentsInfoResponse> infoResponse = null;
+        String requestUrl = String.format("%s%s/%d", paymentServiceAddress, paymentsMapping, orderId);
+        try {
+            infoResponse = restTemplate.getForEntity(requestUrl, PaymentsInfoResponse.class);
+        } catch (RestClientResponseException e) {
+            PaymentsErrorResponse errorResponse = e.getResponseBodyAs(PaymentsErrorResponse.class);
+            throw new PaymentException(OrderStatus.FAIL, errorResponse);
+        } catch (RestClientException e) {
+            throw new PaymentException(OrderStatus.PENDING, null);
+        }
+
+        return infoResponse.getBody();
     }
 
     @Override

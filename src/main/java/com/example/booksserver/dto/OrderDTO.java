@@ -1,5 +1,6 @@
 package com.example.booksserver.dto;
 
+import com.example.booksserver.entity.order.OrderStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,4 +25,5 @@ public class OrderDTO {
     @Builder.Default
     private List<OrderItemDTO> orderItems = new ArrayList<>();
     private Date dateCreated;
+    private OrderStatus status;
 }

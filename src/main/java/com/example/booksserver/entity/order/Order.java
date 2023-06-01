@@ -1,4 +1,4 @@
-package com.example.booksserver.entity;
+package com.example.booksserver.entity.order;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -38,4 +38,8 @@ public class Order {
     @Column(nullable = false)
     @CreationTimestamp
     private Date dateCreated;
+
+    @Enumerated(EnumType.ORDINAL)
+    @Column(nullable = false)
+    private OrderStatus status;
 }

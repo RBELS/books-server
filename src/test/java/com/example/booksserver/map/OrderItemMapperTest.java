@@ -1,7 +1,7 @@
 package com.example.booksserver.map;
 
 import com.example.booksserver.dto.OrderItemDTO;
-import com.example.booksserver.entity.OrderItem;
+import com.example.booksserver.entity.order.OrderItem;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

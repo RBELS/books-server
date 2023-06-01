@@ -1,5 +1,6 @@
-package com.example.booksserver.entity;
+package com.example.booksserver.entity.order;
 
+import com.example.booksserver.entity.Book;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
