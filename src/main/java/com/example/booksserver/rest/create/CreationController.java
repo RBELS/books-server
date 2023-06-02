@@ -36,8 +36,6 @@ public class CreationController {
     public CreationController(IContentService contentService, ImageMapper imageMapper, AppConfig appConfig, ResponseStatusWithBodyExceptionFactory exceptionFactory) {
         this.contentService = contentService;
         this.imageMapper = imageMapper;
-
-        // TODO: Hide this
         this.baseImageUrl = appConfig.getServerAddress() + "/static/image/";
         this.exceptionFactory = exceptionFactory;
     }

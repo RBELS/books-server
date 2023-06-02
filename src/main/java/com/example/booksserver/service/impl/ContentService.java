@@ -13,6 +13,7 @@ import com.example.booksserver.repository.BookRepository;
 import com.example.booksserver.service.IContentService;
 import com.example.booksserver.userstate.filters.AuthorsFilters;
 import com.example.booksserver.userstate.filters.BooksFilters;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -28,21 +29,13 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class ContentService implements IContentService {
-
     private final BookRepository bookRepository;
     private final AuthorRepository authorRepository;
     private final AuthorMapper authorMapper;
     private final BookMapper bookMapper;
     private final ResponseStatusWithBodyExceptionFactory exceptionFactory;
-
-    public ContentService(BookRepository bookRepository, AuthorRepository authorRepository, AuthorMapper authorMapper, BookMapper bookMapper, ResponseStatusWithBodyExceptionFactory exceptionFactory) {
-        this.bookRepository = bookRepository;
-        this.authorRepository = authorRepository;
-        this.authorMapper = authorMapper;
-        this.bookMapper = bookMapper;
-        this.exceptionFactory = exceptionFactory;
-    }
 
     @Transactional
     public Page<BookDTO> getBooks(BooksFilters filters) {

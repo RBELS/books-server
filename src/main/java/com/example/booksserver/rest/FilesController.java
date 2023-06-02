@@ -2,6 +2,7 @@ package com.example.booksserver.rest;
 
 import com.example.booksserver.dto.BookImageDTO;
 import com.example.booksserver.service.IFilesService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
@@ -12,13 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/static")
+@RequiredArgsConstructor
 public class FilesController {
-
     private final IFilesService filesService;
-
-    public FilesController(IFilesService filesService) {
-        this.filesService = filesService;
-    }
 
     @GetMapping(value = "/image/{imageId}", produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_GIF_VALUE})
     public Resource downloadImage(

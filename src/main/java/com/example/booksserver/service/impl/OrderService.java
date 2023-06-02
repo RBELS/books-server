@@ -4,17 +4,14 @@ import com.example.booksserver.components.ErrorResponseFactory;
 import com.example.booksserver.components.ResponseStatusWithBodyExceptionFactory;
 import com.example.booksserver.dto.OrderDTO;
 import com.example.booksserver.dto.StockDTO;
-import com.example.booksserver.entity.Book;
 import com.example.booksserver.entity.order.Order;
 import com.example.booksserver.entity.order.OrderStatus;
-import com.example.booksserver.map.BookMapper;
 import com.example.booksserver.map.OrderMapper;
 import com.example.booksserver.repository.BookRepository;
 import com.example.booksserver.repository.OrderRepository;
 import com.example.booksserver.external.IPaymentsRequestService;
 import com.example.booksserver.external.PaymentException;
 import com.example.booksserver.external.response.PaymentsInfoResponse;
-import com.example.booksserver.external.response.PaymentsErrorResponse;
 import com.example.booksserver.service.IOrderService;
 import com.example.booksserver.userstate.CardInfo;
 import lombok.RequiredArgsConstructor;
@@ -23,11 +20,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j

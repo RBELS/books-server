@@ -70,8 +70,8 @@ public class BookRepositoryTest {
         assertThat(selectedMinPrice).isPresent();
         assertThat(selectedMaxPrice).isPresent();
 
-        assertThat(selectedMinPrice.get()).isEqualTo(minPrice);
-        assertThat(selectedMaxPrice.get()).isEqualTo(maxPrice);
+        assertThat(selectedMinPrice.get().compareTo(minPrice)).isEqualTo(0);
+        assertThat(selectedMaxPrice.get().compareTo(maxPrice)).isEqualTo(0);
     }
 
     @Test
