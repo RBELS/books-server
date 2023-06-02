@@ -1,11 +1,13 @@
 package com.example.booksserver.dto;
 
+import com.example.booksserver.entity.order.OrderStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
-import java.sql.Date;
+import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,13 +15,15 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderDTO {
+@Accessors(chain = true)
+public class Order {
     private Long id;
     private String address;
     private String phone;
     private String name;
     private String email;
     @Builder.Default
-    private List<OrderItemDTO> orderItems = new ArrayList<>();
+    private List<OrderItem> orderItems = new ArrayList<>();
     private Date dateCreated;
+    private OrderStatus status;
 }

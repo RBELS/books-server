@@ -3,11 +3,13 @@ package com.example.booksserver.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class StockDTO {
+@Accessors(chain = true)
+public class Stock {
     private Long id;
     private Integer available;
     private Integer ordered;

@@ -1,11 +1,13 @@
 package com.example.booksserver.dto;
 
 import lombok.*;
+import lombok.experimental.Accessors;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class AuthorDTO {
+@Accessors(chain = true)
+public class Author {
     private Long id;
     private String name;
 }

@@ -1,95 +1,128 @@
 package com.example.booksserver.service.impl;
 
-import com.example.booksserver.dto.OrderDTO;
-import com.example.booksserver.dto.StockDTO;
-import com.example.booksserver.entity.Order;
+import com.example.booksserver.components.ErrorResponseFactory;
+import com.example.booksserver.components.ResponseStatusWithBodyExceptionFactory;
+import com.example.booksserver.dto.Order;
+import com.example.booksserver.dto.Stock;
+import com.example.booksserver.entity.order.OrderEntity;
+import com.example.booksserver.entity.order.OrderStatus;
 import com.example.booksserver.map.OrderMapper;
 import com.example.booksserver.repository.BookRepository;
 import com.example.booksserver.repository.OrderRepository;
 import com.example.booksserver.external.IPaymentsRequestService;
 import com.example.booksserver.external.PaymentException;
 import com.example.booksserver.external.response.PaymentsInfoResponse;
-import com.example.booksserver.external.response.PaymentsErrorResponse;
 import com.example.booksserver.service.IOrderService;
 import com.example.booksserver.userstate.CardInfo;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class OrderService implements IOrderService {
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
-    private final IPaymentsRequestService mockPaymentsService;
+    private final IPaymentsRequestService paymentsService;
     private final BookRepository bookRepository;
+    private final ResponseStatusWithBodyExceptionFactory exceptionFactory;
 
-    public OrderService(
-            OrderRepository orderRepository,
-            OrderMapper orderMapper,
-            @Qualifier("mockPaymentsService") IPaymentsRequestService mockPaymentsService,
-            BookRepository bookRepository
-    ) {
-        this.orderRepository = orderRepository;
-        this.orderMapper = orderMapper;
-        this.mockPaymentsService = mockPaymentsService;
-        this.bookRepository = bookRepository;
-    }
-
-    private void validateOrder(OrderDTO orderDTO) throws ResponseStatusException {
-        if (
-                orderDTO.getEmail().isBlank() || orderDTO.getAddress().isBlank()
-                || orderDTO.getName().isBlank() || orderDTO.getPhone().isBlank()
-                || orderDTO.getOrderItems().isEmpty()
-        ) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        } else if (orderDTO.getOrderItems().contains(null)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    private void validateOrder(Order order) throws ResponseStatusException {
+        if (order.getEmail().isBlank()) {
+            throw exceptionFactory.create(HttpStatus.BAD_REQUEST, ErrorResponseFactory.InternalErrorCode.ORDER_BAD_EMAIL);
+        } else if (order.getAddress().isBlank()) {
+            throw exceptionFactory.create(HttpStatus.BAD_REQUEST, ErrorResponseFactory.InternalErrorCode.ORDER_BAD_ADDRESS);
+        } else if (order.getName().isBlank()) {
+            throw exceptionFactory.create(HttpStatus.BAD_REQUEST, ErrorResponseFactory.InternalErrorCode.ORDER_BAD_NAME);
+        } else if (order.getPhone().isBlank()) {
+            throw exceptionFactory.create(HttpStatus.BAD_REQUEST, ErrorResponseFactory.InternalErrorCode.ORDER_BAD_PHONE);
+        } else if (order.getOrderItems().isEmpty()) {
+            throw exceptionFactory.create(HttpStatus.BAD_REQUEST, ErrorResponseFactory.InternalErrorCode.ORDER_NO_ITEMS);
+        } else if (order.getOrderItems().contains(null)) {
+            throw exceptionFactory.create(HttpStatus.BAD_REQUEST, ErrorResponseFactory.InternalErrorCode.ORDER_ITEM_NOT_FOUND);
         }
 
-        orderDTO.getOrderItems().forEach(orderItemDto -> {
+        order.getOrderItems().forEach(orderItemDto -> {
             int availableBooks = orderItemDto.getBook().getStock().getAvailable();
             int orderBooks = orderItemDto.getCount();
             if (orderBooks > availableBooks) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+                throw exceptionFactory.create(HttpStatus.BAD_REQUEST, ErrorResponseFactory.InternalErrorCode.ORDER_ITEM_NOT_IN_STOCK);
             }
         });
     }
 
     @Override
-    @Transactional(rollbackFor = {ResponseStatusException.class})
-    public OrderDTO createOrder(OrderDTO orderDTO, CardInfo cardInfo) throws ResponseStatusException {
-        validateOrder(orderDTO);
+    @Transactional(noRollbackFor = ResponseStatusException.class)
+    public Order createOrder(Order order, CardInfo cardInfo) throws ResponseStatusException {
+        validateOrder(order);
 
-        //edit local stock
-        //create order
-        orderDTO.getOrderItems().forEach(orderItemDto -> {
-            StockDTO stockDTO = orderItemDto.getBook().getStock();
-            stockDTO.setAvailable(stockDTO.getAvailable() - orderItemDto.getCount());
-            stockDTO.setInDelivery(stockDTO.getInDelivery() + orderItemDto.getCount());
-        });
+        try {
+            paymentsService.processPayment(order, cardInfo);
+            order.setStatus(OrderStatus.SUCCESS);
+        } catch (PaymentException e) {
+            order.setStatus(e.getStatus());
+        }
 
-        Order orderEntity = orderMapper.dtoToEntity(orderDTO);
+        if (!order.getStatus().equals(OrderStatus.FAIL)) {
+            order.getOrderItems().forEach(orderItemDto -> {
+                Stock stock = orderItemDto.getBook().getStock();
+                stock.setAvailable(stock.getAvailable() - orderItemDto.getCount());
+                stock.setInDelivery(stock.getInDelivery() + orderItemDto.getCount());
+            });
+        }
 
+        OrderEntity orderEntity = orderMapper.dtoToEntity(order);
         orderEntity.getOrderItems().forEach(orderItem -> bookRepository.save(orderItem.getBook()));
         orderRepository.save(orderEntity);
 
-        //send payment request to the external service
-        //check payment status
-        PaymentsInfoResponse paymentsInfoResponse;
-        try {
-            paymentsInfoResponse = mockPaymentsService.processPayment(orderDTO, cardInfo);
-        } catch (PaymentException e) {
-            PaymentsErrorResponse errorResponse = e.getErrorResponse();
-            log.warn(errorResponse.toString());
-            //if failed - rollback
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+
+        if (order.getStatus() == OrderStatus.FAIL) {
+            throw exceptionFactory.create(HttpStatus.BAD_REQUEST, ErrorResponseFactory.InternalErrorCode.PAYMENT_ERROR);
         }
-        log.info(paymentsInfoResponse.toString());
 
         return orderMapper.entityToDto(orderEntity);
+    }
+
+    @Transactional
+    @Scheduled(timeUnit = TimeUnit.MINUTES, fixedRate = 5)
+    public void updateOrderStatuses() {
+        List<Order> orderList = orderMapper.entityToDto(
+                orderRepository.findAllByStatus(OrderStatus.PENDING)
+        );
+        orderList.forEach(orderDTO -> {
+            PaymentsInfoResponse response;
+            try {
+                response = paymentsService.getPaymentInfo(orderDTO.getId());
+            } catch (PaymentException e) {
+                if (e.getStatus().equals(OrderStatus.FAIL)) {
+                    orderDTO.setStatus(OrderStatus.FAIL);
+                    orderDTO.getOrderItems().forEach(orderItemDTO -> {
+                        int orderCount = orderItemDTO.getCount();
+                        Stock stock = orderItemDTO.getBook().getStock();
+                        stock.setAvailable(stock.getAvailable() + orderCount);
+                        stock.setInDelivery(stock.getInDelivery() - orderCount);
+                    });
+
+                    OrderEntity orderEntity = orderMapper.dtoToEntity(orderDTO);
+                    orderEntity.getOrderItems().forEach(orderItem -> bookRepository.save(orderItem.getBook()));
+                    orderRepository.save(orderEntity);
+                }
+                return;
+            }
+
+            if (response.getStatus().equals("SUCCESS")) {
+                orderDTO.setStatus(OrderStatus.SUCCESS);
+                OrderEntity orderEntity = orderMapper.dtoToEntity(orderDTO);
+                orderRepository.save(orderEntity);
+            }
+        });
     }
 }

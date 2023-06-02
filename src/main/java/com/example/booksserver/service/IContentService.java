@@ -1,7 +1,7 @@
 package com.example.booksserver.service;
 
-import com.example.booksserver.dto.AuthorDTO;
-import com.example.booksserver.dto.BookDTO;
+import com.example.booksserver.dto.Author;
+import com.example.booksserver.dto.Book;
 import com.example.booksserver.userstate.filters.AuthorsFilters;
 import com.example.booksserver.userstate.filters.BooksFilters;
 import org.springframework.data.domain.Page;
@@ -11,12 +11,13 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public interface IContentService {
-    Page<BookDTO> getBooks(BooksFilters filters);
-    Page<AuthorDTO> getAuthors(AuthorsFilters filters);
-    AuthorDTO getAuthorById(Long authorId);
-    BookDTO getBookById(Long bookId);
+    Page<Book> getBooks(BooksFilters filters);
+    Page<Author> getAuthors(AuthorsFilters filters);
+    List<Author> getAllAuthors();
+    Author getAuthorById(Long authorId);
+    Book getBookById(Long bookId);
     List<BigDecimal> getMinMaxPrices();
-    AuthorDTO createAuthor(AuthorDTO newAuthorDTO) throws ResponseStatusException;
-    BookDTO createBook(BookDTO newBookDTO) throws ResponseStatusException;
+    Author createAuthor(Author newAuthor) throws ResponseStatusException;
+    Book createBook(Book newBook) throws ResponseStatusException;
 
 }

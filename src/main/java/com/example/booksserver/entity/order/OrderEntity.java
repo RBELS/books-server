@@ -1,7 +1,8 @@
-package com.example.booksserver.entity;
+package com.example.booksserver.entity.order;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.Accessors;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.util.ArrayList;
@@ -12,7 +13,8 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @Table(name = "`order`")
-public class Order {
+@Accessors(chain = true)
+public class OrderEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -31,9 +33,13 @@ public class Order {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "order_id", referencedColumnName = "id")
-    private List<OrderItem> orderItems = new ArrayList<>();
+    private List<OrderItemEntity> orderItems = new ArrayList<>();
 
     @Column(nullable = false)
     @CreationTimestamp
     private Date dateCreated;
+
+    @Enumerated(EnumType.ORDINAL)
+    @Column(nullable = false)
+    private OrderStatus status;
 }

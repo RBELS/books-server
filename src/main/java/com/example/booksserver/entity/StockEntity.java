@@ -3,12 +3,14 @@ package com.example.booksserver.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
 @Entity
 @Data
 @NoArgsConstructor
 @Table(name = "stock")
-public class Stock {
+@Accessors(chain = true)
+public class StockEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;

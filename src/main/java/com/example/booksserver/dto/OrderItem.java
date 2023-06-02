@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
 
@@ -11,9 +12,10 @@ import java.math.BigDecimal;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderItemDTO {
+@Accessors(chain = true)
+public class OrderItem {
     private Long id;
-    private BookDTO book;
+    private Book book;
     private Integer count;
     private BigDecimal price;
 }

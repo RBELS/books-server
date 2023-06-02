@@ -27,7 +27,7 @@ paths:
       requestBody:
         $ref: '#/components/requestBodies/newAuthor'
       responses:
-        '200':
+        200:
           description: Author successfully created.
           content:
             application/json:
@@ -42,8 +42,22 @@ paths:
                     example: "SUCCESS"
                   author:
                     $ref: "#/components/schemas/author"
-        '400':
+        400:
           description: Not enough parameters provided or parameters' formats do not meet the requirements.
+  /authors/all:
+    get:
+      summary: Get all authors
+      description: Get all authors sorted by name and id ascending
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/author"
+
 components:
   parameters:
     page:

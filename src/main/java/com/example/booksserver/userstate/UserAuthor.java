@@ -1,16 +1,18 @@
 package com.example.booksserver.userstate;
 
-import com.example.booksserver.dto.AuthorDTO;
+import com.example.booksserver.dto.Author;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Getter
+@Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class UserAuthor {
-    private final long id;
-    private final String name;
+    private long id;
+    private String name;
 
-    public UserAuthor(AuthorDTO author) {
+    public UserAuthor(Author author) {
         this.id = author.getId();
         this.name = author.getName();
     }

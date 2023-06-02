@@ -1,14 +1,13 @@
 package com.example.booksserver.map;
 
-import com.example.booksserver.dto.BookDTO;
-import com.example.booksserver.entity.Book;
+import com.example.booksserver.dto.Book;
+import com.example.booksserver.entity.BookEntity;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 
 import java.util.List;
 import java.util.Objects;
@@ -25,16 +24,16 @@ public abstract class BookMapper {
     @Mapping(target = "mainFile", expression = "java(imageMapper.mapMainImage(entity.getImages()))")
     @Mapping(target = "imagesFileList", expression = "java(imageMapper.mapContentImages(entity.getImages()))")
     @Mapping(target = "stock", source = "stock")
-    public abstract BookDTO entityToDto(Book entity);
+    public abstract Book entityToDto(BookEntity entity);
 
-    public abstract List<BookDTO> entityToDto(List<Book> entityList);
+    public abstract List<Book> entityToDto(List<BookEntity> entityList);
 
     @Mapping(target = "images", expression = "java(imageMapper.dtoToEntity(imageMapper.extractFromBookDto(dto)))")
     @Mapping(target = "stock", source = "stock")
-    public abstract Book dtoToEntity(BookDTO dto);
+    public abstract BookEntity dtoToEntity(Book dto);
 
     @AfterMapping
-    public void afterDtoToEntity(BookDTO source, @MappingTarget Book target) {
+    public void afterDtoToEntity(Book source, @MappingTarget BookEntity target) {
         target.getImages().forEach(bookImage -> {
             if (Objects.isNull(bookImage.getBook())) {
                 bookImage.setBook(target);
@@ -42,11 +41,7 @@ public abstract class BookMapper {
         });
     }
 
-    public Page<BookDTO> entityToDtoPage(Page<Book> books) {
+    public Page<Book> entityToDtoPage(Page<BookEntity> books) {
         return books.map(this::entityToDto);
-    }
-
-    public Page<Book> dtoToEntityPage(Page<BookDTO> bookDTOS) {
-        return bookDTOS.map(this::dtoToEntity);
     }
 }

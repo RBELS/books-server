@@ -1,0 +1,70 @@
+spring:
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:db;DB_CLOSE_DELAY=-1
+    username: test
+    password: testpw
+  jpa:
+    generate-ddl: true
+
+
+external:
+  payment-service:
+    host: http://external.domain:8080
+    post-payment-mapping: /payments
+responses:
+  error:
+    devMessages: '{
+      BOOK_BAD_AUTHORS: "Authors do not match the provided pattern.",
+      BOOK_BAD_NAME: "Book name does not match the provided pattern.",
+      BOOK_BAD_RELEASE_YEAR: "Book release year does not match the provided pattern.",
+      BOOK_BAD_PRICE: "Book price does not match the provided pattern.",
+      BOOK_BAD_IMAGES: "Book images were not provided or some of them have bad format.",
+      AUTHOR_BAD_NAME: "Author name is not valid.",
+      ORDER_BAD_EMAIL: "Order email is not valid.",
+      ORDER_BAD_ADDRESS: "Order address is not valid.",
+      ORDER_BAD_NAME: "Order name is not valid.",
+      ORDER_BAD_PHONE: "Order phone is not valid.",
+      ORDER_NO_ITEMS: "Order items were not provided.",
+      ORDER_ITEM_NOT_FOUND: "Some of the order items do not exist.",
+      ORDER_ITEM_NOT_IN_STOCK: "Selected order items are not in stock in enough quantity.",
+      PAYMENT_ERROR: "Payment can not be processed for some reason.",
+      IMAGE_NOT_FOUND: "Image not found.",
+      INTERNAL_ERROR_IMAGES: "Impossible to parse provided images."
+    }'
+    langEnMessages: '{
+      BOOK_BAD_AUTHORS: "Authors do not match the provided pattern.",
+      BOOK_BAD_NAME: "Book name does not match the provided pattern.",
+      BOOK_BAD_RELEASE_YEAR: "Book release year does not match the provided pattern.",
+      BOOK_BAD_PRICE: "Book price does not match the provided pattern.",
+      BOOK_BAD_IMAGES: "Book images were not provided or some of them have bad format.",
+      AUTHOR_BAD_NAME: "Author name is not valid.",
+      ORDER_BAD_EMAIL: "Order email is not valid.",
+      ORDER_BAD_ADDRESS: "Order address is not valid.",
+      ORDER_BAD_NAME: "Order name is not valid.",
+      ORDER_BAD_PHONE: "Order phone is not valid.",
+      ORDER_NO_ITEMS: "Order items were not provided.",
+      ORDER_ITEM_NOT_FOUND: "Some of the order items do not exist.",
+      ORDER_ITEM_NOT_IN_STOCK: "Selected order items are not in stock in enough quantity.",
+      PAYMENT_ERROR: "Payment can not be processed for some reason.",
+      IMAGE_NOT_FOUND: "Image not found.",
+      INTERNAL_ERROR_IMAGES: "Impossible to parse provided images."
+    }'
+    langRuMessages: '{
+      BOOK_BAD_AUTHORS: "Информация об авторах не удовлетворяет спецификации.",
+      BOOK_BAD_NAME: "Название книги не удовлетворяет спецификации.",
+      BOOK_BAD_RELEASE_YEAR: "Год выпуска книги не удовлетворяет спецификации.",
+      BOOK_BAD_PRICE: "Цена книги не удовлетворяет спецификации.",
+      BOOK_BAD_IMAGES: "Переданные изображения не предоставлены либо некоторые из них имеют неподходящий формат.",
+      AUTHOR_BAD_NAME: "Имя автора не валидно.",
+      ORDER_BAD_EMAIL: "Email заказчика не валиден.",
+      ORDER_BAD_ADDRESS: "Указанный адрес не валиден.",
+      ORDER_BAD_NAME: "Имя заказчика не валидно.",
+      ORDER_BAD_PHONE: "Номер телефона не валиден.",
+      ORDER_NO_ITEMS: "Заказ не содежит ни одной позиции.",
+      ORDER_ITEM_NOT_FOUND: "Неоторые позиции заказа не существуют.",
+      ORDER_ITEM_NOT_IN_STOCK: "Некоторые позиции заказа не имеются в нужном количестве.",
+      PAYMENT_ERROR: "Ошибка оплаты.",
+      IMAGE_NOT_FOUND: "Изображение не найдено.",
+      INTERNAL_ERROR_IMAGES: "Невозможно обработать переданные изображения."
+    }'

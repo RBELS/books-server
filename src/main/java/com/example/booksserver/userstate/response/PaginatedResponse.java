@@ -1,14 +1,15 @@
 package com.example.booksserver.userstate.response;
 
-import com.example.booksserver.userstate.filters.PaginatedFilters;
-import lombok.Getter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
 
-@Getter
+@Data
+@NoArgsConstructor
 public abstract class PaginatedResponse {
-    private final Integer page;
-    private final Integer count;
-    private final Integer totalPages;
+    private Integer page;
+    private Integer count;
+    private Integer totalPages;
 
     public PaginatedResponse(Page<?> page) {
         this.page = page.getNumber() + 1;
