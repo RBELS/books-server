@@ -1,4 +1,4 @@
-package com.example.booksserver.scheduler;
+package com.example.booksserver.schedule;
 
 import com.example.booksserver.dto.Order;
 import com.example.booksserver.dto.Stock;
@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 @Component
 @RequiredArgsConstructor
-public class PaymentScheduler {
+public class PaymentScheduleExecutor {
     private final OrderRepository orderRepository;
     private final StockRepository stockRepository;
     private final OrderMapper orderMapper;
