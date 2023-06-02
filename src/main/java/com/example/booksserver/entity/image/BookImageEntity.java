@@ -13,6 +13,7 @@ import java.util.Objects;
 @AllArgsConstructor
 @NoArgsConstructor
 @Accessors(chain = true)
+@Table(name = "book_image")
 public class BookImageEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

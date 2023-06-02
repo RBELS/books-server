@@ -35,7 +35,7 @@ public class OrderEntity {
     @JoinColumn(name = "order_id", referencedColumnName = "id")
     private List<OrderItemEntity> orderItems = new ArrayList<>();
 
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false)
     @CreationTimestamp
     private Date dateCreated;
 

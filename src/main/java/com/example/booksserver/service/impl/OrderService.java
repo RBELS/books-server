@@ -7,23 +7,22 @@ import com.example.booksserver.dto.Stock;
 import com.example.booksserver.entity.order.OrderEntity;
 import com.example.booksserver.entity.order.OrderStatus;
 import com.example.booksserver.map.OrderMapper;
-import com.example.booksserver.repository.BookRepository;
 import com.example.booksserver.repository.OrderRepository;
 import com.example.booksserver.external.IPaymentsRequestService;
 import com.example.booksserver.external.PaymentException;
-import com.example.booksserver.external.response.PaymentsInfoResponse;
+import com.example.booksserver.repository.StockRepository;
 import com.example.booksserver.service.IOrderService;
 import com.example.booksserver.userstate.CardInfo;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -32,8 +31,11 @@ public class OrderService implements IOrderService {
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
     private final IPaymentsRequestService paymentsService;
-    private final BookRepository bookRepository;
+    private final StockRepository stockRepository;
     private final ResponseStatusWithBodyExceptionFactory exceptionFactory;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     private void validateOrder(Order order) throws ResponseStatusException {
         if (order.getEmail().isBlank()) {
@@ -60,10 +62,26 @@ public class OrderService implements IOrderService {
     }
 
     @Override
-    @Transactional(noRollbackFor = ResponseStatusException.class)
+    @Transactional(noRollbackFor = {ResponseStatusException.class})
     public Order createOrder(Order order, CardInfo cardInfo) throws ResponseStatusException {
         validateOrder(order);
+        order = saveOrderPending(order);
+        order = processPayment(order, cardInfo);
+        return order;
+    }
 
+    public Order saveOrderPending(Order order) {
+        order.setStatus(OrderStatus.PENDING);
+        OrderEntity orderEntity = orderMapper.dtoToEntity(order);
+        order = orderMapper.entityToDto(
+                orderRepository.save(orderEntity)
+        );
+        entityManager.flush();
+        return order;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW, noRollbackFor = {ResponseStatusException.class})
+    public Order processPayment(Order order, CardInfo cardInfo) throws ResponseStatusException {
         try {
             paymentsService.processPayment(order, cardInfo);
             order.setStatus(OrderStatus.SUCCESS);
@@ -71,7 +89,7 @@ public class OrderService implements IOrderService {
             order.setStatus(e.getStatus());
         }
 
-        if (!order.getStatus().equals(OrderStatus.FAIL)) {
+        if (!OrderStatus.FAIL.equals(order.getStatus())) {
             order.getOrderItems().forEach(orderItemDto -> {
                 Stock stock = orderItemDto.getBook().getStock();
                 stock.setAvailable(stock.getAvailable() - orderItemDto.getCount());
@@ -80,49 +98,14 @@ public class OrderService implements IOrderService {
         }
 
         OrderEntity orderEntity = orderMapper.dtoToEntity(order);
-        orderEntity.getOrderItems().forEach(orderItem -> bookRepository.save(orderItem.getBook()));
+        orderEntity.getOrderItems().forEach(orderItem -> stockRepository.save(orderItem.getBook().getStock()));
         orderRepository.save(orderEntity);
 
-
-        if (order.getStatus() == OrderStatus.FAIL) {
+        if (OrderStatus.FAIL.equals(order.getStatus())) {
             throw exceptionFactory.create(HttpStatus.BAD_REQUEST, ErrorResponseFactory.InternalErrorCode.PAYMENT_ERROR);
         }
 
         return orderMapper.entityToDto(orderEntity);
     }
 
-    @Transactional
-    @Scheduled(timeUnit = TimeUnit.MINUTES, fixedRate = 5)
-    public void updateOrderStatuses() {
-        List<Order> orderList = orderMapper.entityToDto(
-                orderRepository.findAllByStatus(OrderStatus.PENDING)
-        );
-        orderList.forEach(orderDTO -> {
-            PaymentsInfoResponse response;
-            try {
-                response = paymentsService.getPaymentInfo(orderDTO.getId());
-            } catch (PaymentException e) {
-                if (e.getStatus().equals(OrderStatus.FAIL)) {
-                    orderDTO.setStatus(OrderStatus.FAIL);
-                    orderDTO.getOrderItems().forEach(orderItemDTO -> {
-                        int orderCount = orderItemDTO.getCount();
-                        Stock stock = orderItemDTO.getBook().getStock();
-                        stock.setAvailable(stock.getAvailable() + orderCount);
-                        stock.setInDelivery(stock.getInDelivery() - orderCount);
-                    });
-
-                    OrderEntity orderEntity = orderMapper.dtoToEntity(orderDTO);
-                    orderEntity.getOrderItems().forEach(orderItem -> bookRepository.save(orderItem.getBook()));
-                    orderRepository.save(orderEntity);
-                }
-                return;
-            }
-
-            if (response.getStatus().equals("SUCCESS")) {
-                orderDTO.setStatus(OrderStatus.SUCCESS);
-                OrderEntity orderEntity = orderMapper.dtoToEntity(orderDTO);
-                orderRepository.save(orderEntity);
-            }
-        });
-    }
 }

@@ -71,16 +71,17 @@ public class PaymentsRequestService implements IPaymentsRequestService {
 
     @Override
     public PaymentsInfoResponse cancelPayment(long orderId) throws PaymentException {
-        RestTemplate restTemplate = new RestTemplate();
-        PaymentsInfoResponse infoResponse = null;
-        String requestUrl = String.format("%s%s/%d/cancel", paymentServiceAddress, paymentsMapping, orderId);
-        try {
-            infoResponse = restTemplate.patchForObject(requestUrl, null, PaymentsInfoResponse.class);
-        } catch (RestClientResponseException e) {
-            throw new PaymentException(OrderStatus.UNKNOWN, e.getResponseBodyAs(PaymentsErrorResponse.class));
-        } catch (RestClientException e) {
-            throw new PaymentException(OrderStatus.PENDING_CANCEL, null);
-        }
-        return infoResponse;
+        return null;
+//        RestTemplate restTemplate = new RestTemplate();
+//        PaymentsInfoResponse infoResponse = null;
+//        String requestUrl = String.format("%s%s/%d/cancel", paymentServiceAddress, paymentsMapping, orderId);
+//        try {
+//            infoResponse = restTemplate.patchForObject(requestUrl, null, PaymentsInfoResponse.class);
+//        } catch (RestClientResponseException e) {
+//            throw new PaymentException(OrderStatus.UNKNOWN, e.getResponseBodyAs(PaymentsErrorResponse.class));
+//        } catch (RestClientException e) {
+//            throw new PaymentException(OrderStatus.PENDING_CANCEL, null);
+//        }
+//        return infoResponse;
     }
 }

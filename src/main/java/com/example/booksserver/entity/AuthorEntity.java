@@ -13,6 +13,7 @@ import java.util.Set;
 @Entity
 @Data
 @Accessors(chain = true)
+@Table(name = "author")
 public class AuthorEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

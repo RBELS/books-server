@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 @Data
 @NoArgsConstructor
 @Accessors(chain = true)
+@Table(name = "order_item")
 public class OrderItemEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
