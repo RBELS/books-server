@@ -1,7 +1,9 @@
-package com.example.booksserver.external;
+package com.example.booksserver.external.impl;
 
-import com.example.booksserver.dto.OrderDTO;
+import com.example.booksserver.dto.Order;
 import com.example.booksserver.entity.order.OrderStatus;
+import com.example.booksserver.external.IPaymentsRequestService;
+import com.example.booksserver.external.PaymentException;
 import com.example.booksserver.external.request.PostPaymentsRequest;
 import com.example.booksserver.external.response.PaymentsInfoResponse;
 import com.example.booksserver.external.response.PaymentsErrorResponse;
@@ -23,12 +25,12 @@ public class PaymentsRequestService implements IPaymentsRequestService {
     private String paymentsMapping;
 
     @Override
-    public PaymentsInfoResponse processPayment(OrderDTO orderDTO, CardInfo cardInfo) throws PaymentException {
+    public PaymentsInfoResponse processPayment(Order order, CardInfo cardInfo) throws PaymentException {
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<PaymentsInfoResponse> infoResponse;
         String requestUrl = paymentServiceAddress + paymentsMapping;
         try {
-            infoResponse = restTemplate.postForEntity(requestUrl, new PostPaymentsRequest(orderDTO, cardInfo), PaymentsInfoResponse.class);
+            infoResponse = restTemplate.postForEntity(requestUrl, new PostPaymentsRequest(order, cardInfo), PaymentsInfoResponse.class);
         } catch (RestClientResponseException e) {
             PaymentsErrorResponse errorResponse = e.getResponseBodyAs(PaymentsErrorResponse.class);
             if (!Objects.isNull(errorResponse)) {
@@ -53,7 +55,7 @@ public class PaymentsRequestService implements IPaymentsRequestService {
     @Override
     public PaymentsInfoResponse getPaymentInfo(long orderId) throws PaymentException {
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<PaymentsInfoResponse> infoResponse = null;
+        ResponseEntity<PaymentsInfoResponse> infoResponse;
         String requestUrl = String.format("%s%s/%d", paymentServiceAddress, paymentsMapping, orderId);
         try {
             infoResponse = restTemplate.getForEntity(requestUrl, PaymentsInfoResponse.class);
@@ -69,6 +71,16 @@ public class PaymentsRequestService implements IPaymentsRequestService {
 
     @Override
     public PaymentsInfoResponse cancelPayment(long orderId) throws PaymentException {
-        return null;
+        RestTemplate restTemplate = new RestTemplate();
+        PaymentsInfoResponse infoResponse = null;
+        String requestUrl = String.format("%s%s/%d/cancel", paymentServiceAddress, paymentsMapping, orderId);
+        try {
+            infoResponse = restTemplate.patchForObject(requestUrl, null, PaymentsInfoResponse.class);
+        } catch (RestClientResponseException e) {
+            throw new PaymentException(OrderStatus.UNKNOWN, e.getResponseBodyAs(PaymentsErrorResponse.class));
+        } catch (RestClientException e) {
+            throw new PaymentException(OrderStatus.PENDING_CANCEL, null);
+        }
+        return infoResponse;
     }
 }

@@ -13,9 +13,9 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 @Accessors(chain = true)
-public class OrderItemDTO {
+public class OrderItem {
     private Long id;
-    private BookDTO book;
+    private Book book;
     private Integer count;
     private BigDecimal price;
 }

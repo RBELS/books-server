@@ -3,10 +3,10 @@ package com.example.booksserver.rest.create;
 import com.example.booksserver.components.ErrorResponseFactory;
 import com.example.booksserver.components.ResponseStatusWithBodyExceptionFactory;
 import com.example.booksserver.config.AppConfig;
-import com.example.booksserver.dto.AuthorDTO;
-import com.example.booksserver.dto.BookDTO;
-import com.example.booksserver.dto.BookImageDTO;
-import com.example.booksserver.dto.StockDTO;
+import com.example.booksserver.dto.Author;
+import com.example.booksserver.dto.Book;
+import com.example.booksserver.dto.BookImage;
+import com.example.booksserver.dto.Stock;
 import com.example.booksserver.entity.image.ImageType;
 import com.example.booksserver.map.ImageMapper;
 import com.example.booksserver.userstate.request.PostAuthorsRequest;
@@ -49,10 +49,10 @@ public class CreationController {
             @RequestParam("mainImage") MultipartFile mainImageFile,
             @RequestParam(value = "images", required = false) List<MultipartFile> contentImageFileList
     ) {
-        List<AuthorDTO> authorDTOList = authorIdList.stream().map(contentService::getAuthorById).toList();
+        List<Author> authorList = authorIdList.stream().map(contentService::getAuthorById).toList();
 
-        BookImageDTO mainImageDTO;
-        List<BookImageDTO> contentImageDTOList;
+        BookImage mainImageDTO;
+        List<BookImage> contentImageDTOList;
 
         try {
             if (mainImageFile.isEmpty()) {
@@ -64,10 +64,10 @@ public class CreationController {
             throw exceptionFactory.create(HttpStatus.INTERNAL_SERVER_ERROR, ErrorResponseFactory.InternalErrorCode.INTERNAL_ERROR_IMAGES);
         }
 
-        BookDTO dto = new BookDTO(
+        Book dto = new Book(
                 null, bookName, releaseYear, price,
-                mainImageDTO, contentImageDTOList, authorDTOList,
-                new StockDTO(null, 10, 0, 0)
+                mainImageDTO, contentImageDTOList, authorList,
+                new Stock(null, 10, 0, 0)
         );
         dto = contentService.createBook(dto);
 
@@ -78,9 +78,9 @@ public class CreationController {
     public ResponseEntity<PostAuthorsResponse> createAuthor(
             @RequestBody PostAuthorsRequest request
     ) {
-        AuthorDTO newAuthorDTO = new AuthorDTO(null, request.getName());
-        AuthorDTO createdAuthorDTO = contentService.createAuthor(newAuthorDTO);
+        Author newAuthor = new Author(null, request.getName());
+        Author createdAuthor = contentService.createAuthor(newAuthor);
 
-        return new ResponseEntity<>(new PostAuthorsResponse(createdAuthorDTO), HttpStatus.OK);
+        return new ResponseEntity<>(new PostAuthorsResponse(createdAuthor), HttpStatus.OK);
     }
 }

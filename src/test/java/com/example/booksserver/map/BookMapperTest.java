@@ -1,13 +1,13 @@
 package com.example.booksserver.map;
 
-import com.example.booksserver.dto.AuthorDTO;
-import com.example.booksserver.dto.BookDTO;
-import com.example.booksserver.dto.BookImageDTO;
-import com.example.booksserver.dto.StockDTO;
-import com.example.booksserver.entity.Author;
-import com.example.booksserver.entity.Book;
-import com.example.booksserver.entity.Stock;
-import com.example.booksserver.entity.image.BookImage;
+import com.example.booksserver.dto.Author;
+import com.example.booksserver.dto.Book;
+import com.example.booksserver.dto.BookImage;
+import com.example.booksserver.dto.Stock;
+import com.example.booksserver.entity.AuthorEntity;
+import com.example.booksserver.entity.BookEntity;
+import com.example.booksserver.entity.StockEntity;
+import com.example.booksserver.entity.image.BookImageEntity;
 import com.example.booksserver.entity.image.ImageType;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,32 +34,32 @@ class BookMapperTest {
     @Autowired
     private BookMapper bookMapper;
 
-    private final Book someBookEntity;
-    private final BookDTO someBookDTO;
+    private final BookEntity someBookEntity;
+    private final Book someBook;
     {
-        BookImage mainImageMock = mock(BookImage.class);
+        BookImageEntity mainImageMock = mock(BookImageEntity.class);
         when(mainImageMock.getType()).thenReturn(ImageType.MAIN);
-        someBookEntity = new Book()
+        someBookEntity = new BookEntity()
                 .setId(20L)
                 .setName("Book name")
                 .setReleaseYear(2020)
                 .setPrice(new BigDecimal("10.00"))
-                .setImages(Arrays.asList(mainImageMock, mock(BookImage.class)))
+                .setImages(Arrays.asList(mainImageMock, mock(BookImageEntity.class)))
+                .setStock(mock(StockEntity.class))
+                .setAuthors(Arrays.asList(mock(AuthorEntity.class), mock(AuthorEntity.class)));
+
+        someBook = new Book()
+                .setId(20L)
+                .setName("Book name")
+                .setReleaseYear(2020)
+                .setPrice(new BigDecimal("10.00"))
+                .setMainFile(mock(BookImage.class))
+                .setImagesFileList(Arrays.asList(mock(BookImage.class), mock(BookImage.class), mock(BookImage.class)))
                 .setStock(mock(Stock.class))
                 .setAuthors(Arrays.asList(mock(Author.class), mock(Author.class)));
-
-        someBookDTO = new BookDTO()
-                .setId(20L)
-                .setName("Book name")
-                .setReleaseYear(2020)
-                .setPrice(new BigDecimal("10.00"))
-                .setMainFile(mock(BookImageDTO.class))
-                .setImagesFileList(Arrays.asList(mock(BookImageDTO.class), mock(BookImageDTO.class), mock(BookImageDTO.class)))
-                .setStock(mock(StockDTO.class))
-                .setAuthors(Arrays.asList(mock(AuthorDTO.class), mock(AuthorDTO.class)));
     }
 
-    private void compareEntityToDto(Book entity, BookDTO dto) {
+    private void compareEntityToDto(BookEntity entity, Book dto) {
         assertThat(dto).isNotNull();
         assertThat(entity.getId()).isEqualTo(dto.getId());
         assertThat(entity.getName()).isEqualTo(dto.getName());
@@ -76,11 +76,11 @@ class BookMapperTest {
 
     @Test
     void entityToDto() {
-        BookDTO dto = bookMapper.entityToDto(someBookEntity);
+        Book dto = bookMapper.entityToDto(someBookEntity);
         compareEntityToDto(someBookEntity, dto);
     }
 
-    private void compareEntityToDtoList(List<Book> entityList, List<BookDTO> dtoList) {
+    private void compareEntityToDtoList(List<BookEntity> entityList, List<Book> dtoList) {
         assertThat(entityList).hasSameSizeAs(dtoList);
 
         for (int i = 0;i < entityList.size();i++) {
@@ -90,30 +90,30 @@ class BookMapperTest {
 
     @Test
     void entityToDtoList() {
-        List<Book> entityList = Arrays.asList(someBookEntity, someBookEntity);
-        List<BookDTO> dtoList = bookMapper.entityToDto(entityList);
+        List<BookEntity> entityList = Arrays.asList(someBookEntity, someBookEntity);
+        List<Book> dtoList = bookMapper.entityToDto(entityList);
 
         compareEntityToDtoList(entityList, dtoList);
     }
 
     @Test
     void dtoToEntity() {
-        Book entity = bookMapper.dtoToEntity(someBookDTO);
+        BookEntity entity = bookMapper.dtoToEntity(someBook);
 
-        compareEntityToDto(entity, someBookDTO);
+        compareEntityToDto(entity, someBook);
     }
 
     @Test
     void entityToDtoPage() {
-        List<Book> entityList = Arrays.asList(
+        List<BookEntity> entityList = Arrays.asList(
                 someBookEntity,
                 someBookEntity,
                 someBookEntity
         );
         Pageable pageable = PageRequest.of(0, 3);
         long total = 100;
-        Page<Book> entityPage = new PageImpl<>(entityList, pageable, total);
-        Page<BookDTO> dtoPage = bookMapper.entityToDtoPage(entityPage);
+        Page<BookEntity> entityPage = new PageImpl<>(entityList, pageable, total);
+        Page<Book> dtoPage = bookMapper.entityToDtoPage(entityPage);
 
         assertThat(dtoPage.getNumber()).isEqualTo(entityPage.getNumber());
         assertThat(dtoPage.getSize()).isEqualTo(entityPage.getSize());

@@ -1,7 +1,7 @@
 package com.example.booksserver.map;
 
-import com.example.booksserver.dto.OrderDTO;
-import com.example.booksserver.entity.order.Order;
+import com.example.booksserver.dto.Order;
+import com.example.booksserver.entity.order.OrderEntity;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,18 +22,18 @@ class OrderMapperTest {
     @Autowired
     private OrderMapper orderMapper;
 
-    private final Order someEntity;
-    private final OrderDTO someDto;
+    private final OrderEntity someEntity;
+    private final Order someDto;
 
     {
-        someEntity = new Order()
+        someEntity = new OrderEntity()
                 .setId(10L)
                 .setName("Some person")
                 .setPhone("Some phone")
                 .setEmail("Some email")
                 .setAddress("Some address")
                 .setDateCreated(new Date(System.currentTimeMillis()));
-        someDto = new OrderDTO()
+        someDto = new Order()
                 .setId(10L)
                 .setName("Some person")
                 .setPhone("Some phone")
@@ -42,7 +42,7 @@ class OrderMapperTest {
                 .setDateCreated(new Date(System.currentTimeMillis()));
     }
 
-    private void compareEntityToDto(Order entity, OrderDTO dto) {
+    private void compareEntityToDto(OrderEntity entity, Order dto) {
         assertThat(entity.getId()).isEqualTo(dto.getId());
         assertThat(entity.getName()).isEqualTo(dto.getName());
         assertThat(entity.getPhone()).isEqualTo(dto.getPhone());
@@ -53,17 +53,17 @@ class OrderMapperTest {
 
     @Test
     void entityToDto() {
-        OrderDTO dto = orderMapper.entityToDto(someEntity);
+        Order dto = orderMapper.entityToDto(someEntity);
         compareEntityToDto(someEntity, dto);
     }
 
     @Test
     void dtoToEntity() {
-        Order entity = orderMapper.dtoToEntity(someDto);
+        OrderEntity entity = orderMapper.dtoToEntity(someDto);
         compareEntityToDto(entity, someDto);
     }
 
-    private void compareEntityToDtoList(List<Order> entityList, List<OrderDTO> dtoList) {
+    private void compareEntityToDtoList(List<OrderEntity> entityList, List<Order> dtoList) {
         assertThat(entityList).hasSameSizeAs(dtoList);
 
         for (int i = 0;i < entityList.size();i++) {
@@ -73,16 +73,16 @@ class OrderMapperTest {
 
     @Test
     void entityToDtoList() {
-        List<Order> entityList = Arrays.asList(someEntity, someEntity, someEntity);
-        List<OrderDTO> dtoList = orderMapper.entityToDto(entityList);
+        List<OrderEntity> entityList = Arrays.asList(someEntity, someEntity, someEntity);
+        List<Order> dtoList = orderMapper.entityToDto(entityList);
 
         compareEntityToDtoList(entityList, dtoList);
     }
 
     @Test
     void dtoToEntityList() {
-        List<OrderDTO> dtoList = Arrays.asList(someDto, someDto, someDto);
-        List<Order> entityList = orderMapper.dtoToEntity(dtoList);
+        List<Order> dtoList = Arrays.asList(someDto, someDto, someDto);
+        List<OrderEntity> entityList = orderMapper.dtoToEntity(dtoList);
 
         compareEntityToDtoList(entityList, dtoList);
     }

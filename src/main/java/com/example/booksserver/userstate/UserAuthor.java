@@ -1,9 +1,8 @@
 package com.example.booksserver.userstate;
 
-import com.example.booksserver.dto.AuthorDTO;
+import com.example.booksserver.dto.Author;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Data
@@ -13,7 +12,7 @@ public class UserAuthor {
     private long id;
     private String name;
 
-    public UserAuthor(AuthorDTO author) {
+    public UserAuthor(Author author) {
         this.id = author.getId();
         this.name = author.getName();
     }

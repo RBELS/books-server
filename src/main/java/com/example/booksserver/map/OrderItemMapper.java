@@ -1,16 +1,16 @@
 package com.example.booksserver.map;
 
-import com.example.booksserver.dto.OrderItemDTO;
-import com.example.booksserver.entity.order.OrderItem;
+import com.example.booksserver.dto.OrderItem;
+import com.example.booksserver.entity.order.OrderItemEntity;
 import org.mapstruct.Mapper;
 
 import java.util.List;
 
 @Mapper(componentModel = "spring", uses = BookMapper.class)
 public abstract class OrderItemMapper {
-    public abstract OrderItemDTO entityToDto(OrderItem entity);
-    public abstract OrderItem dtoToEntity(OrderItemDTO dto);
-    public abstract List<OrderItemDTO> entityToDto(List<OrderItem> entity);
-    public abstract List<OrderItem> dtoToEntity(List<OrderItemDTO> dto);
+    public abstract OrderItem entityToDto(OrderItemEntity entity);
+    public abstract OrderItemEntity dtoToEntity(OrderItem dto);
+    public abstract List<OrderItem> entityToDto(List<OrderItemEntity> entity);
+    public abstract List<OrderItemEntity> dtoToEntity(List<OrderItem> dto);
 
 }

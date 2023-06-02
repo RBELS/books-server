@@ -1,6 +1,6 @@
 package com.example.booksserver.userstate.response;
 
-import com.example.booksserver.dto.AuthorDTO;
+import com.example.booksserver.dto.Author;
 import com.example.booksserver.userstate.UserAuthor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -15,7 +15,7 @@ import java.util.List;
 public class GetAuthorsResponse extends PaginatedResponse {
     private List<UserAuthor> content;
 
-    public GetAuthorsResponse(Page<AuthorDTO> content) {
+    public GetAuthorsResponse(Page<Author> content) {
         super(content);
         this.content = content.stream().map(UserAuthor::new).toList();
     }

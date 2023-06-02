@@ -1,6 +1,6 @@
 package com.example.booksserver.entity.order;
 
-import com.example.booksserver.entity.Book;
+import com.example.booksserver.entity.BookEntity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,14 +12,14 @@ import java.math.BigDecimal;
 @Data
 @NoArgsConstructor
 @Accessors(chain = true)
-public class OrderItem {
+public class OrderItemEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @JoinColumn(nullable = false)
     @ManyToOne(cascade = CascadeType.MERGE)
-    private Book book;
+    private BookEntity book;
 
     @Column(nullable = false)
     private Integer count;

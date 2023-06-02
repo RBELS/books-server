@@ -1,10 +1,10 @@
 package com.example.booksserver.rest;
 
 import com.example.booksserver.config.security.SecurityConfig;
-import com.example.booksserver.dto.AuthorDTO;
-import com.example.booksserver.dto.BookDTO;
-import com.example.booksserver.dto.BookImageDTO;
-import com.example.booksserver.dto.StockDTO;
+import com.example.booksserver.dto.Author;
+import com.example.booksserver.dto.Book;
+import com.example.booksserver.dto.BookImage;
+import com.example.booksserver.dto.Stock;
 import com.example.booksserver.entity.image.ImageType;
 import com.example.booksserver.service.impl.ContentService;
 import com.example.booksserver.userstate.UserAuthor;
@@ -45,29 +45,29 @@ class ContentControllerTest {
     @MockBean
     private ContentService contentService;
 
-    private final BookDTO bookDTO;
-    private final AuthorDTO authorDTO;
+    private final Book book;
+    private final Author author;
     {
-        authorDTO = new AuthorDTO()
+        author = new Author()
                 .setId(1L)
                 .setName("Author Name");
-        bookDTO = new BookDTO()
+        book = new Book()
                 .setId(10L)
                 .setName("book name")
                 .setPrice(new BigDecimal("10.00"))
                 .setReleaseYear(2022)
                 .setAuthors(Arrays.asList(
-                        authorDTO
+                        author
                 ))
                 .setStock(
-                        new StockDTO()
+                        new Stock()
                                 .setId(2L)
                                 .setAvailable(10)
                                 .setOrdered(5)
                                 .setInDelivery(2)
                 )
                 .setMainFile(
-                        new BookImageDTO()
+                        new BookImage()
                                 .setId(3L)
                                 .setType(ImageType.MAIN)
                                 .setContent(new byte[1024])
@@ -77,8 +77,8 @@ class ContentControllerTest {
 
     @Test
     void getBooks() throws Exception {
-        Page<BookDTO> page = new PageImpl<>(
-                Arrays.asList(bookDTO, bookDTO, bookDTO),
+        Page<Book> page = new PageImpl<>(
+                Arrays.asList(book, book, book),
                 PageRequest.of(0, 3),
                 9
         );
@@ -96,8 +96,8 @@ class ContentControllerTest {
 
     @Test
     void getAuthors() throws Exception {
-        Page<AuthorDTO> page = new PageImpl<>(
-                Arrays.asList(authorDTO, authorDTO, authorDTO),
+        Page<Author> page = new PageImpl<>(
+                Arrays.asList(author, author, author),
                 PageRequest.of(0, 3),
                 9
         );
@@ -115,8 +115,8 @@ class ContentControllerTest {
 
     @Test
     void getAllAuthors() throws Exception {
-        List<AuthorDTO> allAuthorsList = Arrays.asList(
-                authorDTO, authorDTO, authorDTO
+        List<Author> allAuthorsList = Arrays.asList(
+                author, author, author
         );
         when(contentService.getAllAuthors())
                 .thenReturn(allAuthorsList);

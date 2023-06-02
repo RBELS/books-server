@@ -1,7 +1,7 @@
 package com.example.booksserver.repository;
 
-import com.example.booksserver.entity.Author;
-import com.example.booksserver.entity.Book;
+import com.example.booksserver.entity.AuthorEntity;
+import com.example.booksserver.entity.BookEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,24 +20,24 @@ public class BookRepositoryTest {
     public final String[] BOOK_NAMES = {"To Kill a Mockingbird", "1984", "The Great Gatsby", "Pride and Prejudice", "Animal Farm", "Brave New World", "The Catcher in the Rye", "Lord of the Flies", "The Hobbit", "The Lord of the Rings", "The Hitchhiker's Guide to the Galaxy", "The Da Vinci Code", "Harry Potter and the Philosopher's Stone", "The Hunger Games", "The Girl with the Dragon Tattoo", "Gone Girl", "The Girl on the Train", "The Fault in Our Stars", "The Alchemist", "The Kite Runner"};
     public static final int BOOKS_GEN_COUNT = 30;
 
-    private Author getRandomAuthor() {
-        return authorList.get((int) (Math.random() * authorList.size()));
+    private AuthorEntity getRandomAuthor() {
+        return authorEntityList.get((int) (Math.random() * authorEntityList.size()));
     }
 
     private String getRandomBookName() {
         return BOOK_NAMES[(int) (Math.random() * BOOK_NAMES.length)];
     }
 
-    private List<Book> insertBooks(BookRepository bookRepository, int count) {
+    private List<BookEntity> insertBooks(BookRepository bookRepository, int count) {
         this.booksList = new ArrayList<>();
         for (int i = 0;i < count;i++) {
-            Book bookToSave = new Book();
-            bookToSave.setName(getRandomBookName());
-            bookToSave.setPrice(new BigDecimal(String.format("%.2f", Math.random() * 100.0)));
-            bookToSave.setReleaseYear(2020);
-            bookToSave.setAuthors(List.of(getRandomAuthor(), getRandomAuthor()));
+            BookEntity bookEntityToSave = new BookEntity();
+            bookEntityToSave.setName(getRandomBookName());
+            bookEntityToSave.setPrice(new BigDecimal(String.format("%.2f", Math.random() * 100.0)));
+            bookEntityToSave.setReleaseYear(2020);
+            bookEntityToSave.setAuthors(List.of(getRandomAuthor(), getRandomAuthor()));
 
-            booksList.add(bookToSave);
+            booksList.add(bookEntityToSave);
         }
         return bookRepository.saveAll(booksList);
     }
@@ -48,21 +48,21 @@ public class BookRepositoryTest {
     @Autowired
     private AuthorRepository authorRepository;
 
-    private List<Author> authorList;
-    private List<Book> booksList;
+    private List<AuthorEntity> authorEntityList;
+    private List<BookEntity> booksList;
 
     @BeforeEach
     public void fillData() {
-        this.authorList = AuthorRepositoryTest.insertAuthors(authorRepository, AuthorRepositoryTest.AUTHOR_GEN_COUNT);
+        this.authorEntityList = AuthorRepositoryTest.insertAuthors(authorRepository, AuthorRepositoryTest.AUTHOR_GEN_COUNT);
         this.booksList = insertBooks(bookRepository, BOOKS_GEN_COUNT);
     }
 
     @Test
     public void testMinMaxPrice() {
-        List<Book> bookList = bookRepository.findAll();
+        List<BookEntity> bookEntityList = bookRepository.findAll();
         BigDecimal
-                minPrice = bookList.stream().min(Comparator.comparing(Book::getPrice)).get().getPrice(),
-                maxPrice = bookList.stream().max(Comparator.comparing(Book::getPrice)).get().getPrice();
+                minPrice = bookEntityList.stream().min(Comparator.comparing(BookEntity::getPrice)).get().getPrice(),
+                maxPrice = bookEntityList.stream().max(Comparator.comparing(BookEntity::getPrice)).get().getPrice();
 
         Optional<BigDecimal>
                 selectedMinPrice = bookRepository.findMinPrice(),
@@ -80,13 +80,13 @@ public class BookRepositoryTest {
         BigDecimal minPrice = new BigDecimal("30.0");
         BigDecimal maxPrice = new BigDecimal("80.0");
 
-        List<Book> bookList = bookRepository.findAll();
-        List<Book> expectedList = bookList.stream().filter(book ->
+        List<BookEntity> bookEntityList = bookRepository.findAll();
+        List<BookEntity> expectedList = bookEntityList.stream().filter(book ->
                 book.getPrice().compareTo(minPrice) >= 0 && book.getPrice().compareTo(maxPrice) <= 0
         ).toList();
 
-        Page<Book> selectedPage;
-        List<Book> selectedList = new ArrayList<>();
+        Page<BookEntity> selectedPage;
+        List<BookEntity> selectedList = new ArrayList<>();
         do {
             selectedPage = bookRepository.findAllByPriceBetween(minPrice, maxPrice, pageable);
             selectedList.addAll(selectedPage.getContent());
@@ -107,14 +107,14 @@ public class BookRepositoryTest {
         }
 
 
-        List<Book> bookList = bookRepository.findAll();
-        List<Book> expectedList = bookList.stream().filter(book ->
+        List<BookEntity> bookEntityList = bookRepository.findAll();
+        List<BookEntity> expectedList = bookEntityList.stream().filter(book ->
                 book.getPrice().compareTo(minPrice) >= 0 && book.getPrice().compareTo(maxPrice) <= 0
                 && book.getAuthors().stream().anyMatch(author -> authorIdList.contains(author.getId()))
         ).toList();
 
-        Page<Book> selectedPage;
-        List<Book> selectedList = new ArrayList<>();
+        Page<BookEntity> selectedPage;
+        List<BookEntity> selectedList = new ArrayList<>();
         do {
             selectedPage = bookRepository.findDistinctAllByAuthors_idInAndPriceBetween(authorIdList, minPrice, maxPrice, pageable);
             selectedList.addAll(selectedPage.getContent());
@@ -132,13 +132,13 @@ public class BookRepositoryTest {
             authorIdList.add(getRandomAuthor().getId());
         }
 
-        List<Book> bookList = bookRepository.findAll();
-        List<Book> expectedList = bookList.stream().filter(book ->
+        List<BookEntity> bookEntityList = bookRepository.findAll();
+        List<BookEntity> expectedList = bookEntityList.stream().filter(book ->
                 book.getAuthors().stream().anyMatch(author -> authorIdList.contains(author.getId()))
         ).toList();
 
-        Page<Book> selectedPage;
-        List<Book> selectedList = new ArrayList<>();
+        Page<BookEntity> selectedPage;
+        List<BookEntity> selectedList = new ArrayList<>();
         do {
             selectedPage = bookRepository.findDistinctByAuthors_idIn(authorIdList, pageable);
             selectedList.addAll(selectedPage.getContent());

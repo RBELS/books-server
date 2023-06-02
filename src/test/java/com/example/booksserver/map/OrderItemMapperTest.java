@@ -1,7 +1,7 @@
 package com.example.booksserver.map;
 
-import com.example.booksserver.dto.OrderItemDTO;
-import com.example.booksserver.entity.order.OrderItem;
+import com.example.booksserver.dto.OrderItem;
+import com.example.booksserver.entity.order.OrderItemEntity;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,21 +22,21 @@ class OrderItemMapperTest {
     @Autowired
     private OrderItemMapper orderItemMapper;
 
-    private final OrderItem someEntity;
-    private final OrderItemDTO someDto;
+    private final OrderItemEntity someEntity;
+    private final OrderItem someDto;
 
     {
-        someEntity = new OrderItem()
+        someEntity = new OrderItemEntity()
                 .setId(10L)
                 .setPrice(new BigDecimal("10.00"))
                 .setCount(2);
-        someDto = new OrderItemDTO()
+        someDto = new OrderItem()
                 .setId(10L)
                 .setPrice(new BigDecimal("10.00"))
                 .setCount(2);
     }
 
-    private void compareEntityToDto(OrderItem entity, OrderItemDTO dto) {
+    private void compareEntityToDto(OrderItemEntity entity, OrderItem dto) {
         assertThat(entity.getId()).isEqualTo(dto.getId());
         assertThat(entity.getCount()).isEqualTo(dto.getCount());
         assertThat(entity.getPrice()).isEqualTo(dto.getPrice());
@@ -44,17 +44,17 @@ class OrderItemMapperTest {
 
     @Test
     void entityToDto() {
-        OrderItemDTO dto = orderItemMapper.entityToDto(someEntity);
+        OrderItem dto = orderItemMapper.entityToDto(someEntity);
         compareEntityToDto(someEntity, dto);
     }
 
     @Test
     void dtoToEntity() {
-        OrderItem entity = orderItemMapper.dtoToEntity(someDto);
+        OrderItemEntity entity = orderItemMapper.dtoToEntity(someDto);
         compareEntityToDto(entity, someDto);
     }
 
-    private void compareEntityToDtoList(List<OrderItem> entityList, List<OrderItemDTO> dtoList) {
+    private void compareEntityToDtoList(List<OrderItemEntity> entityList, List<OrderItem> dtoList) {
         assertThat(entityList).hasSameSizeAs(dtoList);
 
         for (int i = 0;i < entityList.size();i++) {
@@ -64,16 +64,16 @@ class OrderItemMapperTest {
 
     @Test
     void entityToDtoList() {
-        List<OrderItem> entityList = Arrays.asList(someEntity, someEntity, someEntity);
-        List<OrderItemDTO> dtoList = orderItemMapper.entityToDto(entityList);
+        List<OrderItemEntity> entityList = Arrays.asList(someEntity, someEntity, someEntity);
+        List<OrderItem> dtoList = orderItemMapper.entityToDto(entityList);
 
         compareEntityToDtoList(entityList, dtoList);
     }
 
     @Test
     void dtoToEntityList() {
-        List<OrderItemDTO> dtoList = Arrays.asList(someDto, someDto, someDto);
-        List<OrderItem> entityList = orderItemMapper.dtoToEntity(dtoList);
+        List<OrderItem> dtoList = Arrays.asList(someDto, someDto, someDto);
+        List<OrderItemEntity> entityList = orderItemMapper.dtoToEntity(dtoList);
 
         compareEntityToDtoList(entityList, dtoList);
     }

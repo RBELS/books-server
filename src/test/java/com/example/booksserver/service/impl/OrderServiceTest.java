@@ -3,12 +3,12 @@ package com.example.booksserver.service.impl;
 import com.example.booksserver.components.ErrorResponseFactory;
 import com.example.booksserver.components.ResponseStatusWithBodyExceptionFactory;
 import com.example.booksserver.config.ResponseBodyException;
-import com.example.booksserver.dto.BookDTO;
-import com.example.booksserver.dto.OrderDTO;
-import com.example.booksserver.dto.OrderItemDTO;
-import com.example.booksserver.dto.StockDTO;
-import com.example.booksserver.entity.Book;
-import com.example.booksserver.entity.order.Order;
+import com.example.booksserver.dto.Book;
+import com.example.booksserver.dto.Order;
+import com.example.booksserver.dto.OrderItem;
+import com.example.booksserver.dto.Stock;
+import com.example.booksserver.entity.BookEntity;
+import com.example.booksserver.entity.order.OrderEntity;
 import com.example.booksserver.external.IPaymentsRequestService;
 import com.example.booksserver.external.PaymentException;
 import com.example.booksserver.external.response.PaymentsInfoResponse;
@@ -53,19 +53,19 @@ class OrderServiceTest {
 
     @Test
     void createOrder() throws PaymentException {
-        StockDTO stockDto = new StockDTO()
+        Stock stock = new Stock()
                 .setId(30L)
                 .setAvailable(10)
                 .setOrdered(10)
                 .setInDelivery(10);
-        BookDTO bookDTO = new BookDTO()
-                .setStock(stockDto);
-        OrderItemDTO orderItemDTO = new OrderItemDTO()
+        Book book = new Book()
+                .setStock(stock);
+        OrderItem orderItem = new OrderItem()
                 .setId(20L)
                 .setCount(10)
                 .setPrice(new BigDecimal("10.00"))
-                .setBook(bookDTO);
-        OrderDTO dto = new OrderDTO()
+                .setBook(book);
+        Order dto = new Order()
                 .setId(10L)
                 .setName("Name")
                 .setPhone("Some Phone")
@@ -73,22 +73,22 @@ class OrderServiceTest {
                 .setAddress("Some Address")
                 .setDateCreated(new Date(System.currentTimeMillis()))
                 .setOrderItems(Arrays.asList(
-                        orderItemDTO, orderItemDTO
+                        orderItem, orderItem
                 ));
         CardInfo cardInfo = new CardInfo()
                 .setName("Holder name")
                 .setNumber("1111222233334444")
                 .setCvv("123");
 
-        when(orderMapper.dtoToEntity(any(OrderDTO.class)))
-                .thenReturn(mock(Order.class));
-        when(orderMapper.entityToDto(any(Order.class)))
+        when(orderMapper.dtoToEntity(any(Order.class)))
+                .thenReturn(mock(OrderEntity.class));
+        when(orderMapper.entityToDto(any(OrderEntity.class)))
                 .thenReturn(dto);
-        when(bookRepository.save(any(Book.class)))
-                .thenReturn(mock(Book.class));
-        when(orderRepository.save(any(Order.class)))
-                .thenReturn(mock(Order.class));
-        when(paymentsService.processPayment(any(OrderDTO.class), any(CardInfo.class)))
+        when(bookRepository.save(any(BookEntity.class)))
+                .thenReturn(mock(BookEntity.class));
+        when(orderRepository.save(any(OrderEntity.class)))
+                .thenReturn(mock(OrderEntity.class));
+        when(paymentsService.processPayment(any(Order.class), any(CardInfo.class)))
                 .thenReturn(mock(PaymentsInfoResponse.class));
         when(exceptionFactory.create(any(HttpStatus.class), any(ErrorResponseFactory.InternalErrorCode.class)))
                 .thenReturn(mock(ResponseBodyException.class));
@@ -127,7 +127,7 @@ class OrderServiceTest {
                         .setAddress("Order address")
                         .setOrderItems(
                                 Arrays.asList(
-                                        orderItemDTO, null
+                                        orderItem, null
                                 )
                         ),
                 cardInfo

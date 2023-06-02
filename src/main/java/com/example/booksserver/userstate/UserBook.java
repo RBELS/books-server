@@ -1,8 +1,7 @@
 package com.example.booksserver.userstate;
 
-import com.example.booksserver.dto.BookDTO;
+import com.example.booksserver.dto.Book;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
@@ -19,7 +18,7 @@ public class UserBook {
     private int available;
     private String mainImage;
 
-    public UserBook(BookDTO book, String baseUrl) {
+    public UserBook(Book book, String baseUrl) {
         this.id = book.getId();
         this.name = book.getName();
         this.authors = book.getAuthors().stream().map(UserAuthor::new).toList();

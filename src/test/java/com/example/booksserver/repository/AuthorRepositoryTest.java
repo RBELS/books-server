@@ -1,6 +1,6 @@
 package com.example.booksserver.repository;
 
-import com.example.booksserver.entity.Author;
+import com.example.booksserver.entity.AuthorEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,14 +25,14 @@ public class AuthorRepositoryTest {
                 LAST_NAMES[(int) (Math.random() * FIRST_NAMES.length)];
     }
 
-    public static List<Author> insertAuthors(AuthorRepository authorRepository, int count) {
-        ArrayList<Author> authors = new ArrayList<>();
+    public static List<AuthorEntity> insertAuthors(AuthorRepository authorRepository, int count) {
+        ArrayList<AuthorEntity> authorEntities = new ArrayList<>();
         for (int i = 0;i < count;i++) {
-            Author authorToSave = new Author();
-            authorToSave.setName(genRandomAuthorName());
-            authors.add(authorToSave);
+            AuthorEntity authorEntityToSave = new AuthorEntity();
+            authorEntityToSave.setName(genRandomAuthorName());
+            authorEntities.add(authorEntityToSave);
         }
-        return authorRepository.saveAll(authors);
+        return authorRepository.saveAll(authorEntities);
     }
 
     @Autowired
@@ -46,17 +46,17 @@ public class AuthorRepositoryTest {
     @Test
     public void testFindAllSortedAscending() {
         Sort sort = Sort.by("name", "id").ascending();
-        List<Author> authorList = authorRepository.findAll(sort);
+        List<AuthorEntity> authorEntityList = authorRepository.findAll(sort);
 
-        assertThat(authorList.size()).isEqualTo(AUTHOR_GEN_COUNT);
+        assertThat(authorEntityList.size()).isEqualTo(AUTHOR_GEN_COUNT);
 
-        List<Author> sortedList = authorList.stream().sorted(
+        List<AuthorEntity> sortedList = authorEntityList.stream().sorted(
                 Comparator
-                        .comparing(Author::getName)
-                        .thenComparingLong(Author::getId)
+                        .comparing(AuthorEntity::getName)
+                        .thenComparingLong(AuthorEntity::getId)
         ).toList();
 
-        assertThat(authorList).isEqualTo(sortedList);
+        assertThat(authorEntityList).isEqualTo(sortedList);
     }
 
     @Test
@@ -65,7 +65,7 @@ public class AuthorRepositoryTest {
 
         int page = 0;
         int pageSize = 20;
-        Page<Author> authorPage = authorRepository.findAll(
+        Page<AuthorEntity> authorPage = authorRepository.findAll(
                 PageRequest.of(page, pageSize, sort)
         );
 
@@ -75,15 +75,15 @@ public class AuthorRepositoryTest {
         assertThat(authorPage.getNumber()).isEqualTo(page);
         assertThat(authorPage.getSize()).isEqualTo(pageSize);
 
-        List<Author> authorList = authorPage.getContent();
-        List<Author> sortedList = authorPage.stream().sorted(
+        List<AuthorEntity> authorEntityList = authorPage.getContent();
+        List<AuthorEntity> sortedList = authorPage.stream().sorted(
                 Comparator
-                        .comparing(Author::getName)
-                        .thenComparing(Author::getId)
+                        .comparing(AuthorEntity::getName)
+                        .thenComparing(AuthorEntity::getId)
                         .reversed()
         ).toList();
 
-        assertThat(authorList).isEqualTo(sortedList);
+        assertThat(authorEntityList).isEqualTo(sortedList);
     }
 
 }

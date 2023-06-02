@@ -1,12 +1,9 @@
 package com.example.booksserver.repository;
 
-import com.example.booksserver.entity.image.BookImage;
-import lombok.NonNull;
+import com.example.booksserver.entity.image.BookImageEntity;
 import org.springframework.data.repository.ListCrudRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
-
 @Repository
-public interface BookImageRepository extends ListCrudRepository<BookImage, Long> {
+public interface BookImageRepository extends ListCrudRepository<BookImageEntity, Long> {
 }

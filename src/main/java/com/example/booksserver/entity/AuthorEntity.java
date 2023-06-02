@@ -13,7 +13,7 @@ import java.util.Set;
 @Entity
 @Data
 @Accessors(chain = true)
-public class Author {
+public class AuthorEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -23,9 +23,9 @@ public class Author {
 
     @ToString.Exclude
     @ManyToMany(cascade = CascadeType.ALL, mappedBy = "authors")
-    private Set<Book> books = new HashSet<>();
+    private Set<BookEntity> books = new HashSet<>();
 
-    public Author(String name) {
+    public AuthorEntity(String name) {
         this.name = name;
         this.books = new HashSet<>();
     }
@@ -34,8 +34,8 @@ public class Author {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Author author = (Author) o;
-        return Objects.equals(id, author.id) && Objects.equals(name, author.name);
+        AuthorEntity authorEntity = (AuthorEntity) o;
+        return Objects.equals(id, authorEntity.id) && Objects.equals(name, authorEntity.name);
     }
 
     @Override

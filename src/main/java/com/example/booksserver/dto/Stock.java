@@ -9,7 +9,7 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @Data
 @Accessors(chain = true)
-public class StockDTO {
+public class Stock {
     private Long id;
     private Integer available;
     private Integer ordered;

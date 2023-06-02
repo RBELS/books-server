@@ -1,9 +1,8 @@
 package com.example.booksserver.map;
 
-import com.example.booksserver.dto.AuthorDTO;
-import com.example.booksserver.entity.Author;
-import com.example.booksserver.entity.Book;
-import com.example.booksserver.map.AuthorMapper;
+import com.example.booksserver.dto.Author;
+import com.example.booksserver.entity.AuthorEntity;
+import com.example.booksserver.entity.BookEntity;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,14 +29,14 @@ public class AuthorMapperTest {
 
     @Test
     public void entityToDto() {
-        Author entity = new Author()
+        AuthorEntity entity = new AuthorEntity()
                 .setId(20L)
                 .setName("Arthur Morgan");
-        entity.getBooks().add(mock(Book.class));
-        entity.getBooks().add(mock(Book.class));
-        entity.getBooks().add(mock(Book.class));
+        entity.getBooks().add(mock(BookEntity.class));
+        entity.getBooks().add(mock(BookEntity.class));
+        entity.getBooks().add(mock(BookEntity.class));
 
-        AuthorDTO dto = authorMapper.entityToDto(entity);
+        Author dto = authorMapper.entityToDto(entity);
 
         assertThat(dto.getName()).isEqualTo(entity.getName());
         assertThat(dto.getId()).isEqualTo(entity.getId());
@@ -45,10 +44,10 @@ public class AuthorMapperTest {
 
     @Test
     public void dtoToEntity() {
-        AuthorDTO dto = new AuthorDTO()
+        Author dto = new Author()
                 .setId(20L)
                 .setName("Arthur Morgan");
-        Author entity = authorMapper.dtoToEntity(dto);
+        AuthorEntity entity = authorMapper.dtoToEntity(dto);
 
         assertThat(entity.getName()).isEqualTo(dto.getName());
         assertThat(entity.getId()).isEqualTo(dto.getId());
@@ -57,12 +56,12 @@ public class AuthorMapperTest {
         assertThat(entity.getBooks()).isEmpty();
     }
 
-    private void compareEntityToDtoList(List<Author> entityList, List<AuthorDTO> dtoList) {
+    private void compareEntityToDtoList(List<AuthorEntity> entityList, List<Author> dtoList) {
         assertThat(dtoList).hasSameSizeAs(entityList);
 
         for (int i = 0;i < entityList.size();i++) {
-            Author entity = entityList.get(i);
-            AuthorDTO dto = dtoList.get(i);
+            AuthorEntity entity = entityList.get(i);
+            Author dto = dtoList.get(i);
 
             assertThat(entity.getId()).isEqualTo(dto.getId());
             assertThat(entity.getName()).isEqualTo(dto.getName());
@@ -73,27 +72,27 @@ public class AuthorMapperTest {
 
     @Test
     public void entityToDtoList() {
-        List<Author> entityList = Arrays.asList(
-                new Author().setId(20L).setName("name1"),
-                new Author().setId(30L).setName("name2"),
-                new Author().setId(40L).setName("name3")
+        List<AuthorEntity> entityList = Arrays.asList(
+                new AuthorEntity().setId(20L).setName("name1"),
+                new AuthorEntity().setId(30L).setName("name2"),
+                new AuthorEntity().setId(40L).setName("name3")
         );
-        List<AuthorDTO> dtoList = authorMapper.entityToDto(entityList);
+        List<Author> dtoList = authorMapper.entityToDto(entityList);
         compareEntityToDtoList(entityList, dtoList);
     }
 
     @Test
     public void dtoToEntityList() {
-        List<AuthorDTO> dtoList = Arrays.asList(
-                new AuthorDTO().setId(20L).setName("name1"),
-                new AuthorDTO().setId(30L).setName("name2"),
-                new AuthorDTO().setId(40L).setName("name3")
+        List<Author> dtoList = Arrays.asList(
+                new Author().setId(20L).setName("name1"),
+                new Author().setId(30L).setName("name2"),
+                new Author().setId(40L).setName("name3")
         );
-        List<Author> entityList = authorMapper.dtoToEntity(dtoList);
+        List<AuthorEntity> entityList = authorMapper.dtoToEntity(dtoList);
         compareEntityToDtoList(entityList, dtoList);
     }
 
-    private void compareEntityToDtoPage(Page<Author> entityPage, Page<AuthorDTO> dtoPage) {
+    private void compareEntityToDtoPage(Page<AuthorEntity> entityPage, Page<Author> dtoPage) {
         assertThat(dtoPage.getNumber()).isEqualTo(entityPage.getNumber());
         assertThat(dtoPage.getSize()).isEqualTo(entityPage.getSize());
         assertThat(dtoPage.getTotalElements()).isEqualTo(entityPage.getTotalElements());
@@ -103,30 +102,30 @@ public class AuthorMapperTest {
 
     @Test
     public void entityToDtoPage() {
-        List<Author> entityList = Arrays.asList(
-                new Author().setId(20L).setName("name1"),
-                new Author().setId(30L).setName("name2"),
-                new Author().setId(40L).setName("name3")
+        List<AuthorEntity> entityList = Arrays.asList(
+                new AuthorEntity().setId(20L).setName("name1"),
+                new AuthorEntity().setId(30L).setName("name2"),
+                new AuthorEntity().setId(40L).setName("name3")
         );
         Pageable pageable = PageRequest.of(0, 3);
         long total = 100;
-        Page<Author> entityPage = new PageImpl<>(entityList, pageable, total);
-        Page<AuthorDTO> dtoPage = authorMapper.entityToDtoPage(entityPage);
+        Page<AuthorEntity> entityPage = new PageImpl<>(entityList, pageable, total);
+        Page<Author> dtoPage = authorMapper.entityToDtoPage(entityPage);
 
         compareEntityToDtoPage(entityPage, dtoPage);
     }
 
     @Test
     public void dtoToEntityPage() {
-        List<AuthorDTO> dtoList = Arrays.asList(
-                new AuthorDTO().setId(20L).setName("name1"),
-                new AuthorDTO().setId(30L).setName("name2"),
-                new AuthorDTO().setId(40L).setName("name3")
+        List<Author> dtoList = Arrays.asList(
+                new Author().setId(20L).setName("name1"),
+                new Author().setId(30L).setName("name2"),
+                new Author().setId(40L).setName("name3")
         );
         Pageable pageable = PageRequest.of(0, 3);
         long total = 100;
-        Page<AuthorDTO> dtoPage = new PageImpl<>(dtoList, pageable, total);
-        Page<Author> entityPage = authorMapper.dtoToEntityPage(dtoPage);
+        Page<Author> dtoPage = new PageImpl<>(dtoList, pageable, total);
+        Page<AuthorEntity> entityPage = authorMapper.dtoToEntityPage(dtoPage);
 
         compareEntityToDtoPage(entityPage, dtoPage);
     }

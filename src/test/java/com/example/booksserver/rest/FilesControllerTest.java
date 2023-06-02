@@ -2,7 +2,7 @@ package com.example.booksserver.rest;
 
 import com.example.booksserver.config.ResponseBodyException;
 import com.example.booksserver.config.security.SecurityConfig;
-import com.example.booksserver.dto.BookImageDTO;
+import com.example.booksserver.dto.BookImage;
 import com.example.booksserver.entity.image.ImageType;
 import com.example.booksserver.service.impl.FilesService;
 import com.example.booksserver.userstate.response.ErrorResponse;
@@ -31,7 +31,7 @@ class FilesControllerTest {
 
     @Test
     void downloadImage() throws Exception {
-        BookImageDTO imageDTO = new BookImageDTO()
+        BookImage imageDTO = new BookImage()
                 .setId(10L)
                 .setType(ImageType.MAIN)
                 .setContent(new byte[1024]);

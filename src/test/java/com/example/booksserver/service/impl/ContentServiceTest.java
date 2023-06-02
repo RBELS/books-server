@@ -3,12 +3,12 @@ package com.example.booksserver.service.impl;
 import com.example.booksserver.components.ErrorResponseFactory;
 import com.example.booksserver.components.ResponseStatusWithBodyExceptionFactory;
 import com.example.booksserver.config.ResponseBodyException;
-import com.example.booksserver.dto.AuthorDTO;
-import com.example.booksserver.dto.BookDTO;
-import com.example.booksserver.dto.BookImageDTO;
-import com.example.booksserver.dto.StockDTO;
-import com.example.booksserver.entity.Author;
-import com.example.booksserver.entity.Book;
+import com.example.booksserver.dto.Author;
+import com.example.booksserver.dto.Book;
+import com.example.booksserver.dto.BookImage;
+import com.example.booksserver.dto.Stock;
+import com.example.booksserver.entity.AuthorEntity;
+import com.example.booksserver.entity.BookEntity;
 import com.example.booksserver.entity.image.ImageType;
 import com.example.booksserver.map.AuthorMapper;
 import com.example.booksserver.map.BookMapper;
@@ -58,8 +58,8 @@ class ContentServiceTest {
 
     @Test
     void getBooks() {
-        Page<Book> mockEntityPage = mock(PageImpl.class);
-        Page<BookDTO> mockDtoPage = mock(PageImpl.class);
+        Page<BookEntity> mockEntityPage = mock(PageImpl.class);
+        Page<Book> mockDtoPage = mock(PageImpl.class);
 
         when(bookRepository.findAllByPriceBetween(any(BigDecimal.class), any(BigDecimal.class), any(Pageable.class)))
                 .thenReturn(mockEntityPage);
@@ -77,7 +77,7 @@ class ContentServiceTest {
         BigDecimal minPrice = new BigDecimal("10.00"), maxPrice = new BigDecimal("20.00");
 
         BooksFilters filters = new BooksFilters(authorIdList, minPrice, maxPrice, 0, 20);
-        Page<BookDTO> dtoPage = contentService.getBooks(filters);
+        Page<Book> dtoPage = contentService.getBooks(filters);
         assertThat(dtoPage).isNotNull();
 
         filters = new BooksFilters(new ArrayList<>(), minPrice, maxPrice, 0, 20);
@@ -95,41 +95,41 @@ class ContentServiceTest {
 
     @Test
     void getAuthors() {
-        Page<Author> mockEntityPage = mock(PageImpl.class);
-        Page<AuthorDTO> mockDtoPage = mock(PageImpl.class);
+        Page<AuthorEntity> mockEntityPage = mock(PageImpl.class);
+        Page<Author> mockDtoPage = mock(PageImpl.class);
 
         when(authorRepository.findAll(any(Pageable.class))).thenReturn(mockEntityPage);
         when(authorMapper.entityToDtoPage(mockEntityPage)).thenReturn(mockDtoPage);
 
         AuthorsFilters filters = new AuthorsFilters(0, 20);
-        Page<AuthorDTO> queriedPage = contentService.getAuthors(filters);
+        Page<Author> queriedPage = contentService.getAuthors(filters);
         assertThat(queriedPage).isNotNull();
     }
 
     @Test
     void getAllAuthors() {
-        Author mockAuthorEntity = mock(Author.class);
-        AuthorDTO mockAuthorDTO = mock(AuthorDTO.class);
+        AuthorEntity mockAuthorEntity = mock(AuthorEntity.class);
+        Author mockAuthor = mock(Author.class);
 
-        List<Author> entityList = Arrays.asList(mockAuthorEntity, mockAuthorEntity, mockAuthorEntity);
-        List<AuthorDTO> dtoList = Arrays.asList(mockAuthorDTO, mockAuthorDTO, mockAuthorDTO);
+        List<AuthorEntity> entityList = Arrays.asList(mockAuthorEntity, mockAuthorEntity, mockAuthorEntity);
+        List<Author> dtoList = Arrays.asList(mockAuthor, mockAuthor, mockAuthor);
 
         when(authorRepository.findAll(any(Sort.class))).thenReturn(entityList);
         when(authorMapper.entityToDto(entityList)).thenReturn(dtoList);
 
-        List<AuthorDTO> authorDTOS = contentService.getAllAuthors();
-        assertThat(authorDTOS).hasSize(3);
+        List<Author> authors = contentService.getAllAuthors();
+        assertThat(authors).hasSize(3);
     }
 
     @Test
     void getAuthorById() {
-        Author mockAuthorEntity = mock(Author.class);
-        AuthorDTO mockAuthorDTO = mock(AuthorDTO.class);
+        AuthorEntity mockAuthorEntity = mock(AuthorEntity.class);
+        Author mockAuthor = mock(Author.class);
 
         when(authorRepository.findById(1L)).thenReturn(Optional.of(mockAuthorEntity));
-        when(authorMapper.entityToDto(any(Author.class))).thenReturn(mockAuthorDTO);
+        when(authorMapper.entityToDto(any(AuthorEntity.class))).thenReturn(mockAuthor);
 
-        AuthorDTO dto = contentService.getAuthorById(1L);
+        Author dto = contentService.getAuthorById(1L);
         assertThat(dto).isNotNull();
 
         dto = contentService.getAuthorById(2L);
@@ -138,13 +138,13 @@ class ContentServiceTest {
 
     @Test
     void getBookById() {
-        Book mockBookEntity = mock(Book.class);
-        BookDTO mockBookDTO = mock(BookDTO.class);
+        BookEntity mockBookEntity = mock(BookEntity.class);
+        Book mockBook = mock(Book.class);
 
         when(bookRepository.findById(1L)).thenReturn(Optional.of(mockBookEntity));
-        when(bookMapper.entityToDto(any(Book.class))).thenReturn(mockBookDTO);
+        when(bookMapper.entityToDto(any(BookEntity.class))).thenReturn(mockBook);
 
-        BookDTO dto = contentService.getBookById(1L);
+        Book dto = contentService.getBookById(1L);
         assertThat(dto).isNotNull();
 
         dto = contentService.getBookById(2L);
@@ -164,75 +164,75 @@ class ContentServiceTest {
 
     @Test
     void createAuthor() {
-        AuthorDTO authorDTO = new AuthorDTO(null, "Author name");
-        AuthorDTO savedAuthorDTO = new AuthorDTO(10L, "Author name");
+        Author author = new Author(null, "Author name");
+        Author savedAuthor = new Author(10L, "Author name");
 
-        when(authorMapper.dtoToEntity(any(AuthorDTO.class)))
-                .thenReturn(mock(Author.class));
-        when(authorRepository.save(any(Author.class)))
-                .thenReturn(mock(Author.class));
-        when(authorMapper.entityToDto(any(Author.class)))
-                .thenReturn(savedAuthorDTO);
+        when(authorMapper.dtoToEntity(any(Author.class)))
+                .thenReturn(mock(AuthorEntity.class));
+        when(authorRepository.save(any(AuthorEntity.class)))
+                .thenReturn(mock(AuthorEntity.class));
+        when(authorMapper.entityToDto(any(AuthorEntity.class)))
+                .thenReturn(savedAuthor);
 
         when(exceptionFactory.create(any(HttpStatus.class), any(ErrorResponseFactory.InternalErrorCode.class)))
                 .thenReturn(mock(ResponseBodyException.class));
 
-        assertDoesNotThrow(() -> contentService.createAuthor(authorDTO));
-        AuthorDTO returnedAuthorDto = contentService.createAuthor(authorDTO);
-        assertThat(returnedAuthorDto.getId()).isNotNull();
+        assertDoesNotThrow(() -> contentService.createAuthor(author));
+        Author returnedAuthor = contentService.createAuthor(author);
+        assertThat(returnedAuthor.getId()).isNotNull();
 
-        authorDTO.setName("   ");
-        assertThrows(ResponseBodyException.class, () -> contentService.createAuthor(authorDTO));
+        author.setName("   ");
+        assertThrows(ResponseBodyException.class, () -> contentService.createAuthor(author));
 
-        authorDTO.setName("");
-        assertThrows(ResponseBodyException.class, () -> contentService.createAuthor(authorDTO));
+        author.setName("");
+        assertThrows(ResponseBodyException.class, () -> contentService.createAuthor(author));
     }
 
     @Test
     void createBook() {
-        AuthorDTO someAuthorDto = new AuthorDTO()
+        Author someAuthor = new Author()
                 .setId(20L)
                 .setName("Author name");
-        BookDTO.BookDTOBuilder builder = BookDTO.builder()
+        Book.BookDTOBuilder builder = Book.builder()
                 .id(null)
                 .name("book name")
                 .imagesFileList(new ArrayList<>())
                 .price(new BigDecimal("100.00"))
                 .releaseYear(2022)
-                .stock(mock(StockDTO.class))
-                .mainFile(new BookImageDTO(10L, ImageType.MAIN, new byte[1024]))
-                .authors(Arrays.asList(someAuthorDto));
-        BookDTO bookDTO = builder.build();
-        BookDTO savedBookDTO = builder.id(30L).build();
+                .stock(mock(Stock.class))
+                .mainFile(new BookImage(10L, ImageType.MAIN, new byte[1024]))
+                .authors(Arrays.asList(someAuthor));
+        Book book = builder.build();
+        Book savedBook = builder.id(30L).build();
 
-        when(bookMapper.dtoToEntity(any(BookDTO.class)))
-                .thenReturn(mock(Book.class));
-        when(bookRepository.save(any(Book.class)))
-                .thenReturn(mock(Book.class));
-        when(bookMapper.entityToDto(any(Book.class)))
-                .thenReturn(savedBookDTO);
+        when(bookMapper.dtoToEntity(any(Book.class)))
+                .thenReturn(mock(BookEntity.class));
+        when(bookRepository.save(any(BookEntity.class)))
+                .thenReturn(mock(BookEntity.class));
+        when(bookMapper.entityToDto(any(BookEntity.class)))
+                .thenReturn(savedBook);
 
         when(exceptionFactory.create(any(HttpStatus.class), any(ErrorResponseFactory.InternalErrorCode.class)))
                 .thenReturn(mock(ResponseBodyException.class));
 
-        assertDoesNotThrow(() -> contentService.createBook(bookDTO));
+        assertDoesNotThrow(() -> contentService.createBook(book));
         assertThrows(ResponseBodyException.class, () -> contentService.createBook(
-                bookDTO.setName("    ")
+                book.setName("    ")
         ));
         assertThrows(ResponseBodyException.class, () -> contentService.createBook(
-                bookDTO.setName("")
+                book.setName("")
         ));
         assertThrows(ResponseBodyException.class, () -> contentService.createBook(
-                bookDTO.setName("book name").setPrice(new BigDecimal("-10.0"))
+                book.setName("book name").setPrice(new BigDecimal("-10.0"))
         ));
         assertThrows(ResponseBodyException.class, () -> contentService.createBook(
-                bookDTO.setPrice(new BigDecimal("10.0")).setReleaseYear(-10)
+                book.setPrice(new BigDecimal("10.0")).setReleaseYear(-10)
         ));
         assertThrows(ResponseBodyException.class, () -> contentService.createBook(
-                bookDTO.setReleaseYear(2022).setAuthors(Arrays.asList(someAuthorDto, null))
+                book.setReleaseYear(2022).setAuthors(Arrays.asList(someAuthor, null))
         ));
         assertThrows(ResponseBodyException.class, () -> contentService.createBook(
-                bookDTO.setReleaseYear(2022).setAuthors(new ArrayList<>())
+                book.setReleaseYear(2022).setAuthors(new ArrayList<>())
         ));
     }
 }

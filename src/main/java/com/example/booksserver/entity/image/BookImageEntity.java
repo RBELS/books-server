@@ -1,6 +1,6 @@
 package com.example.booksserver.entity.image;
 
-import com.example.booksserver.entity.Book;
+import com.example.booksserver.entity.BookEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.Accessors;
@@ -13,7 +13,7 @@ import java.util.Objects;
 @AllArgsConstructor
 @NoArgsConstructor
 @Accessors(chain = true)
-public class BookImage {
+public class BookImageEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -26,14 +26,14 @@ public class BookImage {
 
     @ManyToOne
     @JoinColumn
-    private Book book;
+    private BookEntity book;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        BookImage bookImage = (BookImage) o;
-        return Objects.equals(id, bookImage.id) && type == bookImage.type && Arrays.equals(content, bookImage.content);
+        BookImageEntity bookImageEntity = (BookImageEntity) o;
+        return Objects.equals(id, bookImageEntity.id) && type == bookImageEntity.type && Arrays.equals(content, bookImageEntity.content);
     }
 
     @Override

@@ -1,9 +1,8 @@
 package com.example.booksserver.rest;
 
 import com.example.booksserver.config.AppConfig;
-import com.example.booksserver.dto.AuthorDTO;
-import com.example.booksserver.dto.BookDTO;
-import com.example.booksserver.entity.Author;
+import com.example.booksserver.dto.Author;
+import com.example.booksserver.dto.Book;
 import com.example.booksserver.service.IContentService;
 import com.example.booksserver.userstate.UserAuthor;
 import com.example.booksserver.userstate.filters.AuthorsFilters;
@@ -40,7 +39,7 @@ public class ContentController {
             @RequestParam(required = false) Integer count
     ) {
         BooksFilters filters = new BooksFilters(authors, minPrice, maxPrice, page, count);
-        Page<BookDTO> books = contentService.getBooks(filters);
+        Page<Book> books = contentService.getBooks(filters);
         return new GetBooksResponse(filters, books, baseImageUrl);
     }
 
@@ -50,13 +49,13 @@ public class ContentController {
             @RequestParam(required = false) Integer count
     ) {
         AuthorsFilters filters = new AuthorsFilters(page, count);
-        Page<AuthorDTO> authors = contentService.getAuthors(filters);
+        Page<Author> authors = contentService.getAuthors(filters);
         return new GetAuthorsResponse(authors);
     }
 
     @GetMapping(value = "/authors/all", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<UserAuthor> getAllAuthors() {
-        List<AuthorDTO> dtoList = contentService.getAllAuthors();
+        List<Author> dtoList = contentService.getAllAuthors();
         return dtoList.stream().map(UserAuthor::new).toList();
     }
 

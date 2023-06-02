@@ -1,6 +1,6 @@
 package com.example.booksserver.repository;
 
-import com.example.booksserver.entity.Book;
+import com.example.booksserver.entity.BookEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -13,14 +13,14 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface BookRepository extends PagingAndSortingRepository<Book, Long>, ListCrudRepository<Book, Long> {
-    Page<Book> findAllByPriceBetween(BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable);
-    Page<Book> findDistinctAllByAuthors_idInAndPriceBetween(List<Long> id, BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable);
-    Page<Book> findDistinctByAuthors_idIn(List<Long> id, Pageable pageable);
+public interface BookRepository extends PagingAndSortingRepository<BookEntity, Long>, ListCrudRepository<BookEntity, Long> {
+    Page<BookEntity> findAllByPriceBetween(BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable);
+    Page<BookEntity> findDistinctAllByAuthors_idInAndPriceBetween(List<Long> id, BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable);
+    Page<BookEntity> findDistinctByAuthors_idIn(List<Long> id, Pageable pageable);
 
-    @Query("SELECT max(price) FROM Book")
+    @Query("SELECT max(price) FROM BookEntity")
     Optional<BigDecimal> findMaxPrice();
 
-    @Query("SELECT min(price) FROM Book")
+    @Query("SELECT min(price) FROM BookEntity")
     Optional<BigDecimal> findMinPrice();
 }

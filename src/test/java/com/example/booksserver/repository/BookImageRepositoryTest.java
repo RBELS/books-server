@@ -1,8 +1,8 @@
 package com.example.booksserver.repository;
 
-import com.example.booksserver.entity.Author;
-import com.example.booksserver.entity.Book;
-import com.example.booksserver.entity.image.BookImage;
+import com.example.booksserver.entity.AuthorEntity;
+import com.example.booksserver.entity.BookEntity;
+import com.example.booksserver.entity.image.BookImageEntity;
 import com.example.booksserver.entity.image.ImageType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,34 +26,34 @@ public class BookImageRepositoryTest {
 
     @BeforeEach
     public void insertData() {
-        Book book = new Book();
+        BookEntity bookEntity = new BookEntity();
 
-        book.setName("The Lord of the Rings");
-        book.setReleaseYear(2022);
-        book.setPrice(new BigDecimal("10.99"));
+        bookEntity.setName("The Lord of the Rings");
+        bookEntity.setReleaseYear(2022);
+        bookEntity.setPrice(new BigDecimal("10.99"));
 
-        Author author = new Author();
-        author.setName("Artyom Belsky");
-        authorRepository.save(author);
+        AuthorEntity authorEntity = new AuthorEntity();
+        authorEntity.setName("Artyom Belsky");
+        authorRepository.save(authorEntity);
 
-        book.getAuthors().add(author);
+        bookEntity.getAuthors().add(authorEntity);
 
-        BookImage mainImage = new BookImage();
+        BookImageEntity mainImage = new BookImageEntity();
         byte[] someContent = new byte[1024];
         mainImage.setContent(someContent);
         mainImage.setType(ImageType.MAIN);
-        mainImage.setBook(book);
+        mainImage.setBook(bookEntity);
 
-        book.getImages().add(mainImage);
+        bookEntity.getImages().add(mainImage);
 
         for (int i = 0;i < 3;i++) {
-            BookImage contentImage = new BookImage();
+            BookImageEntity contentImage = new BookImageEntity();
             contentImage.setContent(someContent);
             contentImage.setType(ImageType.CONTENT);
-            contentImage.setBook(book);
-            book.getImages().add(contentImage);
+            contentImage.setBook(bookEntity);
+            bookEntity.getImages().add(contentImage);
         }
-        bookRepository.save(book);
+        bookRepository.save(bookEntity);
     }
 
     @Test
@@ -64,7 +64,7 @@ public class BookImageRepositoryTest {
 
     @Test
     public void testImageContents() {
-        List<BookImage> imageList = bookImageRepository.findAll();
+        List<BookImageEntity> imageList = bookImageRepository.findAll();
         AtomicInteger mainCount = new AtomicInteger(), contentCount = new AtomicInteger();
 
         imageList.forEach(bookImage -> {

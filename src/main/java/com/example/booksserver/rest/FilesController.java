@@ -1,6 +1,6 @@
 package com.example.booksserver.rest;
 
-import com.example.booksserver.dto.BookImageDTO;
+import com.example.booksserver.dto.BookImage;
 import com.example.booksserver.service.IFilesService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
@@ -21,7 +21,7 @@ public class FilesController {
     public Resource downloadImage(
             @PathVariable Long imageId
     ) {
-        BookImageDTO imageDTO = filesService.getImageById(imageId);
+        BookImage imageDTO = filesService.getImageById(imageId);
         byte[] imageBytes = imageDTO.getContent();
         return new ByteArrayResource(imageBytes);
     }

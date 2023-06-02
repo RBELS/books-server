@@ -13,16 +13,16 @@ import java.util.List;
 @Accessors(chain = true)
 @ToString
 @Builder
-public class BookDTO {
+public class Book {
     private Long id;
     @Builder.Default
     private String name = "";
     private Integer releaseYear;
     private BigDecimal price;
-    private BookImageDTO mainFile;
+    private BookImage mainFile;
     @Builder.Default
-    private List<BookImageDTO> imagesFileList = new ArrayList<>();
+    private List<BookImage> imagesFileList = new ArrayList<>();
     @Builder.Default
-    private List<AuthorDTO> authors = new ArrayList<>();
-    private StockDTO stock;
+    private List<Author> authors = new ArrayList<>();
+    private Stock stock;
 }

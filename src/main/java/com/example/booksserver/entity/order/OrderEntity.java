@@ -14,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @Table(name = "`order`")
 @Accessors(chain = true)
-public class Order {
+public class OrderEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -33,7 +33,7 @@ public class Order {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "order_id", referencedColumnName = "id")
-    private List<OrderItem> orderItems = new ArrayList<>();
+    private List<OrderItemEntity> orderItems = new ArrayList<>();
 
     @Column(nullable = false)
     @CreationTimestamp

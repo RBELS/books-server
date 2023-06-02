@@ -1,7 +1,7 @@
 package com.example.booksserver.map;
 
-import com.example.booksserver.dto.AuthorDTO;
-import com.example.booksserver.entity.Author;
+import com.example.booksserver.dto.Author;
+import com.example.booksserver.entity.AuthorEntity;
 import org.mapstruct.Mapper;
 import org.springframework.data.domain.Page;
 
@@ -10,16 +10,16 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public abstract class AuthorMapper {
-    public abstract AuthorDTO entityToDto(Author entity);
-    public abstract List<AuthorDTO> entityToDto(List<Author> entityList);
-    public abstract Author dtoToEntity(AuthorDTO dto);
-    public abstract List<Author> dtoToEntity(List<AuthorDTO> dtoList);
+    public abstract Author entityToDto(AuthorEntity entity);
+    public abstract List<Author> entityToDto(List<AuthorEntity> entityList);
+    public abstract AuthorEntity dtoToEntity(Author dto);
+    public abstract List<AuthorEntity> dtoToEntity(List<Author> dtoList);
 
-    public Page<AuthorDTO> entityToDtoPage(Page<Author> books) {
+    public Page<Author> entityToDtoPage(Page<AuthorEntity> books) {
         return books.map(this::entityToDto);
     }
 
-    public Page<Author> dtoToEntityPage(Page<AuthorDTO> bookDTOS) {
+    public Page<AuthorEntity> dtoToEntityPage(Page<Author> bookDTOS) {
         return bookDTOS.map(this::dtoToEntity);
     }
 }

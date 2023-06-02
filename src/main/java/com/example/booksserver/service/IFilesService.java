@@ -1,7 +1,7 @@
 package com.example.booksserver.service;
 
-import com.example.booksserver.dto.BookImageDTO;
+import com.example.booksserver.dto.BookImage;
 
 public interface IFilesService {
-    BookImageDTO getImageById(Long imageId);
+    BookImage getImageById(Long imageId);
 }

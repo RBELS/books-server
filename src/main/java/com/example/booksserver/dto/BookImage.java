@@ -8,7 +8,7 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @Data
 @Accessors(chain = true)
-public class BookImageDTO {
+public class BookImage {
     private Long id;
     private ImageType type;
     @ToString.Exclude

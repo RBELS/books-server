@@ -10,7 +10,7 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @Table(name = "stock")
 @Accessors(chain = true)
-public class Stock {
+public class StockEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;

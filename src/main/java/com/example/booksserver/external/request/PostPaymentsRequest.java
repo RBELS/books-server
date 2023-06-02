@@ -1,6 +1,6 @@
 package com.example.booksserver.external.request;
 
-import com.example.booksserver.dto.OrderDTO;
+import com.example.booksserver.dto.Order;
 import com.example.booksserver.userstate.CardInfo;
 import lombok.Data;
 
@@ -13,11 +13,11 @@ public class PostPaymentsRequest {
     private String externalId;
     private BigDecimal sum;
 
-    public PostPaymentsRequest(OrderDTO orderDTO, CardInfo cardInfo) {
+    public PostPaymentsRequest(Order order, CardInfo cardInfo) {
         this.card = cardInfo;
-        this.externalId = String.valueOf(orderDTO.getId());
+        this.externalId = String.valueOf(order.getId());
         AtomicReference<BigDecimal> totalSum = new AtomicReference<>(BigDecimal.ZERO);
-        orderDTO.getOrderItems().forEach(orderItemDTO -> {
+        order.getOrderItems().forEach(orderItemDTO -> {
             BigDecimal bufPrice = orderItemDTO.getPrice().multiply(new BigDecimal(orderItemDTO.getCount()));
             totalSum.set(totalSum.get().add(bufPrice));
         });

@@ -1,8 +1,8 @@
 package com.example.booksserver.rest.order;
 
-import com.example.booksserver.dto.BookDTO;
-import com.example.booksserver.dto.OrderDTO;
-import com.example.booksserver.dto.OrderItemDTO;
+import com.example.booksserver.dto.Book;
+import com.example.booksserver.dto.Order;
+import com.example.booksserver.dto.OrderItem;
 import com.example.booksserver.service.IContentService;
 import com.example.booksserver.service.impl.OrderService;
 import com.example.booksserver.userstate.request.PostOrdersRequest;
@@ -26,7 +26,7 @@ public class OrderController {
             @RequestBody PostOrdersRequest request
     ) {
         // create an order dto. Status is not set here
-        OrderDTO orderDTO = OrderDTO.builder()
+        Order order = Order.builder()
                 .email(request.getInfo().getEmail())
                 .phone(request.getInfo().getPhone())
                 .name(request.getInfo().getName())
@@ -34,17 +34,17 @@ public class OrderController {
                 .build();
 
         // create order items
-        List<OrderItemDTO> orderItemDTOList = request.getInfo().getBooks().stream().map(ordersBook -> {
-            BookDTO bookDTO = contentService.getBookById(ordersBook.getId());
-            return OrderItemDTO.builder()
-                    .book(bookDTO)
+        List<OrderItem> orderItemList = request.getInfo().getBooks().stream().map(ordersBook -> {
+            Book book = contentService.getBookById(ordersBook.getId());
+            return OrderItem.builder()
+                    .book(book)
                     .count(ordersBook.getCount())
-                    .price(bookDTO.getPrice())
+                    .price(book.getPrice())
                     .build();
         }).toList();
-        orderDTO.getOrderItems().addAll(orderItemDTOList);
+        order.getOrderItems().addAll(orderItemList);
 
-        OrderDTO resultDTO = orderService.createOrder(orderDTO, request.getCard());
+        Order resultDTO = orderService.createOrder(order, request.getCard());
 
         return new PostOrdersResponse(resultDTO);
     }

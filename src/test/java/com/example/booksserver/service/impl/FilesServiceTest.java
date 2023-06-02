@@ -3,9 +3,9 @@ package com.example.booksserver.service.impl;
 import com.example.booksserver.components.ErrorResponseFactory;
 import com.example.booksserver.components.ResponseStatusWithBodyExceptionFactory;
 import com.example.booksserver.config.ResponseBodyException;
-import com.example.booksserver.dto.BookImageDTO;
-import com.example.booksserver.entity.Book;
-import com.example.booksserver.entity.image.BookImage;
+import com.example.booksserver.dto.BookImage;
+import com.example.booksserver.entity.BookEntity;
+import com.example.booksserver.entity.image.BookImageEntity;
 import com.example.booksserver.entity.image.ImageType;
 import com.example.booksserver.map.ImageMapper;
 import com.example.booksserver.repository.BookImageRepository;
@@ -16,7 +16,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.web.ErrorResponseException;
 
 import java.util.Optional;
 
@@ -40,14 +39,14 @@ class FilesServiceTest {
 
     @Test
     public void test() {
-        BookImage entity = new BookImage();
+        BookImageEntity entity = new BookImageEntity();
         entity.setId(1L);
         entity.setType(ImageType.MAIN);
-        entity.setBook(mock(Book.class));
+        entity.setBook(mock(BookEntity.class));
         entity.setContent(new byte[1024]);
 
         when(bookImageRepository.findById(1L)).thenReturn(Optional.of(entity));
-        when(imageMapper.entityToDto(any(BookImage.class))).thenReturn(mock(BookImageDTO.class));
+        when(imageMapper.entityToDto(any(BookImageEntity.class))).thenReturn(mock(BookImage.class));
         when(exceptionFactory.create(any(HttpStatus.class), any(ErrorResponseFactory.InternalErrorCode.class)))
                 .thenReturn(mock(ResponseBodyException.class));
 

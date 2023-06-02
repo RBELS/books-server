@@ -2,9 +2,9 @@ package com.example.booksserver.service.impl;
 
 import com.example.booksserver.components.ErrorResponseFactory;
 import com.example.booksserver.components.ResponseStatusWithBodyExceptionFactory;
-import com.example.booksserver.dto.OrderDTO;
-import com.example.booksserver.dto.StockDTO;
-import com.example.booksserver.entity.order.Order;
+import com.example.booksserver.dto.Order;
+import com.example.booksserver.dto.Stock;
+import com.example.booksserver.entity.order.OrderEntity;
 import com.example.booksserver.entity.order.OrderStatus;
 import com.example.booksserver.map.OrderMapper;
 import com.example.booksserver.repository.BookRepository;
@@ -35,22 +35,22 @@ public class OrderService implements IOrderService {
     private final BookRepository bookRepository;
     private final ResponseStatusWithBodyExceptionFactory exceptionFactory;
 
-    private void validateOrder(OrderDTO orderDTO) throws ResponseStatusException {
-        if (orderDTO.getEmail().isBlank()) {
+    private void validateOrder(Order order) throws ResponseStatusException {
+        if (order.getEmail().isBlank()) {
             throw exceptionFactory.create(HttpStatus.BAD_REQUEST, ErrorResponseFactory.InternalErrorCode.ORDER_BAD_EMAIL);
-        } else if (orderDTO.getAddress().isBlank()) {
+        } else if (order.getAddress().isBlank()) {
             throw exceptionFactory.create(HttpStatus.BAD_REQUEST, ErrorResponseFactory.InternalErrorCode.ORDER_BAD_ADDRESS);
-        } else if (orderDTO.getName().isBlank()) {
+        } else if (order.getName().isBlank()) {
             throw exceptionFactory.create(HttpStatus.BAD_REQUEST, ErrorResponseFactory.InternalErrorCode.ORDER_BAD_NAME);
-        } else if (orderDTO.getPhone().isBlank()) {
+        } else if (order.getPhone().isBlank()) {
             throw exceptionFactory.create(HttpStatus.BAD_REQUEST, ErrorResponseFactory.InternalErrorCode.ORDER_BAD_PHONE);
-        } else if (orderDTO.getOrderItems().isEmpty()) {
+        } else if (order.getOrderItems().isEmpty()) {
             throw exceptionFactory.create(HttpStatus.BAD_REQUEST, ErrorResponseFactory.InternalErrorCode.ORDER_NO_ITEMS);
-        } else if (orderDTO.getOrderItems().contains(null)) {
+        } else if (order.getOrderItems().contains(null)) {
             throw exceptionFactory.create(HttpStatus.BAD_REQUEST, ErrorResponseFactory.InternalErrorCode.ORDER_ITEM_NOT_FOUND);
         }
 
-        orderDTO.getOrderItems().forEach(orderItemDto -> {
+        order.getOrderItems().forEach(orderItemDto -> {
             int availableBooks = orderItemDto.getBook().getStock().getAvailable();
             int orderBooks = orderItemDto.getCount();
             if (orderBooks > availableBooks) {
@@ -61,30 +61,30 @@ public class OrderService implements IOrderService {
 
     @Override
     @Transactional(noRollbackFor = ResponseStatusException.class)
-    public OrderDTO createOrder(OrderDTO orderDTO, CardInfo cardInfo) throws ResponseStatusException {
-        validateOrder(orderDTO);
+    public Order createOrder(Order order, CardInfo cardInfo) throws ResponseStatusException {
+        validateOrder(order);
 
         try {
-            paymentsService.processPayment(orderDTO, cardInfo);
-            orderDTO.setStatus(OrderStatus.SUCCESS);
+            paymentsService.processPayment(order, cardInfo);
+            order.setStatus(OrderStatus.SUCCESS);
         } catch (PaymentException e) {
-            orderDTO.setStatus(e.getStatus());
+            order.setStatus(e.getStatus());
         }
 
-        if (!orderDTO.getStatus().equals(OrderStatus.FAIL)) {
-            orderDTO.getOrderItems().forEach(orderItemDto -> {
-                StockDTO stockDTO = orderItemDto.getBook().getStock();
-                stockDTO.setAvailable(stockDTO.getAvailable() - orderItemDto.getCount());
-                stockDTO.setInDelivery(stockDTO.getInDelivery() + orderItemDto.getCount());
+        if (!order.getStatus().equals(OrderStatus.FAIL)) {
+            order.getOrderItems().forEach(orderItemDto -> {
+                Stock stock = orderItemDto.getBook().getStock();
+                stock.setAvailable(stock.getAvailable() - orderItemDto.getCount());
+                stock.setInDelivery(stock.getInDelivery() + orderItemDto.getCount());
             });
         }
 
-        Order orderEntity = orderMapper.dtoToEntity(orderDTO);
+        OrderEntity orderEntity = orderMapper.dtoToEntity(order);
         orderEntity.getOrderItems().forEach(orderItem -> bookRepository.save(orderItem.getBook()));
         orderRepository.save(orderEntity);
 
 
-        if (orderDTO.getStatus() == OrderStatus.FAIL) {
+        if (order.getStatus() == OrderStatus.FAIL) {
             throw exceptionFactory.create(HttpStatus.BAD_REQUEST, ErrorResponseFactory.InternalErrorCode.PAYMENT_ERROR);
         }
 
@@ -94,10 +94,10 @@ public class OrderService implements IOrderService {
     @Transactional
     @Scheduled(timeUnit = TimeUnit.MINUTES, fixedRate = 5)
     public void updateOrderStatuses() {
-        List<OrderDTO> orderDTOList = orderMapper.entityToDto(
+        List<Order> orderList = orderMapper.entityToDto(
                 orderRepository.findAllByStatus(OrderStatus.PENDING)
         );
-        orderDTOList.forEach(orderDTO -> {
+        orderList.forEach(orderDTO -> {
             PaymentsInfoResponse response;
             try {
                 response = paymentsService.getPaymentInfo(orderDTO.getId());
@@ -106,12 +106,12 @@ public class OrderService implements IOrderService {
                     orderDTO.setStatus(OrderStatus.FAIL);
                     orderDTO.getOrderItems().forEach(orderItemDTO -> {
                         int orderCount = orderItemDTO.getCount();
-                        StockDTO stockDTO = orderItemDTO.getBook().getStock();
-                        stockDTO.setAvailable(stockDTO.getAvailable() + orderCount);
-                        stockDTO.setInDelivery(stockDTO.getInDelivery() - orderCount);
+                        Stock stock = orderItemDTO.getBook().getStock();
+                        stock.setAvailable(stock.getAvailable() + orderCount);
+                        stock.setInDelivery(stock.getInDelivery() - orderCount);
                     });
 
-                    Order orderEntity = orderMapper.dtoToEntity(orderDTO);
+                    OrderEntity orderEntity = orderMapper.dtoToEntity(orderDTO);
                     orderEntity.getOrderItems().forEach(orderItem -> bookRepository.save(orderItem.getBook()));
                     orderRepository.save(orderEntity);
                 }
@@ -120,7 +120,7 @@ public class OrderService implements IOrderService {
 
             if (response.getStatus().equals("SUCCESS")) {
                 orderDTO.setStatus(OrderStatus.SUCCESS);
-                Order orderEntity = orderMapper.dtoToEntity(orderDTO);
+                OrderEntity orderEntity = orderMapper.dtoToEntity(orderDTO);
                 orderRepository.save(orderEntity);
             }
         });
