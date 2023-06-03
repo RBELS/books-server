@@ -1,9 +1,9 @@
 package com.example.booksserver.external.impl;
 
 import com.example.booksserver.dto.Order;
-import com.example.booksserver.entity.order.OrderStatus;
+import com.example.booksserver.external.FailPaymentException;
 import com.example.booksserver.external.IPaymentsRequestService;
-import com.example.booksserver.external.PaymentException;
+import com.example.booksserver.external.UnreachablePaymentException;
 import com.example.booksserver.external.request.PostPaymentsRequest;
 import com.example.booksserver.external.response.PaymentsInfoResponse;
 import com.example.booksserver.external.response.PaymentsErrorResponse;
@@ -14,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.*;
 
-import java.util.Objects;
 
 @Slf4j
 @Service
@@ -25,63 +24,54 @@ public class PaymentsRequestService implements IPaymentsRequestService {
     private String paymentsMapping;
 
     @Override
-    public PaymentsInfoResponse processPayment(Order order, CardInfo cardInfo) throws PaymentException {
+    public PaymentsInfoResponse processPayment(Order order, CardInfo cardInfo) throws FailPaymentException, UnreachablePaymentException {
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<PaymentsInfoResponse> infoResponse;
         String requestUrl = paymentServiceAddress + paymentsMapping;
+
         try {
             infoResponse = restTemplate.postForEntity(requestUrl, new PostPaymentsRequest(order, cardInfo), PaymentsInfoResponse.class);
         } catch (RestClientResponseException e) {
             PaymentsErrorResponse errorResponse = e.getResponseBodyAs(PaymentsErrorResponse.class);
-            if (!Objects.isNull(errorResponse)) {
-                log.info(errorResponse.toString());
-                throw new PaymentException(OrderStatus.FAIL, errorResponse);
-            } else {
-                log.error(requestUrl + " endpoint returned an unknown error response body type.");
-                throw new PaymentException(OrderStatus.FAIL, null);
-            }
+            log.info(errorResponse.toString());
+            throw new FailPaymentException(errorResponse);
         } catch (RestClientException e) {
-            throw new PaymentException(OrderStatus.PENDING, null);
-        }
-
-        if (Objects.isNull(infoResponse.getBody())) {
-            log.error(requestUrl + " endpoint returned an unknown response body type.");
-            throw new PaymentException(OrderStatus.FAIL, null);
+            throw new UnreachablePaymentException();
         }
 
         return infoResponse.getBody();
     }
 
     @Override
-    public PaymentsInfoResponse getPaymentInfo(long orderId) throws PaymentException {
+    public PaymentsInfoResponse getPaymentInfo(long orderId) throws FailPaymentException, UnreachablePaymentException {
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<PaymentsInfoResponse> infoResponse;
         String requestUrl = String.format("%s%s/%d", paymentServiceAddress, paymentsMapping, orderId);
+
         try {
             infoResponse = restTemplate.getForEntity(requestUrl, PaymentsInfoResponse.class);
         } catch (RestClientResponseException e) {
             PaymentsErrorResponse errorResponse = e.getResponseBodyAs(PaymentsErrorResponse.class);
-            throw new PaymentException(OrderStatus.FAIL, errorResponse);
+            throw new FailPaymentException(errorResponse);
         } catch (RestClientException e) {
-            throw new PaymentException(OrderStatus.PENDING, null);
+            throw new UnreachablePaymentException();
         }
 
         return infoResponse.getBody();
     }
 
     @Override
-    public PaymentsInfoResponse cancelPayment(long orderId) throws PaymentException {
-        return null;
-//        RestTemplate restTemplate = new RestTemplate();
-//        PaymentsInfoResponse infoResponse = null;
-//        String requestUrl = String.format("%s%s/%d/cancel", paymentServiceAddress, paymentsMapping, orderId);
-//        try {
-//            infoResponse = restTemplate.patchForObject(requestUrl, null, PaymentsInfoResponse.class);
-//        } catch (RestClientResponseException e) {
-//            throw new PaymentException(OrderStatus.UNKNOWN, e.getResponseBodyAs(PaymentsErrorResponse.class));
-//        } catch (RestClientException e) {
-//            throw new PaymentException(OrderStatus.PENDING_CANCEL, null);
-//        }
-//        return infoResponse;
+    public PaymentsInfoResponse cancelPayment(long orderId) throws FailPaymentException, UnreachablePaymentException {
+        RestTemplate restTemplate = new RestTemplate();
+        PaymentsInfoResponse infoResponse = null;
+        String requestUrl = String.format("%s%s/%d/cancel", paymentServiceAddress, paymentsMapping, orderId);
+        try {
+            infoResponse = restTemplate.patchForObject(requestUrl, null, PaymentsInfoResponse.class);
+        } catch (RestClientResponseException e) {
+            throw new FailPaymentException(e.getResponseBodyAs(PaymentsErrorResponse.class));
+        } catch (RestClientException e) {
+            throw new UnreachablePaymentException();
+        }
+        return infoResponse;
     }
 }

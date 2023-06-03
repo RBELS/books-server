@@ -9,6 +9,7 @@ import com.example.booksserver.userstate.request.PostOrdersRequest;
 import com.example.booksserver.userstate.response.PostOrdersResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -47,5 +48,14 @@ public class OrderController {
         Order resultDTO = orderService.createOrder(order, request.getCard());
 
         return new PostOrdersResponse(resultDTO);
+    }
+
+    @PostMapping(value = "/orders/{orderId}/cancel")
+    public String cancelOrder(
+            @PathVariable Long orderId
+    ) {
+        Order order = orderService.getOrderById(orderId);
+        order = orderService.cancelOrder(order);
+        return "ok maybe";
     }
 }

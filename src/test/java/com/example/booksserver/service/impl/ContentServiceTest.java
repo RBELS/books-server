@@ -193,7 +193,7 @@ class ContentServiceTest {
         Author someAuthor = new Author()
                 .setId(20L)
                 .setName("Author name");
-        Book.BookDTOBuilder builder = Book.builder()
+        Book.BookBuilder builder = Book.builder()
                 .id(null)
                 .name("book name")
                 .imagesFileList(new ArrayList<>())
