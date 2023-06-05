@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -29,10 +30,8 @@ public class PaymentScheduleExecutor {
     private final IPaymentsRequestService paymentsService;
 
 
-    // Transactional added to start other transactions within it
     @Scheduled(timeUnit = TimeUnit.MINUTES, fixedRate = 5)
-    // @Transactional(noRollbackFor = Exception.class)
-    @Transactional(propagation = Propagation.SUPPORTS)
+    @Transactional(noRollbackFor = Exception.class)
     public void updateOrderStatuses() {
         orderRepository
                 .findAllByStatusIn(
@@ -42,7 +41,7 @@ public class PaymentScheduleExecutor {
                 .forEach(this::updateOrderStatus);
     }
 
-    private OrderEntity saveOrderWithRollback(Order order) {
+    private void saveOrderWithRollback(Order order) {
         order.getOrderItems().forEach(orderItemDTO -> {
             int orderCount = orderItemDTO.getCount();
             Stock stock = orderItemDTO.getBook().getStock();
@@ -52,7 +51,7 @@ public class PaymentScheduleExecutor {
 
         OrderEntity orderEntity = orderMapper.dtoToEntity(order);
         orderEntity.getOrderItems().forEach(orderItem -> stockRepository.save(orderItem.getBook().getStock()));
-        return orderRepository.save(orderEntity);
+        orderRepository.save(orderEntity);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -66,7 +65,7 @@ public class PaymentScheduleExecutor {
             } else if (OrderStatus.PENDING_CANCEL.equals(order.getStatus())) {
                 order.setStatus(OrderStatus.CANCELED);
             }
-            OrderEntity orderEntity = saveOrderWithRollback(order);
+            saveOrderWithRollback(order);
             return;
         } catch (UnreachablePaymentException e) {
             return;
@@ -78,10 +77,10 @@ public class PaymentScheduleExecutor {
             orderRepository.save(orderEntity);
         } else if ("UNSUCCESS".equals(response.getStatus())) {
             order.setStatus(OrderStatus.FAIL);
-            OrderEntity orderEntity = saveOrderWithRollback(order);
+            saveOrderWithRollback(order);
         } else if ("CANCELED".equals(response.getStatus())) {
             order.setStatus(OrderStatus.CANCELED);
-            OrderEntity orderEntity = saveOrderWithRollback(order);
+            saveOrderWithRollback(order);
         }
     }
 }

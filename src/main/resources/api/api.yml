@@ -57,6 +57,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/errorStatus'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorStatus'
   /authors:
     get:
       summary: Get authors.
@@ -96,6 +102,19 @@ paths:
           description: >-
             Not enough parameters provided or parameters' formats do not meet
             the requirements.
+  /authors/all:
+    get:
+      summary: Get all authors
+      description: Get all authors sorted by name and id ascending
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/author1'
   '/static/image/{imageId}':
     get:
       summary: Get image by imageId
@@ -150,7 +169,9 @@ paths:
                 properties:
                   status:
                     type: string
-                    example: SUCCESS
+                    enum:
+                      - SUCCESS
+                      - PENDING
                   orderNo:
                     type: string
         '400':
@@ -330,6 +351,9 @@ components:
       properties:
         status:
           type: string
+          enum:
+            - SUCCESS
+            - PENDING
         orderNo:
           type: string
         books:

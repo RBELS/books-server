@@ -11,6 +11,7 @@ import com.example.booksserver.userstate.CardInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.*;
 
@@ -63,6 +64,9 @@ public class PaymentsRequestService implements IPaymentsRequestService {
     @Override
     public PaymentsInfoResponse cancelPayment(long orderId) throws FailPaymentException, UnreachablePaymentException {
         RestTemplate restTemplate = new RestTemplate();
+        HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
+        restTemplate.setRequestFactory(requestFactory);
+
         PaymentsInfoResponse infoResponse = null;
         String requestUrl = String.format("%s%s/%d/cancel", paymentServiceAddress, paymentsMapping, orderId);
         try {

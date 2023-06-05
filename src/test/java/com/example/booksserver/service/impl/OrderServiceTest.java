@@ -9,8 +9,12 @@ import com.example.booksserver.dto.OrderItem;
 import com.example.booksserver.dto.Stock;
 import com.example.booksserver.entity.BookEntity;
 import com.example.booksserver.entity.order.OrderEntity;
+import com.example.booksserver.entity.order.OrderStatus;
+import com.example.booksserver.external.FailPaymentException;
 import com.example.booksserver.external.IPaymentsRequestService;
 import com.example.booksserver.external.PaymentException;
+import com.example.booksserver.external.UnreachablePaymentException;
+import com.example.booksserver.external.response.PaymentsErrorResponse;
 import com.example.booksserver.external.response.PaymentsInfoResponse;
 import com.example.booksserver.map.OrderMapper;
 import com.example.booksserver.repository.BookRepository;
@@ -28,6 +32,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -139,5 +144,52 @@ class OrderServiceTest {
                 cardInfo
         ));
 
+    }
+
+    @Test
+    void cancelOrder() throws UnreachablePaymentException, FailPaymentException {
+        when(orderRepository.save(any(OrderEntity.class)))
+                .thenReturn(mock(OrderEntity.class));
+        when(orderMapper.entityToDto(any(OrderEntity.class)))
+                .thenReturn(mock(Order.class));
+        when(orderMapper.dtoToEntity(any(Order.class)))
+                .thenReturn(mock(OrderEntity.class));
+        when(exceptionFactory.create(any(HttpStatus.class), any(ErrorResponseFactory.InternalErrorCode.class)))
+                .thenReturn(mock(ResponseBodyException.class));
+
+        when(paymentsService.cancelPayment(anyLong()))
+                .thenReturn(mock(PaymentsInfoResponse.class));
+        assertDoesNotThrow(() -> orderService.cancelOrder(new Order().setStatus(OrderStatus.SUCCESS)));
+        assertDoesNotThrow(() -> orderService.cancelOrder(new Order().setStatus(OrderStatus.PENDING)));
+        assertThrows(ResponseBodyException.class, () -> orderService.cancelOrder(new Order().setStatus(OrderStatus.FAIL)));
+
+
+        reset(paymentsService);
+        when(paymentsService.cancelPayment(anyLong()))
+                .thenThrow(new UnreachablePaymentException());
+        assertThrows(ResponseBodyException.class,
+                () -> orderService.cancelOrder(new Order().setStatus(OrderStatus.SUCCESS))
+        );
+
+        reset(paymentsService);
+        when(paymentsService.cancelPayment(anyLong()))
+                .thenThrow(new FailPaymentException(new PaymentsErrorResponse()));
+        assertThrows(ResponseBodyException.class,
+                () -> orderService.cancelOrder(new Order().setStatus(OrderStatus.SUCCESS))
+        );
+    }
+
+    @Test
+    void getOrderById() {
+        when(exceptionFactory.create(any(HttpStatus.class), any(ErrorResponseFactory.InternalErrorCode.class)))
+                .thenReturn(mock(ResponseBodyException.class));
+
+        when(orderMapper.entityToDto(any(OrderEntity.class)))
+                .thenReturn(mock(Order.class));
+        when(orderRepository.findById(10L))
+                .thenReturn(Optional.of(mock(OrderEntity.class)));
+
+        assertDoesNotThrow(() -> orderService.getOrderById(10L));
+        assertThrows(ResponseBodyException.class, () -> orderService.getOrderById(20L));
     }
 }

@@ -38,13 +38,13 @@ public class OrderRepositoryTest {
 
     @Test
     public void findAllByStatus() {
-        OrderStatus orderStatus = OrderStatus.PENDING;
+        List<OrderStatus> orderStatusList = Arrays.asList(OrderStatus.PENDING, OrderStatus.PENDING_CANCEL);
         List<OrderEntity> expected = orderRepository
                 .findAll()
                 .stream()
-                .filter(order -> order.getStatus() == orderStatus)
+                .filter(order -> orderStatusList.contains(order.getStatus()))
                 .toList();
-        List<OrderEntity> actual = orderRepository.findAllByStatusIn(Arrays.asList(orderStatus));
+        List<OrderEntity> actual = orderRepository.findAllByStatusIn(orderStatusList);
 
         assertThat(expected).isEqualTo(actual);
     }

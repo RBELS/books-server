@@ -6,13 +6,11 @@ import com.example.booksserver.dto.OrderItem;
 import com.example.booksserver.service.IContentService;
 import com.example.booksserver.service.impl.OrderService;
 import com.example.booksserver.userstate.request.PostOrdersRequest;
+import com.example.booksserver.userstate.response.CancelOrderResponse;
 import com.example.booksserver.userstate.response.PostOrdersResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -47,15 +45,17 @@ public class OrderController {
 
         Order resultDTO = orderService.createOrder(order, request.getCard());
 
-        return new PostOrdersResponse(resultDTO);
+        return new PostOrdersResponse(resultDTO, "SUCCESS");
     }
 
-    @PostMapping(value = "/orders/{orderId}/cancel")
-    public String cancelOrder(
+    @PatchMapping(value = "/orders/{orderId}/cancel")
+    public CancelOrderResponse cancelOrder(
             @PathVariable Long orderId
     ) {
         Order order = orderService.getOrderById(orderId);
         order = orderService.cancelOrder(order);
-        return "ok maybe";
+        return new CancelOrderResponse()
+                .setOrderNo(String.valueOf(order.getId()))
+                .setStatus("CANCELED");
     }
 }
