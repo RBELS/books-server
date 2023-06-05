@@ -1,7 +1,8 @@
 package com.example.booksserver.service.impl;
 
 import com.example.booksserver.components.ErrorResponseFactory;
-import com.example.booksserver.components.ResponseStatusWithBodyExceptionFactory;
+import com.example.booksserver.components.InternalErrorCode;
+import com.example.booksserver.config.ResponseBodyException;
 import com.example.booksserver.dto.Author;
 import com.example.booksserver.dto.Book;
 import com.example.booksserver.entity.AuthorEntity;
@@ -35,7 +36,7 @@ public class ContentService implements IContentService {
     private final AuthorRepository authorRepository;
     private final AuthorMapper authorMapper;
     private final BookMapper bookMapper;
-    private final ResponseStatusWithBodyExceptionFactory exceptionFactory;
+    private final ErrorResponseFactory errorResponseFactory;
 
     @Transactional
     public Page<Book> getBooks(BooksFilters filters) {
@@ -96,11 +97,12 @@ public class ContentService implements IContentService {
     }
 
     private void validateAuthor(Author author) throws ResponseStatusException {
-        if (author.getName().isBlank())
-            throw exceptionFactory.create(
-                    HttpStatus.BAD_REQUEST,
-                    ErrorResponseFactory.InternalErrorCode.AUTHOR_BAD_NAME
+        if (author.getName().isBlank()) {
+            HttpStatus status = HttpStatus.BAD_REQUEST;
+            throw  new ResponseBodyException(status,
+                    errorResponseFactory.create(status, InternalErrorCode.AUTHOR_BAD_NAME)
             );
+        }
     }
 
     public Author createAuthor(Author newAuthor) throws ResponseStatusException {
@@ -112,13 +114,25 @@ public class ContentService implements IContentService {
 
     private void validateBook(Book book) throws ResponseStatusException {
         if (book.getName().isBlank()) {
-           throw exceptionFactory.create(HttpStatus.BAD_REQUEST, ErrorResponseFactory.InternalErrorCode.BOOK_BAD_NAME);
+            HttpStatus status = HttpStatus.BAD_REQUEST;
+            throw new ResponseBodyException(status,
+                    errorResponseFactory.create(status, InternalErrorCode.BOOK_BAD_NAME)
+            );
         } else if (book.getAuthors().isEmpty() || book.getAuthors().contains(null)) {
-            throw exceptionFactory.create(HttpStatus.BAD_REQUEST, ErrorResponseFactory.InternalErrorCode.BOOK_BAD_AUTHORS);
+            HttpStatus status = HttpStatus.BAD_REQUEST;
+            throw new ResponseBodyException(status,
+                    errorResponseFactory.create(status, InternalErrorCode.BOOK_BAD_AUTHORS)
+            );
         } else if (book.getReleaseYear() < 0) {
-            throw exceptionFactory.create(HttpStatus.BAD_REQUEST, ErrorResponseFactory.InternalErrorCode.BOOK_BAD_RELEASE_YEAR);
+            HttpStatus status = HttpStatus.BAD_REQUEST;
+            throw new ResponseBodyException(status,
+                    errorResponseFactory.create(status, InternalErrorCode.BOOK_BAD_RELEASE_YEAR)
+            );
         } else if (book.getPrice().doubleValue() < 0) {
-            throw exceptionFactory.create(HttpStatus.BAD_REQUEST, ErrorResponseFactory.InternalErrorCode.BOOK_BAD_PRICE);
+            HttpStatus status = HttpStatus.BAD_REQUEST;
+            throw new ResponseBodyException(status,
+                    errorResponseFactory.create(status, InternalErrorCode.BOOK_BAD_PRICE)
+            );
         }
     }
 

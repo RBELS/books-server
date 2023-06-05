@@ -1,7 +1,7 @@
 package com.example.booksserver.service.impl;
 
 import com.example.booksserver.components.ErrorResponseFactory;
-import com.example.booksserver.components.ResponseStatusWithBodyExceptionFactory;
+import com.example.booksserver.components.InternalErrorCode;
 import com.example.booksserver.config.ResponseBodyException;
 import com.example.booksserver.dto.Order;
 import com.example.booksserver.dto.Stock;
@@ -34,28 +34,49 @@ public class OrderService implements IOrderService {
     private final OrderMapper orderMapper;
     private final IPaymentsRequestService paymentsService;
     private final StockRepository stockRepository;
-    private final ResponseStatusWithBodyExceptionFactory exceptionFactory;
+    private final ErrorResponseFactory errorResponseFactory;
 
     private void validateOrder(Order order) throws ResponseStatusException {
         if (order.getEmail().isBlank()) {
-            throw exceptionFactory.create(HttpStatus.BAD_REQUEST, ErrorResponseFactory.InternalErrorCode.ORDER_BAD_EMAIL);
+            HttpStatus status = HttpStatus.BAD_REQUEST;
+            throw new ResponseBodyException(status,
+                    errorResponseFactory.create(status, InternalErrorCode.ORDER_BAD_EMAIL)
+            );
         } else if (order.getAddress().isBlank()) {
-            throw exceptionFactory.create(HttpStatus.BAD_REQUEST, ErrorResponseFactory.InternalErrorCode.ORDER_BAD_ADDRESS);
+            HttpStatus status = HttpStatus.BAD_REQUEST;
+            throw new ResponseBodyException(status,
+                    errorResponseFactory.create(status, InternalErrorCode.ORDER_BAD_ADDRESS)
+            );
         } else if (order.getName().isBlank()) {
-            throw exceptionFactory.create(HttpStatus.BAD_REQUEST, ErrorResponseFactory.InternalErrorCode.ORDER_BAD_NAME);
+            HttpStatus status = HttpStatus.BAD_REQUEST;
+            throw new ResponseBodyException(status,
+                    errorResponseFactory.create(status, InternalErrorCode.ORDER_BAD_NAME)
+            );
         } else if (order.getPhone().isBlank()) {
-            throw exceptionFactory.create(HttpStatus.BAD_REQUEST, ErrorResponseFactory.InternalErrorCode.ORDER_BAD_PHONE);
+            HttpStatus status = HttpStatus.BAD_REQUEST;
+            throw new ResponseBodyException(status,
+                    errorResponseFactory.create(status, InternalErrorCode.ORDER_BAD_PHONE)
+            );
         } else if (order.getOrderItems().isEmpty()) {
-            throw exceptionFactory.create(HttpStatus.BAD_REQUEST, ErrorResponseFactory.InternalErrorCode.ORDER_NO_ITEMS);
+            HttpStatus status = HttpStatus.BAD_REQUEST;
+            throw new ResponseBodyException(status,
+                    errorResponseFactory.create(status, InternalErrorCode.ORDER_NO_ITEMS)
+            );
         } else if (order.getOrderItems().contains(null)) {
-            throw exceptionFactory.create(HttpStatus.BAD_REQUEST, ErrorResponseFactory.InternalErrorCode.ORDER_ITEM_NOT_FOUND);
+            HttpStatus status = HttpStatus.BAD_REQUEST;
+            throw new ResponseBodyException(status,
+                    errorResponseFactory.create(status, InternalErrorCode.ORDER_ITEM_NOT_FOUND)
+            );
         }
 
         order.getOrderItems().forEach(orderItemDto -> {
             int availableBooks = orderItemDto.getBook().getStock().getAvailable();
             int orderBooks = orderItemDto.getCount();
             if (orderBooks > availableBooks) {
-                throw exceptionFactory.create(HttpStatus.BAD_REQUEST, ErrorResponseFactory.InternalErrorCode.ORDER_ITEM_NOT_IN_STOCK);
+                HttpStatus status = HttpStatus.BAD_REQUEST;
+                throw new ResponseBodyException(status,
+                        errorResponseFactory.create(status, InternalErrorCode.ORDER_ITEM_NOT_IN_STOCK)
+                );
             }
         });
     }
@@ -114,7 +135,10 @@ public class OrderService implements IOrderService {
         order = orderMapper.entityToDto(orderEntity);
 
         if (OrderStatus.FAIL.equals(order.getStatus())) {
-            throw exceptionFactory.create(HttpStatus.BAD_REQUEST, ErrorResponseFactory.InternalErrorCode.PAYMENT_ERROR);
+            HttpStatus status = HttpStatus.BAD_REQUEST;
+            throw new ResponseBodyException(status,
+                    errorResponseFactory.create(status, InternalErrorCode.PAYMENT_ERROR)
+            );
         } else if (OrderStatus.PENDING.equals(order.getStatus())) {
             throw new ResponseBodyException(HttpStatus.OK, new PostOrdersResponse(order, "PENDING"));
         }
@@ -128,7 +152,10 @@ public class OrderService implements IOrderService {
     @Transactional(propagation = Propagation.SUPPORTS, noRollbackFor = {ResponseStatusException.class})
     public Order cancelOrder(Order order) throws ResponseStatusException {
         if (!order.getStatus().equals(OrderStatus.SUCCESS) && !order.getStatus().equals(OrderStatus.PENDING)) {
-            throw exceptionFactory.create(HttpStatus.BAD_REQUEST, ErrorResponseFactory.InternalErrorCode.PAYMENT_CANCEL_NOT_ALLOWED);
+            HttpStatus status = HttpStatus.BAD_REQUEST;
+            throw new ResponseBodyException(status,
+                    errorResponseFactory.create(status, InternalErrorCode.PAYMENT_CANCEL_NOT_ALLOWED)
+            );
         }
 
         order = saveOrderCancelPending(order);
@@ -153,7 +180,10 @@ public class OrderService implements IOrderService {
             order.setStatus(OrderStatus.CANCELED);
         } catch (FailPaymentException e) {
             order.setStatus(OrderStatus.FAIL);// ?????? SHOULD IT BE?!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            throw exceptionFactory.create(HttpStatus.BAD_REQUEST, ErrorResponseFactory.InternalErrorCode.PAYMENT_ERROR);
+            HttpStatus status = HttpStatus.BAD_REQUEST;
+            throw new ResponseBodyException(status,
+                    errorResponseFactory.create(status, InternalErrorCode.PAYMENT_ERROR)
+            );
         } catch (UnreachablePaymentException e) {
             order.setStatus(OrderStatus.PENDING_CANCEL);
             throw new ResponseBodyException(HttpStatus.OK, new CancelOrderResponse()
@@ -180,8 +210,11 @@ public class OrderService implements IOrderService {
         return orderRepository
                 .findById(orderId)
                 .map(orderMapper::entityToDto)
-                .orElseThrow(
-                        () -> exceptionFactory.create(HttpStatus.NOT_FOUND, ErrorResponseFactory.InternalErrorCode.ORDER_NOT_FOUND)
-                );
+                .orElseThrow(() -> {
+                    HttpStatus status = HttpStatus.NOT_FOUND;
+                    return new ResponseBodyException(status,
+                            errorResponseFactory.create(status, InternalErrorCode.ORDER_NOT_FOUND)
+                    );
+                });
     }
 }

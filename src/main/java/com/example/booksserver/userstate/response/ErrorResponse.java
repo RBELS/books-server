@@ -1,6 +1,6 @@
 package com.example.booksserver.userstate.response;
 
-import com.example.booksserver.components.ErrorResponseFactory;
+import com.example.booksserver.components.InternalErrorCode;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
@@ -26,7 +26,7 @@ public class ErrorResponse {
     private final String devMessage;
     private final UserMessage userMessage;
 
-    public ErrorResponse(HttpStatus httpStatus, ErrorResponseFactory.InternalErrorCode errorCode, String devMessage, String langEnMessage, String langRuMessage) {
+    public ErrorResponse(HttpStatus httpStatus, InternalErrorCode errorCode, String devMessage, String langEnMessage, String langRuMessage) {
         this.code = String.valueOf(httpStatus.value());
         this.internalCode = errorCode.getStringValue();
         this.devMessage = devMessage;

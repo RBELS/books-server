@@ -1,7 +1,7 @@
 package com.example.booksserver.service.impl;
 
 import com.example.booksserver.components.ErrorResponseFactory;
-import com.example.booksserver.components.ResponseStatusWithBodyExceptionFactory;
+import com.example.booksserver.components.InternalErrorCode;
 import com.example.booksserver.config.ResponseBodyException;
 import com.example.booksserver.dto.Author;
 import com.example.booksserver.dto.Book;
@@ -16,6 +16,7 @@ import com.example.booksserver.repository.AuthorRepository;
 import com.example.booksserver.repository.BookRepository;
 import com.example.booksserver.userstate.filters.AuthorsFilters;
 import com.example.booksserver.userstate.filters.BooksFilters;
+import com.example.booksserver.userstate.response.ErrorResponse;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -52,7 +53,7 @@ class ContentServiceTest {
     @Mock
     private BookMapper bookMapper;
     @Mock
-    private ResponseStatusWithBodyExceptionFactory exceptionFactory;
+    private ErrorResponseFactory errorResponseFactory;
     @InjectMocks
     private ContentService contentService;
 
@@ -174,8 +175,8 @@ class ContentServiceTest {
         when(authorMapper.entityToDto(any(AuthorEntity.class)))
                 .thenReturn(savedAuthor);
 
-        when(exceptionFactory.create(any(HttpStatus.class), any(ErrorResponseFactory.InternalErrorCode.class)))
-                .thenReturn(mock(ResponseBodyException.class));
+        when(errorResponseFactory.create(any(HttpStatus.class), any(InternalErrorCode.class)))
+                .thenReturn(mock(ErrorResponse.class));
 
         assertDoesNotThrow(() -> contentService.createAuthor(author));
         Author returnedAuthor = contentService.createAuthor(author);
@@ -212,8 +213,8 @@ class ContentServiceTest {
         when(bookMapper.entityToDto(any(BookEntity.class)))
                 .thenReturn(savedBook);
 
-        when(exceptionFactory.create(any(HttpStatus.class), any(ErrorResponseFactory.InternalErrorCode.class)))
-                .thenReturn(mock(ResponseBodyException.class));
+        when(errorResponseFactory.create(any(HttpStatus.class), any(InternalErrorCode.class)))
+                .thenReturn(mock(ErrorResponse.class));
 
         assertDoesNotThrow(() -> contentService.createBook(book));
         assertThrows(ResponseBodyException.class, () -> contentService.createBook(

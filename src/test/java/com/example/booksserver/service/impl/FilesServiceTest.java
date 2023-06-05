@@ -1,7 +1,7 @@
 package com.example.booksserver.service.impl;
 
 import com.example.booksserver.components.ErrorResponseFactory;
-import com.example.booksserver.components.ResponseStatusWithBodyExceptionFactory;
+import com.example.booksserver.components.InternalErrorCode;
 import com.example.booksserver.config.ResponseBodyException;
 import com.example.booksserver.dto.BookImage;
 import com.example.booksserver.entity.BookEntity;
@@ -9,6 +9,7 @@ import com.example.booksserver.entity.image.BookImageEntity;
 import com.example.booksserver.entity.image.ImageType;
 import com.example.booksserver.map.ImageMapper;
 import com.example.booksserver.repository.BookImageRepository;
+import com.example.booksserver.userstate.response.ErrorResponse;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -33,7 +34,7 @@ class FilesServiceTest {
     @Mock
     private BookImageRepository bookImageRepository;
     @Mock
-    private ResponseStatusWithBodyExceptionFactory exceptionFactory;
+    private ErrorResponseFactory errorResponseFactory;
     @InjectMocks
     private FilesService filesService;
 
@@ -47,8 +48,8 @@ class FilesServiceTest {
 
         when(bookImageRepository.findById(1L)).thenReturn(Optional.of(entity));
         when(imageMapper.entityToDto(any(BookImageEntity.class))).thenReturn(mock(BookImage.class));
-        when(exceptionFactory.create(any(HttpStatus.class), any(ErrorResponseFactory.InternalErrorCode.class)))
-                .thenReturn(mock(ResponseBodyException.class));
+        when(errorResponseFactory.create(any(HttpStatus.class), any(InternalErrorCode.class)))
+                .thenReturn(mock(ErrorResponse.class));
 
         // TODO: Decide which library I should use?
         assertDoesNotThrow(() -> filesService.getImageById(1L));

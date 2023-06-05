@@ -1,7 +1,7 @@
 package com.example.booksserver.service.impl;
 
 import com.example.booksserver.components.ErrorResponseFactory;
-import com.example.booksserver.components.ResponseStatusWithBodyExceptionFactory;
+import com.example.booksserver.components.InternalErrorCode;
 import com.example.booksserver.config.ResponseBodyException;
 import com.example.booksserver.dto.Book;
 import com.example.booksserver.dto.Order;
@@ -20,6 +20,7 @@ import com.example.booksserver.map.OrderMapper;
 import com.example.booksserver.repository.BookRepository;
 import com.example.booksserver.repository.OrderRepository;
 import com.example.booksserver.userstate.CardInfo;
+import com.example.booksserver.userstate.response.ErrorResponse;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -51,7 +52,7 @@ class OrderServiceTest {
     @Mock
     private BookRepository bookRepository;
     @Mock
-    private ResponseStatusWithBodyExceptionFactory exceptionFactory;
+    private ErrorResponseFactory errorResponseFactory;
 
     @InjectMocks
     private OrderService orderService;
@@ -95,8 +96,8 @@ class OrderServiceTest {
                 .thenReturn(mock(OrderEntity.class));
         when(paymentsService.processPayment(any(Order.class), any(CardInfo.class)))
                 .thenReturn(mock(PaymentsInfoResponse.class));
-        when(exceptionFactory.create(any(HttpStatus.class), any(ErrorResponseFactory.InternalErrorCode.class)))
-                .thenReturn(mock(ResponseBodyException.class));
+        when(errorResponseFactory.create(any(HttpStatus.class), any(InternalErrorCode.class)))
+                .thenReturn(mock(ErrorResponse.class));
 
         assertDoesNotThrow(() -> orderService.createOrder(dto, cardInfo));
 
@@ -154,8 +155,8 @@ class OrderServiceTest {
                 .thenReturn(mock(Order.class));
         when(orderMapper.dtoToEntity(any(Order.class)))
                 .thenReturn(mock(OrderEntity.class));
-        when(exceptionFactory.create(any(HttpStatus.class), any(ErrorResponseFactory.InternalErrorCode.class)))
-                .thenReturn(mock(ResponseBodyException.class));
+        when(errorResponseFactory.create(any(HttpStatus.class), any(InternalErrorCode.class)))
+                .thenReturn(mock(ErrorResponse.class));
 
         when(paymentsService.cancelPayment(anyLong()))
                 .thenReturn(mock(PaymentsInfoResponse.class));
@@ -181,8 +182,8 @@ class OrderServiceTest {
 
     @Test
     void getOrderById() {
-        when(exceptionFactory.create(any(HttpStatus.class), any(ErrorResponseFactory.InternalErrorCode.class)))
-                .thenReturn(mock(ResponseBodyException.class));
+        when(errorResponseFactory.create(any(HttpStatus.class), any(InternalErrorCode.class)))
+                .thenReturn(mock(ErrorResponse.class));
 
         when(orderMapper.entityToDto(any(OrderEntity.class)))
                 .thenReturn(mock(Order.class));

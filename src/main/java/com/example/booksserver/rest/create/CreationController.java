@@ -1,8 +1,9 @@
 package com.example.booksserver.rest.create;
 
 import com.example.booksserver.components.ErrorResponseFactory;
-import com.example.booksserver.components.ResponseStatusWithBodyExceptionFactory;
+import com.example.booksserver.components.InternalErrorCode;
 import com.example.booksserver.config.AppConfig;
+import com.example.booksserver.config.ResponseBodyException;
 import com.example.booksserver.dto.Author;
 import com.example.booksserver.dto.Book;
 import com.example.booksserver.dto.BookImage;
@@ -31,13 +32,13 @@ public class CreationController {
     private final IContentService contentService;
     private final ImageMapper imageMapper;
     private final String baseImageUrl;
-    private final ResponseStatusWithBodyExceptionFactory exceptionFactory;
+    private final ErrorResponseFactory errorResponseFactory;
 
-    public CreationController(IContentService contentService, ImageMapper imageMapper, AppConfig appConfig, ResponseStatusWithBodyExceptionFactory exceptionFactory) {
+    public CreationController(IContentService contentService, ImageMapper imageMapper, AppConfig appConfig, ErrorResponseFactory errorResponseFactory) {
         this.contentService = contentService;
         this.imageMapper = imageMapper;
         this.baseImageUrl = appConfig.getServerAddress() + "/static/image/";
-        this.exceptionFactory = exceptionFactory;
+        this.errorResponseFactory = errorResponseFactory;
     }
 
     @PostMapping(value = "/books", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -56,12 +57,18 @@ public class CreationController {
 
         try {
             if (mainImageFile.isEmpty()) {
-                throw exceptionFactory.create(HttpStatus.BAD_REQUEST, ErrorResponseFactory.InternalErrorCode.BOOK_BAD_IMAGES);
+                HttpStatus status = HttpStatus.BAD_REQUEST;
+                throw new ResponseBodyException(status,
+                        errorResponseFactory.create(status, InternalErrorCode.BOOK_BAD_IMAGES)
+                );
             }
             mainImageDTO = imageMapper.fileToDto(mainImageFile, ImageType.MAIN);
             contentImageDTOList = imageMapper.fileToDto(contentImageFileList, ImageType.CONTENT);
         } catch (IOException e) {
-            throw exceptionFactory.create(HttpStatus.INTERNAL_SERVER_ERROR, ErrorResponseFactory.InternalErrorCode.INTERNAL_ERROR_IMAGES);
+            HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+            throw new ResponseBodyException(status,
+                    errorResponseFactory.create(status, InternalErrorCode.INTERNAL_ERROR_IMAGES)
+            );
         }
 
         Book dto = new Book(

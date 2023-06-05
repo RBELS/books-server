@@ -1,7 +1,8 @@
 package com.example.booksserver.service.impl;
 
 import com.example.booksserver.components.ErrorResponseFactory;
-import com.example.booksserver.components.ResponseStatusWithBodyExceptionFactory;
+import com.example.booksserver.components.InternalErrorCode;
+import com.example.booksserver.config.ResponseBodyException;
 import com.example.booksserver.dto.BookImage;
 import com.example.booksserver.map.ImageMapper;
 import com.example.booksserver.repository.BookImageRepository;
@@ -16,12 +17,17 @@ import org.springframework.web.server.ResponseStatusException;
 public class FilesService implements IFilesService {
     private final BookImageRepository bookImageRepository;
     private final ImageMapper imageMapper;
-    private final ResponseStatusWithBodyExceptionFactory exceptionFactory;
+    private final ErrorResponseFactory errorResponseFactory;
 
     @Override
     public BookImage getImageById(Long imageId) throws ResponseStatusException {
         return bookImageRepository.findById(imageId)
                 .map(imageMapper::entityToDto)
-                .orElseThrow(() -> exceptionFactory.create(HttpStatus.NOT_FOUND, ErrorResponseFactory.InternalErrorCode.IMAGE_NOT_FOUND));
+                .orElseThrow(() -> {
+                    HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+                    return new ResponseBodyException(status,
+                            errorResponseFactory.create(status, InternalErrorCode.IMAGE_NOT_FOUND)
+                    );
+                });
     }
 }
