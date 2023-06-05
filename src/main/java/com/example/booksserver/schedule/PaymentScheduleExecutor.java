@@ -5,7 +5,7 @@ import com.example.booksserver.dto.Stock;
 import com.example.booksserver.entity.order.OrderEntity;
 import com.example.booksserver.entity.order.OrderStatus;
 import com.example.booksserver.external.FailPaymentException;
-import com.example.booksserver.external.IPaymentsRequestService;
+import com.example.booksserver.external.IPaymentService;
 import com.example.booksserver.external.UnreachablePaymentException;
 import com.example.booksserver.external.response.PaymentsInfoResponse;
 import com.example.booksserver.map.OrderMapper;
@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -27,7 +26,7 @@ public class PaymentScheduleExecutor {
     private final OrderRepository orderRepository;
     private final StockRepository stockRepository;
     private final OrderMapper orderMapper;
-    private final IPaymentsRequestService paymentsService;
+    private final IPaymentService paymentsService;
 
 
     @Scheduled(timeUnit = TimeUnit.MINUTES, fixedRate = 5)

@@ -11,7 +11,7 @@ import com.example.booksserver.external.FailPaymentException;
 import com.example.booksserver.external.UnreachablePaymentException;
 import com.example.booksserver.map.OrderMapper;
 import com.example.booksserver.repository.OrderRepository;
-import com.example.booksserver.external.IPaymentsRequestService;
+import com.example.booksserver.external.IPaymentService;
 import com.example.booksserver.repository.StockRepository;
 import com.example.booksserver.service.IOrderService;
 import com.example.booksserver.userstate.CardInfo;
@@ -32,7 +32,7 @@ import org.springframework.web.server.ResponseStatusException;
 public class OrderService implements IOrderService {
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
-    private final IPaymentsRequestService paymentsService;
+    private final IPaymentService paymentsService;
     private final StockRepository stockRepository;
     private final ErrorResponseFactory errorResponseFactory;
 

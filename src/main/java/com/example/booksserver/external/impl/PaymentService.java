@@ -2,31 +2,32 @@ package com.example.booksserver.external.impl;
 
 import com.example.booksserver.dto.Order;
 import com.example.booksserver.external.FailPaymentException;
-import com.example.booksserver.external.IPaymentsRequestService;
+import com.example.booksserver.external.IPaymentService;
 import com.example.booksserver.external.UnreachablePaymentException;
 import com.example.booksserver.external.request.PostPaymentsRequest;
 import com.example.booksserver.external.response.PaymentsInfoResponse;
 import com.example.booksserver.external.response.PaymentsErrorResponse;
 import com.example.booksserver.userstate.CardInfo;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.*;
 
 
 @Slf4j
 @Service
-public class PaymentsRequestService implements IPaymentsRequestService {
+@RequiredArgsConstructor
+public class PaymentService implements IPaymentService {
     @Value("${external.payment-service.host}")
     private String paymentServiceAddress;
     @Value("${external.payment-service.post-payment-mapping}")
     private String paymentsMapping;
+    private final RestTemplate restTemplate;
 
     @Override
     public PaymentsInfoResponse processPayment(Order order, CardInfo cardInfo) throws FailPaymentException, UnreachablePaymentException {
-        RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<PaymentsInfoResponse> infoResponse;
         String requestUrl = paymentServiceAddress + paymentsMapping;
 
@@ -45,7 +46,6 @@ public class PaymentsRequestService implements IPaymentsRequestService {
 
     @Override
     public PaymentsInfoResponse getPaymentInfo(long orderId) throws FailPaymentException, UnreachablePaymentException {
-        RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<PaymentsInfoResponse> infoResponse;
         String requestUrl = String.format("%s%s/%d", paymentServiceAddress, paymentsMapping, orderId);
 
@@ -63,11 +63,7 @@ public class PaymentsRequestService implements IPaymentsRequestService {
 
     @Override
     public PaymentsInfoResponse cancelPayment(long orderId) throws FailPaymentException, UnreachablePaymentException {
-        RestTemplate restTemplate = new RestTemplate();
-        HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
-        restTemplate.setRequestFactory(requestFactory);
-
-        PaymentsInfoResponse infoResponse = null;
+        PaymentsInfoResponse infoResponse;
         String requestUrl = String.format("%s%s/%d/cancel", paymentServiceAddress, paymentsMapping, orderId);
         try {
             infoResponse = restTemplate.patchForObject(requestUrl, null, PaymentsInfoResponse.class);

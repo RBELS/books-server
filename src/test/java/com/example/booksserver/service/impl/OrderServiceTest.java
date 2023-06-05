@@ -11,7 +11,7 @@ import com.example.booksserver.entity.BookEntity;
 import com.example.booksserver.entity.order.OrderEntity;
 import com.example.booksserver.entity.order.OrderStatus;
 import com.example.booksserver.external.FailPaymentException;
-import com.example.booksserver.external.IPaymentsRequestService;
+import com.example.booksserver.external.IPaymentService;
 import com.example.booksserver.external.PaymentException;
 import com.example.booksserver.external.UnreachablePaymentException;
 import com.example.booksserver.external.response.PaymentsErrorResponse;
@@ -48,7 +48,7 @@ class OrderServiceTest {
     @Mock
     private OrderMapper orderMapper;
     @Mock
-    private IPaymentsRequestService paymentsService;
+    private IPaymentService paymentsService;
     @Mock
     private BookRepository bookRepository;
     @Mock
