@@ -179,10 +179,12 @@ public class OrderService implements IOrderService {
             paymentsService.cancelPayment(order.getId());
             order.setStatus(OrderStatus.CANCELED);
         } catch (FailPaymentException e) {
-            order.setStatus(OrderStatus.FAIL);// ?????? SHOULD IT BE?!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            HttpStatus status = HttpStatus.BAD_REQUEST;
-            throw new ResponseBodyException(status,
-                    errorResponseFactory.create(status, InternalErrorCode.PAYMENT_ERROR)
+            //for the situation when the payment was not process, Order is PENDING
+            order.setStatus(OrderStatus.CANCELED);
+            HttpStatus status = HttpStatus.OK;
+            throw new ResponseBodyException(status, new CancelOrderResponse()
+                    .setOrderNo(String.valueOf(order.getId()))
+                    .setStatus("PENDING_CANCEL")
             );
         } catch (UnreachablePaymentException e) {
             order.setStatus(OrderStatus.PENDING_CANCEL);
