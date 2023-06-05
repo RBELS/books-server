@@ -151,7 +151,7 @@ public class OrderService implements IOrderService {
     @Override
     @Transactional(propagation = Propagation.SUPPORTS, noRollbackFor = {ResponseStatusException.class})
     public Order cancelOrder(Order order) throws ResponseStatusException {
-        if (!order.getStatus().equals(OrderStatus.SUCCESS) && !order.getStatus().equals(OrderStatus.PENDING)) {
+        if (!OrderStatus.SUCCESS.equals(order.getStatus()) && !OrderStatus.PENDING.equals(order.getStatus())) {
             HttpStatus status = HttpStatus.BAD_REQUEST;
             throw new ResponseBodyException(status,
                     errorResponseFactory.create(status, InternalErrorCode.PAYMENT_CANCEL_NOT_ALLOWED)
