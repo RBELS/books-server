@@ -5,36 +5,28 @@ import com.example.booksserver.components.InternalErrorCode;
 import com.example.booksserver.config.ResponseBodyException;
 import com.example.booksserver.dto.Order;
 import com.example.booksserver.dto.Stock;
-import com.example.booksserver.entity.order.OrderEntity;
 import com.example.booksserver.entity.order.OrderStatus;
-import com.example.booksserver.external.FailPaymentException;
-import com.example.booksserver.external.UnreachablePaymentException;
 import com.example.booksserver.map.OrderMapper;
 import com.example.booksserver.repository.OrderRepository;
-import com.example.booksserver.external.IPaymentService;
-import com.example.booksserver.repository.StockRepository;
 import com.example.booksserver.service.IOrderService;
+import com.example.booksserver.service.IOrderTransactionService;
 import com.example.booksserver.userstate.CardInfo;
 import com.example.booksserver.userstate.response.CancelOrderResponse;
 import com.example.booksserver.userstate.response.PostOrdersResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OrderService implements IOrderService {
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
-    private final IPaymentService paymentsService;
-    private final StockRepository stockRepository;
     private final ErrorResponseFactory errorResponseFactory;
+    private final IOrderTransactionService orderTransactionService;
 
     private void validateOrder(Order order) throws ResponseStatusException {
         if (order.getEmail().isBlank()) {
@@ -81,58 +73,30 @@ public class OrderService implements IOrderService {
         });
     }
 
-    @Override
-    @Transactional(propagation = Propagation.SUPPORTS, noRollbackFor = {ResponseStatusException.class})
-    public Order createOrder(Order order, CardInfo cardInfo) throws ResponseStatusException {
-        validateOrder(order);
-        order = saveOrderPending(order);
-        order = processPayment(order, cardInfo);
-        return order;
-    }
-
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public Order saveOrderPending(Order order) {
-        order.setStatus(OrderStatus.PENDING);
+    private void moveStock(Order order, boolean isReverse) {
         order.getOrderItems().forEach(orderItemDto -> {
             Stock stock = orderItemDto.getBook().getStock();
-            stock.setAvailable(stock.getAvailable() - orderItemDto.getCount());
-            stock.setInDelivery(stock.getInDelivery() + orderItemDto.getCount());
+            int moveModifier = isReverse ? -1 : 1;
+            stock.setAvailable(stock.getAvailable() - moveModifier * orderItemDto.getCount());
+            stock.setInDelivery(stock.getInDelivery() + moveModifier * orderItemDto.getCount());
         });
-
-        OrderEntity orderEntity = orderMapper.dtoToEntity(order);
-        orderEntity
-                .getOrderItems()
-                .forEach(orderItem -> stockRepository.save(orderItem.getBook().getStock()));
-
-        return orderMapper.entityToDto(
-                orderRepository.save(orderEntity)
-        );
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, noRollbackFor = {ResponseStatusException.class})
-    public Order processPayment(Order order, CardInfo cardInfo) throws ResponseStatusException {
-        try {
-            paymentsService.processPayment(order, cardInfo);
-            order.setStatus(OrderStatus.SUCCESS);
-        } catch (FailPaymentException e) {
-            order.setStatus(OrderStatus.FAIL);
-        } catch (UnreachablePaymentException e) {
-            order.setStatus(OrderStatus.PENDING);
-        }
+    @Override
+    public Order createOrder(Order order, CardInfo cardInfo) throws ResponseStatusException {
+        validateOrder(order);
+
+        order.setStatus(OrderStatus.PENDING);
+        moveStock(order, false);
+
+        order = orderTransactionService.saveOrder(order, true);
+        order = orderTransactionService.processPayment(order, cardInfo);
 
         if (OrderStatus.FAIL.equals(order.getStatus())) {
-            order.getOrderItems().forEach(orderItemDto -> {
-                Stock stock = orderItemDto.getBook().getStock();
-                stock.setAvailable(stock.getAvailable() + orderItemDto.getCount());
-                stock.setInDelivery(stock.getInDelivery() - orderItemDto.getCount());
-            });
+            moveStock(order, true);
         }
 
-        OrderEntity orderEntity = orderMapper.dtoToEntity(order);
-        orderEntity.getOrderItems().forEach(orderItem -> stockRepository.save(orderItem.getBook().getStock()));
-        orderRepository.save(orderEntity);
-
-        order = orderMapper.entityToDto(orderEntity);
+        order = orderTransactionService.saveOrder(order, true);
 
         if (OrderStatus.FAIL.equals(order.getStatus())) {
             HttpStatus status = HttpStatus.BAD_REQUEST;
@@ -146,10 +110,7 @@ public class OrderService implements IOrderService {
         return order;
     }
 
-
-
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS, noRollbackFor = {ResponseStatusException.class})
     public Order cancelOrder(Order order) throws ResponseStatusException {
         if (!OrderStatus.SUCCESS.equals(order.getStatus()) && !OrderStatus.PENDING.equals(order.getStatus())) {
             HttpStatus status = HttpStatus.BAD_REQUEST;
@@ -158,50 +119,20 @@ public class OrderService implements IOrderService {
             );
         }
 
-        order = saveOrderCancelPending(order);
-        order = processCancelPayment(order);
-        return order;
-    }
-
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public Order saveOrderCancelPending(Order order) {
         order.setStatus(OrderStatus.PENDING_CANCEL);
+        order = orderTransactionService.saveOrder(order, false);
 
-        OrderEntity orderEntity = orderMapper.dtoToEntity(order);
-        return orderMapper.entityToDto(
-                orderRepository.save(orderEntity)
-        );
-    }
+        order = orderTransactionService.processCancelPayment(order);
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, noRollbackFor = {ResponseStatusException.class})
-    public Order processCancelPayment(Order order) throws ResponseStatusException {
-        try {
-            paymentsService.cancelPayment(order.getId());
-            order.setStatus(OrderStatus.CANCELED);
-        } catch (FailPaymentException e) {
-            //for the situation when the payment was not process, Order is PENDING
-            order.setStatus(OrderStatus.CANCELED);
-            HttpStatus status = HttpStatus.OK;
-            throw new ResponseBodyException(status, new CancelOrderResponse()
-                    .setOrderNo(String.valueOf(order.getId()))
-                    .setStatus("PENDING_CANCEL")
-            );
-        } catch (UnreachablePaymentException e) {
-            order.setStatus(OrderStatus.PENDING_CANCEL);
+        if (OrderStatus.PENDING_CANCEL.equals(order.getStatus())) {
             throw new ResponseBodyException(HttpStatus.OK, new CancelOrderResponse()
                     .setOrderNo(String.valueOf(order.getId()))
                     .setStatus("PENDING_CANCEL")
             );
         }
 
-        order.getOrderItems().forEach(orderItem -> {
-            Stock stock = orderItem.getBook().getStock();
-            stock.setAvailable(stock.getAvailable() + orderItem.getCount());
-            stock.setInDelivery(stock.getInDelivery() - orderItem.getCount());
-        });
-        OrderEntity orderEntity = orderMapper.dtoToEntity(order);
-        orderEntity = orderRepository.save(orderEntity);
-        order = orderMapper.entityToDto(orderEntity);
+        moveStock(order, true);
+        order = orderTransactionService.saveOrder(order, true);
 
         return order;
     }
