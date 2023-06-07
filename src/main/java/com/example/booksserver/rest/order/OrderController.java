@@ -4,7 +4,7 @@ import com.example.booksserver.dto.Book;
 import com.example.booksserver.dto.Order;
 import com.example.booksserver.dto.OrderItem;
 import com.example.booksserver.service.IContentService;
-import com.example.booksserver.service.impl.OrderService;
+import com.example.booksserver.service.IOrderService;
 import com.example.booksserver.userstate.request.PostOrdersRequest;
 import com.example.booksserver.userstate.response.CancelOrderResponse;
 import com.example.booksserver.userstate.response.PostOrdersResponse;
@@ -18,7 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OrderController {
     private final IContentService contentService;
-    private final OrderService orderService;
+    private final IOrderService orderService;
 
     @PostMapping(value = "/orders", consumes = MediaType.APPLICATION_JSON_VALUE)
     public PostOrdersResponse order(

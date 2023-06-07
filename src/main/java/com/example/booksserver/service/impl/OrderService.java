@@ -4,7 +4,6 @@ import com.example.booksserver.components.ErrorResponseFactory;
 import com.example.booksserver.components.InternalErrorCode;
 import com.example.booksserver.config.ResponseBodyException;
 import com.example.booksserver.dto.Order;
-import com.example.booksserver.dto.Stock;
 import com.example.booksserver.entity.order.OrderStatus;
 import com.example.booksserver.map.OrderMapper;
 import com.example.booksserver.repository.OrderRepository;
@@ -28,75 +27,19 @@ public class OrderService implements IOrderService {
     private final ErrorResponseFactory errorResponseFactory;
     private final IOrderTransactionService orderTransactionService;
 
-    private void validateOrder(Order order) throws ResponseStatusException {
-        if (order.getEmail().isBlank()) {
-            HttpStatus status = HttpStatus.BAD_REQUEST;
-            throw new ResponseBodyException(status,
-                    errorResponseFactory.create(status, InternalErrorCode.ORDER_BAD_EMAIL)
-            );
-        } else if (order.getAddress().isBlank()) {
-            HttpStatus status = HttpStatus.BAD_REQUEST;
-            throw new ResponseBodyException(status,
-                    errorResponseFactory.create(status, InternalErrorCode.ORDER_BAD_ADDRESS)
-            );
-        } else if (order.getName().isBlank()) {
-            HttpStatus status = HttpStatus.BAD_REQUEST;
-            throw new ResponseBodyException(status,
-                    errorResponseFactory.create(status, InternalErrorCode.ORDER_BAD_NAME)
-            );
-        } else if (order.getPhone().isBlank()) {
-            HttpStatus status = HttpStatus.BAD_REQUEST;
-            throw new ResponseBodyException(status,
-                    errorResponseFactory.create(status, InternalErrorCode.ORDER_BAD_PHONE)
-            );
-        } else if (order.getOrderItems().isEmpty()) {
-            HttpStatus status = HttpStatus.BAD_REQUEST;
-            throw new ResponseBodyException(status,
-                    errorResponseFactory.create(status, InternalErrorCode.ORDER_NO_ITEMS)
-            );
-        } else if (order.getOrderItems().contains(null)) {
-            HttpStatus status = HttpStatus.BAD_REQUEST;
-            throw new ResponseBodyException(status,
-                    errorResponseFactory.create(status, InternalErrorCode.ORDER_ITEM_NOT_FOUND)
-            );
-        }
-
-        order.getOrderItems().forEach(orderItemDto -> {
-            int availableBooks = orderItemDto.getBook().getStock().getAvailable();
-            int orderBooks = orderItemDto.getCount();
-            if (orderBooks > availableBooks) {
-                HttpStatus status = HttpStatus.BAD_REQUEST;
-                throw new ResponseBodyException(status,
-                        errorResponseFactory.create(status, InternalErrorCode.ORDER_ITEM_NOT_IN_STOCK)
-                );
-            }
-        });
-    }
-
-    private void moveStock(Order order, boolean isReverse) {
-        order.getOrderItems().forEach(orderItemDto -> {
-            Stock stock = orderItemDto.getBook().getStock();
-            int moveModifier = isReverse ? -1 : 1;
-            stock.setAvailable(stock.getAvailable() - moveModifier * orderItemDto.getCount());
-            stock.setInDelivery(stock.getInDelivery() + moveModifier * orderItemDto.getCount());
-        });
-    }
-
     @Override
     public Order createOrder(Order order, CardInfo cardInfo) throws ResponseStatusException {
-        validateOrder(order);
+        order = orderTransactionService.validateAndSetPending(order);
 
-        order.setStatus(OrderStatus.PENDING);
-        moveStock(order, false);
-
-        order = orderTransactionService.saveOrder(order, true);
+        // may be moved to OrderService class
         order = orderTransactionService.processPayment(order, cardInfo);
 
         if (OrderStatus.FAIL.equals(order.getStatus())) {
-            moveStock(order, true);
+            IOrderService.moveStock(order, true);
+            order = orderTransactionService.saveOrder(order, true);
+        } else {
+            order = orderTransactionService.saveOrder(order, false);
         }
-
-        order = orderTransactionService.saveOrder(order, true);
 
         if (OrderStatus.FAIL.equals(order.getStatus())) {
             HttpStatus status = HttpStatus.BAD_REQUEST;
@@ -122,6 +65,7 @@ public class OrderService implements IOrderService {
         order.setStatus(OrderStatus.PENDING_CANCEL);
         order = orderTransactionService.saveOrder(order, false);
 
+        // may be moved to OrderService class
         order = orderTransactionService.processCancelPayment(order);
 
         if (OrderStatus.PENDING_CANCEL.equals(order.getStatus())) {
@@ -131,7 +75,7 @@ public class OrderService implements IOrderService {
             );
         }
 
-        moveStock(order, true);
+        IOrderService.moveStock(order, true);
         order = orderTransactionService.saveOrder(order, true);
 
         return order;

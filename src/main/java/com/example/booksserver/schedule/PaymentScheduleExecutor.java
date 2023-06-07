@@ -31,6 +31,8 @@ public class PaymentScheduleExecutor {
     private final IPaymentService paymentsService;
 
 
+    // Should I try to catch any exception, but continue
+    // sending requests?
     @Scheduled(timeUnit = TimeUnit.MINUTES, fixedRate = 5)
     @Transactional(noRollbackFor = Exception.class)
     public void updateOrderStatuses() {
@@ -42,6 +44,7 @@ public class PaymentScheduleExecutor {
                 .forEach(this::updateOrderStatus);
     }
 
+    // Should I use a static method from the IOrderService class?
     private void saveOrderWithRollback(Order order) {
         order.getOrderItems().forEach(orderItemDTO -> {
             int orderCount = orderItemDTO.getCount();
