@@ -7,7 +7,6 @@ spring:
   jpa:
     generate-ddl: true
 
-
 external:
   payment-service:
     host: http://external.domain:8080

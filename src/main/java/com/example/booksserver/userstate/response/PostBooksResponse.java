@@ -2,12 +2,14 @@ package com.example.booksserver.userstate.response;
 
 import com.example.booksserver.dto.Book;
 import com.example.booksserver.userstate.UserBook;
-import lombok.Getter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Getter
+@Data
+@NoArgsConstructor
 public class PostBooksResponse {
-    private final String status;
-    private final UserBook book;
+    private String status;
+    private UserBook book;
 
     public PostBooksResponse(Book book, String baseImgUrl) {
         this.status = "SUCCESS";

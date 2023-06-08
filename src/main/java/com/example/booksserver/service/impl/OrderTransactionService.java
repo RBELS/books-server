@@ -6,18 +6,15 @@ import com.example.booksserver.config.ResponseBodyException;
 import com.example.booksserver.dto.Order;
 import com.example.booksserver.entity.order.OrderEntity;
 import com.example.booksserver.entity.order.OrderStatus;
-import com.example.booksserver.external.FailPaymentException;
-import com.example.booksserver.external.UnreachablePaymentException;
-import com.example.booksserver.external.impl.PaymentService;
 import com.example.booksserver.map.OrderMapper;
 import com.example.booksserver.repository.OrderRepository;
 import com.example.booksserver.repository.StockRepository;
 import com.example.booksserver.service.IOrderService;
 import com.example.booksserver.service.IOrderTransactionService;
-import com.example.booksserver.userstate.CardInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -28,10 +25,9 @@ public class OrderTransactionService implements IOrderTransactionService {
     private final OrderMapper orderMapper;
     private final StockRepository stockRepository;
     private final OrderRepository orderRepository;
-    private final PaymentService paymentService;
     private final ErrorResponseFactory errorResponseFactory;
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.SERIALIZABLE)
     @Override
     public Order saveOrder(Order order, boolean doSaveStock) {
         OrderEntity orderEntity = orderMapper.dtoToEntity(order);
@@ -43,33 +39,6 @@ public class OrderTransactionService implements IOrderTransactionService {
         return orderMapper.entityToDto(
                 orderRepository.save(orderEntity)
         );
-    }
-
-    @Override
-    public Order processPayment(Order order, CardInfo cardInfo) {
-        try {
-            paymentService.processPayment(order, cardInfo);
-            order.setStatus(OrderStatus.SUCCESS);
-        } catch (FailPaymentException e) {
-            order.setStatus(OrderStatus.FAIL);
-        } catch (UnreachablePaymentException e) {
-            order.setStatus(OrderStatus.PENDING);
-        }
-        return order;
-    }
-
-    @Override
-    public Order processCancelPayment(Order order) {
-        try {
-            paymentService.cancelPayment(order.getId());
-            order.setStatus(OrderStatus.CANCELED);
-        } catch (FailPaymentException e) {
-            //for the situation when the payment was not process, Order is PENDING
-            order.setStatus(OrderStatus.CANCELED);
-        } catch (UnreachablePaymentException e) {
-            order.setStatus(OrderStatus.PENDING_CANCEL);
-        }
-        return order;
     }
 
     private void validateOrder(Order order) throws ResponseStatusException {
@@ -118,7 +87,7 @@ public class OrderTransactionService implements IOrderTransactionService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW, noRollbackFor = {ResponseBodyException.class})
+    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.SERIALIZABLE)
     public Order validateAndSetPending(Order order) throws ResponseStatusException {
         validateOrder(order);
         order.setStatus(OrderStatus.PENDING);

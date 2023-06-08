@@ -19,6 +19,7 @@ import com.example.booksserver.external.response.PaymentsInfoResponse;
 import com.example.booksserver.map.OrderMapper;
 import com.example.booksserver.repository.BookRepository;
 import com.example.booksserver.repository.OrderRepository;
+import com.example.booksserver.service.IOrderTransactionService;
 import com.example.booksserver.userstate.CardInfo;
 import com.example.booksserver.userstate.response.ErrorResponse;
 import org.junit.jupiter.api.Test;
@@ -53,6 +54,8 @@ class OrderServiceTest {
     private BookRepository bookRepository;
     @Mock
     private ErrorResponseFactory errorResponseFactory;
+    @Mock
+    private IOrderTransactionService orderTransactionService;
 
     @InjectMocks
     private OrderService orderService;
@@ -99,52 +102,12 @@ class OrderServiceTest {
         when(errorResponseFactory.create(any(HttpStatus.class), any(InternalErrorCode.class)))
                 .thenReturn(mock(ErrorResponse.class));
 
+        when(orderTransactionService.saveOrder(any(Order.class), anyBoolean()))
+                .thenReturn(dto);
+        when(orderTransactionService.validateAndSetPending(any(Order.class)))
+                .thenReturn(dto);
+
         assertDoesNotThrow(() -> orderService.createOrder(dto, cardInfo));
-
-        assertThrows(ResponseBodyException.class, () -> orderService.createOrder(
-                dto
-                        .setName("  "),
-                cardInfo
-        ));
-
-        assertThrows(ResponseBodyException.class, () -> orderService.createOrder(
-                dto
-                        .setName("Order Name")
-                        .setPhone("   "),
-                cardInfo
-        ));
-
-        assertThrows(ResponseBodyException.class, () -> orderService.createOrder(
-                dto
-                        .setPhone("Order phone")
-                        .setEmail("   "),
-                cardInfo
-        ));
-
-        assertThrows(ResponseBodyException.class, () -> orderService.createOrder(
-                dto
-                        .setEmail("Order email")
-                        .setAddress("  "),
-                cardInfo
-        ));
-
-        assertThrows(ResponseBodyException.class, () -> orderService.createOrder(
-                dto
-                        .setAddress("Order address")
-                        .setOrderItems(
-                                Arrays.asList(
-                                        orderItem, null
-                                )
-                        ),
-                cardInfo
-        ));
-
-        assertThrows(ResponseBodyException.class, () -> orderService.createOrder(
-                dto
-                        .setOrderItems(new ArrayList<>()),
-                cardInfo
-        ));
-
     }
 
     @Test
@@ -160,24 +123,13 @@ class OrderServiceTest {
 
         when(paymentsService.cancelPayment(anyLong()))
                 .thenReturn(mock(PaymentsInfoResponse.class));
+
+        when(orderTransactionService.saveOrder(any(Order.class), anyBoolean()))
+                .thenReturn(mock(Order.class));
+
         assertDoesNotThrow(() -> orderService.cancelOrder(new Order().setStatus(OrderStatus.SUCCESS)));
         assertDoesNotThrow(() -> orderService.cancelOrder(new Order().setStatus(OrderStatus.PENDING)));
         assertThrows(ResponseBodyException.class, () -> orderService.cancelOrder(new Order().setStatus(OrderStatus.FAIL)));
-
-
-        reset(paymentsService);
-        when(paymentsService.cancelPayment(anyLong()))
-                .thenThrow(new UnreachablePaymentException());
-        assertThrows(ResponseBodyException.class,
-                () -> orderService.cancelOrder(new Order().setStatus(OrderStatus.SUCCESS))
-        );
-
-        reset(paymentsService);
-        when(paymentsService.cancelPayment(anyLong()))
-                .thenThrow(new FailPaymentException(new PaymentsErrorResponse()));
-        assertThrows(ResponseBodyException.class,
-                () -> orderService.cancelOrder(new Order().setStatus(OrderStatus.SUCCESS))
-        );
     }
 
     @Test

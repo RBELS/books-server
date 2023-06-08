@@ -2,12 +2,14 @@ package com.example.booksserver.userstate.response;
 
 import com.example.booksserver.dto.Author;
 import com.example.booksserver.userstate.UserAuthor;
-import lombok.Getter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Getter
+@Data
+@NoArgsConstructor
 public class PostAuthorsResponse {
-    private final String status;
-    private final UserAuthor author;
+    private String status;
+    private UserAuthor author;
 
     public PostAuthorsResponse(Author author) {
         this.status = "SUCCESS";

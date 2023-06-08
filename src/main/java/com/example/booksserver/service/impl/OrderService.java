@@ -5,6 +5,9 @@ import com.example.booksserver.components.InternalErrorCode;
 import com.example.booksserver.config.ResponseBodyException;
 import com.example.booksserver.dto.Order;
 import com.example.booksserver.entity.order.OrderStatus;
+import com.example.booksserver.external.FailPaymentException;
+import com.example.booksserver.external.IPaymentService;
+import com.example.booksserver.external.UnreachablePaymentException;
 import com.example.booksserver.map.OrderMapper;
 import com.example.booksserver.repository.OrderRepository;
 import com.example.booksserver.service.IOrderService;
@@ -26,13 +29,20 @@ public class OrderService implements IOrderService {
     private final OrderMapper orderMapper;
     private final ErrorResponseFactory errorResponseFactory;
     private final IOrderTransactionService orderTransactionService;
+    private final IPaymentService paymentService;
 
     @Override
     public Order createOrder(Order order, CardInfo cardInfo) throws ResponseStatusException {
         order = orderTransactionService.validateAndSetPending(order);
 
-        // may be moved to OrderService class
-        order = orderTransactionService.processPayment(order, cardInfo);
+        try {
+            paymentService.processPayment(order, cardInfo);
+            order.setStatus(OrderStatus.SUCCESS);
+        } catch (FailPaymentException e) {
+            order.setStatus(OrderStatus.FAIL);
+        } catch (UnreachablePaymentException e) {
+            order.setStatus(OrderStatus.PENDING);
+        }
 
         if (OrderStatus.FAIL.equals(order.getStatus())) {
             IOrderService.moveStock(order, true);
@@ -65,8 +75,15 @@ public class OrderService implements IOrderService {
         order.setStatus(OrderStatus.PENDING_CANCEL);
         order = orderTransactionService.saveOrder(order, false);
 
-        // may be moved to OrderService class
-        order = orderTransactionService.processCancelPayment(order);
+        try {
+            paymentService.cancelPayment(order.getId());
+            order.setStatus(OrderStatus.CANCELED);
+        } catch (FailPaymentException e) {
+            //for the situation when the payment was not process, Order is PENDING
+            order.setStatus(OrderStatus.CANCELED);
+        } catch (UnreachablePaymentException e) {
+            order.setStatus(OrderStatus.PENDING_CANCEL);
+        }
 
         if (OrderStatus.PENDING_CANCEL.equals(order.getStatus())) {
             throw new ResponseBodyException(HttpStatus.OK, new CancelOrderResponse()

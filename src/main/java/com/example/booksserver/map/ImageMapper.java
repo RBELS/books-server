@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 public abstract class ImageMapper {
@@ -25,8 +26,10 @@ public abstract class ImageMapper {
 
     public List<BookImage> fileToDto(List<MultipartFile> imageFiles, ImageType imageType) throws IOException {
         List<BookImage> fileDtoList = new ArrayList<>();
-        for (MultipartFile file : imageFiles) {
-            fileDtoList.add(fileToDto(file, imageType));
+        if (!Objects.isNull(imageFiles)) {
+            for (MultipartFile file : imageFiles) {
+                fileDtoList.add(fileToDto(file, imageType));
+            }
         }
         return fileDtoList;
     }
