@@ -7,7 +7,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 public interface IOrderService {
     Order createOrder(Order order, CardInfo cardInfo) throws ResponseStatusException;
-    Order cancelOrder(Order order) throws ResponseStatusException;
+    Order cancelOrder(Long orderId) throws ResponseStatusException;
     Order getOrderById(Long orderId) throws ResponseStatusException;
 
     static void moveStock(Order order, boolean isReverse) {

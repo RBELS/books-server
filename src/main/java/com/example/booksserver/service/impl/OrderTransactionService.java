@@ -4,9 +4,11 @@ import com.example.booksserver.components.ErrorResponseFactory;
 import com.example.booksserver.components.InternalErrorCode;
 import com.example.booksserver.config.ResponseBodyException;
 import com.example.booksserver.dto.Order;
+import com.example.booksserver.dto.Stock;
 import com.example.booksserver.entity.order.OrderEntity;
 import com.example.booksserver.entity.order.OrderStatus;
 import com.example.booksserver.map.OrderMapper;
+import com.example.booksserver.map.StockMapper;
 import com.example.booksserver.repository.OrderRepository;
 import com.example.booksserver.repository.StockRepository;
 import com.example.booksserver.service.IOrderService;
@@ -26,6 +28,7 @@ public class OrderTransactionService implements IOrderTransactionService {
     private final StockRepository stockRepository;
     private final OrderRepository orderRepository;
     private final ErrorResponseFactory errorResponseFactory;
+    private final StockMapper stockMapper;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.SERIALIZABLE)
     @Override
@@ -74,9 +77,18 @@ public class OrderTransactionService implements IOrderTransactionService {
             );
         }
 
-        order.getOrderItems().forEach(orderItemDto -> {
-            int availableBooks = orderItemDto.getBook().getStock().getAvailable();
-            int orderBooks = orderItemDto.getCount();
+        order.getOrderItems().forEach(orderItem -> {
+            Stock prevStock = orderItem.getBook().getStock();
+            orderItem.getBook().setStock(
+                    stockMapper.entityToDto(
+                            stockRepository
+                                    .findById(prevStock.getId())
+                                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR))
+                    )
+            );
+
+            int availableBooks = orderItem.getBook().getStock().getAvailable();
+            int orderBooks = orderItem.getCount();
             if (orderBooks > availableBooks) {
                 HttpStatus status = HttpStatus.BAD_REQUEST;
                 throw new ResponseBodyException(status,

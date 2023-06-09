@@ -9,12 +9,10 @@ import com.example.booksserver.dto.OrderItem;
 import com.example.booksserver.dto.Stock;
 import com.example.booksserver.entity.BookEntity;
 import com.example.booksserver.entity.order.OrderEntity;
-import com.example.booksserver.entity.order.OrderStatus;
 import com.example.booksserver.external.FailPaymentException;
 import com.example.booksserver.external.IPaymentService;
 import com.example.booksserver.external.PaymentException;
 import com.example.booksserver.external.UnreachablePaymentException;
-import com.example.booksserver.external.response.PaymentsErrorResponse;
 import com.example.booksserver.external.response.PaymentsInfoResponse;
 import com.example.booksserver.map.OrderMapper;
 import com.example.booksserver.repository.BookRepository;
@@ -127,9 +125,7 @@ class OrderServiceTest {
         when(orderTransactionService.saveOrder(any(Order.class), anyBoolean()))
                 .thenReturn(mock(Order.class));
 
-        assertDoesNotThrow(() -> orderService.cancelOrder(new Order().setStatus(OrderStatus.SUCCESS)));
-        assertDoesNotThrow(() -> orderService.cancelOrder(new Order().setStatus(OrderStatus.PENDING)));
-        assertThrows(ResponseBodyException.class, () -> orderService.cancelOrder(new Order().setStatus(OrderStatus.FAIL)));
+        assertThrows(ResponseBodyException.class, () -> orderService.cancelOrder(10L));
     }
 
     @Test

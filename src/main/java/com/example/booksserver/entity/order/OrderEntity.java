@@ -31,7 +31,7 @@ public class OrderEntity {
     @Column(nullable = false)
     private String email;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(cascade = {CascadeType.PERSIST}, orphanRemoval = true)
     @JoinColumn(name = "order_id", referencedColumnName = "id")
     private List<OrderItemEntity> orderItems = new ArrayList<>();
 

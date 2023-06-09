@@ -28,7 +28,7 @@ public class BookEntity {
     @Column(nullable = false)
     private Integer releaseYear;
 
-    @ManyToMany(cascade = {CascadeType.MERGE})
+    @ManyToMany
     @JoinTable
     private List<AuthorEntity> authors = new ArrayList<>();
 

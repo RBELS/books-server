@@ -28,7 +28,7 @@ logging:
         security: DEBUG
 external:
   payment-service:
-    host: http://external.domain:8080
+    host: http://localhost:3050
     post-payment-mapping: /payments
 responses:
   error:

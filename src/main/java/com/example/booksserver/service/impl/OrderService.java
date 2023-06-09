@@ -32,6 +32,7 @@ public class OrderService implements IOrderService {
     private final IPaymentService paymentService;
 
     @Override
+    @Transactional
     public Order createOrder(Order order, CardInfo cardInfo) throws ResponseStatusException {
         order = orderTransactionService.validateAndSetPending(order);
 
@@ -64,7 +65,17 @@ public class OrderService implements IOrderService {
     }
 
     @Override
-    public Order cancelOrder(Order order) throws ResponseStatusException {
+    @Transactional
+    public Order cancelOrder(Long orderId) throws ResponseStatusException {
+        Order order = orderMapper.entityToDto(
+                orderRepository.findById(orderId)
+                        .orElseThrow(() -> {
+                            HttpStatus status = HttpStatus.NOT_FOUND;
+                            return new ResponseBodyException(status,
+                                    errorResponseFactory.create(status, InternalErrorCode.ORDER_NOT_FOUND)
+                            );
+                        })
+        );
         if (!OrderStatus.SUCCESS.equals(order.getStatus()) && !OrderStatus.PENDING.equals(order.getStatus())) {
             HttpStatus status = HttpStatus.BAD_REQUEST;
             throw new ResponseBodyException(status,

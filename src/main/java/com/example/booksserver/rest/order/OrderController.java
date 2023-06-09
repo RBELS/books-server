@@ -52,8 +52,7 @@ public class OrderController {
     public CancelOrderResponse cancelOrder(
             @PathVariable Long orderId
     ) {
-        Order order = orderService.getOrderById(orderId);
-        order = orderService.cancelOrder(order);
+        Order order = orderService.cancelOrder(orderId);
         return new CancelOrderResponse()
                 .setOrderNo(String.valueOf(order.getId()))
                 .setStatus("CANCELED");
