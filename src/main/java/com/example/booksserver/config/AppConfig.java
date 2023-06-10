@@ -36,7 +36,7 @@ public class AppConfig implements WebMvcConfigurer {
     public RestTemplate restTemplate() {
         return new RestTemplateBuilder()
                 .setConnectTimeout(Duration.ofMillis(500))
-                .setReadTimeout(Duration.ofSeconds(5))
+                .setReadTimeout(Duration.ofSeconds(20))
                 .requestFactory(HttpComponentsClientHttpRequestFactory.class)
                 .build();
     }
