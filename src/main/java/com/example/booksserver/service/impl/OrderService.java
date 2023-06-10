@@ -76,6 +76,7 @@ public class OrderService implements IOrderService {
                             );
                         })
         );
+
         if (!OrderStatus.SUCCESS.equals(order.getStatus()) && !OrderStatus.PENDING.equals(order.getStatus())) {
             HttpStatus status = HttpStatus.BAD_REQUEST;
             throw new ResponseBodyException(status,
@@ -103,6 +104,7 @@ public class OrderService implements IOrderService {
             );
         }
 
+        //TODO: move this static method into `save`
         IOrderService.moveStock(order, true);
         order = orderTransactionService.saveOrder(order, true);
 
