@@ -18,6 +18,7 @@ import com.example.booksserver.userstate.response.PostOrdersResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -46,10 +47,9 @@ public class OrderService implements IOrderService {
         }
 
         if (OrderStatus.FAIL.equals(order.getStatus())) {
-            IOrderService.moveStock(order, true);
-            order = orderTransactionService.saveOrder(order, true);
+            order = orderTransactionService.saveOrderReturnStock(order);
         } else {
-            order = orderTransactionService.saveOrder(order, false);
+            order = orderTransactionService.saveOrder(order);
         }
 
         if (OrderStatus.FAIL.equals(order.getStatus())) {
@@ -65,17 +65,9 @@ public class OrderService implements IOrderService {
     }
 
     @Override
-    @Transactional
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public Order cancelOrder(Long orderId) throws ResponseStatusException {
-        Order order = orderMapper.entityToDto(
-                orderRepository.findById(orderId)
-                        .orElseThrow(() -> {
-                            HttpStatus status = HttpStatus.NOT_FOUND;
-                            return new ResponseBodyException(status,
-                                    errorResponseFactory.create(status, InternalErrorCode.ORDER_NOT_FOUND)
-                            );
-                        })
-        );
+        Order order = getOrderById(orderId);
 
         if (!OrderStatus.SUCCESS.equals(order.getStatus()) && !OrderStatus.PENDING.equals(order.getStatus())) {
             HttpStatus status = HttpStatus.BAD_REQUEST;
@@ -85,7 +77,7 @@ public class OrderService implements IOrderService {
         }
 
         order.setStatus(OrderStatus.PENDING_CANCEL);
-        order = orderTransactionService.saveOrder(order, false);
+        order = orderTransactionService.saveOrder(order);
 
         try {
             paymentService.cancelPayment(order.getId());
@@ -104,9 +96,7 @@ public class OrderService implements IOrderService {
             );
         }
 
-        //TODO: move this static method into `save`
-        IOrderService.moveStock(order, true);
-        order = orderTransactionService.saveOrder(order, true);
+        order = orderTransactionService.saveOrderReturnStock(order);
 
         return order;
     }

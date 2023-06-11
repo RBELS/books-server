@@ -99,7 +99,7 @@ class OrderServiceTest {
         when(errorResponseFactory.create(any(HttpStatus.class), any(InternalErrorCode.class)))
                 .thenReturn(mock(ErrorResponse.class));
 
-        when(orderTransactionService.saveOrder(any(Order.class), anyBoolean()))
+        when(orderTransactionService.saveOrder(any(Order.class)))
                 .thenReturn(dto);
         when(orderTransactionService.validateAndSetPending(any(Order.class)))
                 .thenReturn(dto);
@@ -121,7 +121,7 @@ class OrderServiceTest {
         when(paymentsService.cancelPayment(anyLong()))
                 .thenReturn(mock(PaymentsInfoResponse.class));
 
-        when(orderTransactionService.saveOrder(any(Order.class), anyBoolean()))
+        when(orderTransactionService.saveOrder(any(Order.class)))
                 .thenReturn(mock(Order.class));
 
         assertThrows(ResponseBodyException.class, () -> orderService.cancelOrder(10L));

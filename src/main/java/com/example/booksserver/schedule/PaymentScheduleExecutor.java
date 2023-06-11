@@ -8,6 +8,7 @@ import com.example.booksserver.external.UnreachablePaymentException;
 import com.example.booksserver.external.response.PaymentsInfoResponse;
 import com.example.booksserver.map.OrderMapper;
 import com.example.booksserver.repository.OrderRepository;
+import com.example.booksserver.service.IOrderTransactionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -26,7 +27,7 @@ public class PaymentScheduleExecutor {
 
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
-    private final IPaymentScheduleTransactionService paymentScheduleTransactionService;
+    private final IOrderTransactionService orderTransactionService;
     private final IPaymentService paymentService;
 
 
@@ -48,24 +49,23 @@ public class PaymentScheduleExecutor {
         try {
             response = paymentService.getPaymentInfo(order.getId());
         } catch (FailPaymentException e) {
-            OrderStatus resultStatus;
             if (OrderStatus.PENDING.equals(order.getStatus())) {
-                resultStatus = OrderStatus.FAIL;
+                order.setStatus(OrderStatus.FAIL);
             } else if (OrderStatus.PENDING_CANCEL.equals(order.getStatus())) {
-                resultStatus = OrderStatus.CANCELED;
+                order.setStatus(OrderStatus.CANCELED);
             } else {
                 throw new RuntimeException("Unknown order status.");
             }
-            paymentScheduleTransactionService.saveOrderWithRollback(order, resultStatus, true);
+            orderTransactionService.saveOrderReturnStock(order);
             return;
         } catch (UnreachablePaymentException e) {
             return;
         }
 
         switch (response.getStatus()) {
-            case "SUCCESS" -> paymentScheduleTransactionService.saveOrderWithRollback(order, OrderStatus.SUCCESS, false);
-            case "UNSUCCESS" -> paymentScheduleTransactionService.saveOrderWithRollback(order, OrderStatus.FAIL, true);
-            case "CANCELED" -> paymentScheduleTransactionService.saveOrderWithRollback(order, OrderStatus.CANCELED, true);
+            case "SUCCESS" -> orderTransactionService.saveOrder(order.setStatus(OrderStatus.SUCCESS));
+            case "UNSUCCESS" -> orderTransactionService.saveOrderReturnStock(order.setStatus(OrderStatus.FAIL));
+            case "CANCELED" -> orderTransactionService.saveOrderReturnStock(order.setStatus(OrderStatus.CANCELED));
             default -> log.error("Payment service returned an unknown status code.");
         }
     }
