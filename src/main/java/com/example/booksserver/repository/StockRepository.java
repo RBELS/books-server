@@ -1,6 +1,6 @@
 package com.example.booksserver.repository;
 
-import com.example.booksserver.entity.StockEntity;
+import com.example.booksserver.model.entity.StockEntity;
 import org.springframework.data.repository.ListCrudRepository;
 import org.springframework.stereotype.Repository;
 

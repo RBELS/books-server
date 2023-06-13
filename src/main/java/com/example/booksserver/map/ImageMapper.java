@@ -1,9 +1,9 @@
 package com.example.booksserver.map;
 
-import com.example.booksserver.dto.Book;
-import com.example.booksserver.dto.BookImage;
-import com.example.booksserver.entity.image.BookImageEntity;
-import com.example.booksserver.entity.image.ImageType;
+import com.example.booksserver.model.service.Book;
+import com.example.booksserver.model.service.BookImage;
+import com.example.booksserver.model.entity.BookImageEntity;
+import com.example.booksserver.model.entity.ImageType;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.springframework.web.multipart.MultipartFile;

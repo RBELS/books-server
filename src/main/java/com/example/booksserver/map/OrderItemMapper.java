@@ -1,7 +1,7 @@
 package com.example.booksserver.map;
 
-import com.example.booksserver.dto.OrderItem;
-import com.example.booksserver.entity.order.OrderItemEntity;
+import com.example.booksserver.model.service.OrderItem;
+import com.example.booksserver.model.entity.OrderItemEntity;
 import org.mapstruct.Mapper;
 
 import java.util.List;

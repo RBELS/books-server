@@ -1,9 +1,9 @@
 package com.example.booksserver.repository;
 
-import com.example.booksserver.entity.AuthorEntity;
-import com.example.booksserver.entity.BookEntity;
-import com.example.booksserver.entity.image.BookImageEntity;
-import com.example.booksserver.entity.image.ImageType;
+import com.example.booksserver.model.entity.AuthorEntity;
+import com.example.booksserver.model.entity.BookEntity;
+import com.example.booksserver.model.entity.BookImageEntity;
+import com.example.booksserver.model.entity.ImageType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

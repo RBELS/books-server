@@ -1,15 +1,15 @@
 package com.example.booksserver.service.impl;
 
-import com.example.booksserver.components.ErrorResponseFactory;
-import com.example.booksserver.components.InternalErrorCode;
-import com.example.booksserver.config.ResponseBodyException;
-import com.example.booksserver.dto.BookImage;
-import com.example.booksserver.entity.BookEntity;
-import com.example.booksserver.entity.image.BookImageEntity;
-import com.example.booksserver.entity.image.ImageType;
+import com.example.booksserver.exception.ErrorResponseFactory;
+import com.example.booksserver.exception.InternalErrorCode;
+import com.example.booksserver.exception.ResponseBodyException;
+import com.example.booksserver.model.service.BookImage;
+import com.example.booksserver.model.entity.BookEntity;
+import com.example.booksserver.model.entity.BookImageEntity;
+import com.example.booksserver.model.entity.ImageType;
 import com.example.booksserver.map.ImageMapper;
 import com.example.booksserver.repository.BookImageRepository;
-import com.example.booksserver.userstate.response.ErrorResponse;
+import com.example.booksserver.model.dto.response.ErrorResponse;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -36,7 +36,7 @@ class FilesServiceTest {
     @Mock
     private ErrorResponseFactory errorResponseFactory;
     @InjectMocks
-    private FilesService filesService;
+    private FilesServiceImpl filesService;
 
     @Test
     public void test() {

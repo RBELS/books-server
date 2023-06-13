@@ -1,10 +1,10 @@
 package com.example.booksserver.integration;
 
-import com.example.booksserver.userstate.CardInfo;
-import com.example.booksserver.userstate.request.PostAuthorsRequest;
-import com.example.booksserver.userstate.request.PostOrdersRequest;
-import com.example.booksserver.userstate.response.PostAuthorsResponse;
-import com.example.booksserver.userstate.response.PostBooksResponse;
+import com.example.booksserver.model.service.CardInfo;
+import com.example.booksserver.model.dto.request.PostAuthorsRequest;
+import com.example.booksserver.model.dto.request.PostOrdersRequest;
+import com.example.booksserver.model.dto.response.PostAuthorsResponse;
+import com.example.booksserver.model.dto.response.PostBooksResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,7 +14,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -23,7 +22,6 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.util.Arrays;
 
-import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -90,7 +88,7 @@ public class OrderTest {
                         .setAddress("Order address")
                         .setBooks(
                                 Arrays.asList(
-                                        new PostOrdersRequest.OrdersBook()
+                                        new PostOrdersRequest.OrdersBookDTO()
                                                 .setId(bookId)
                                                 .setCount(1)
                                 )

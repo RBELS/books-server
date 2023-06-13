@@ -1,22 +1,22 @@
 package com.example.booksserver.service.impl;
 
-import com.example.booksserver.components.ErrorResponseFactory;
-import com.example.booksserver.components.InternalErrorCode;
-import com.example.booksserver.config.ResponseBodyException;
-import com.example.booksserver.dto.Author;
-import com.example.booksserver.dto.Book;
-import com.example.booksserver.dto.BookImage;
-import com.example.booksserver.dto.Stock;
-import com.example.booksserver.entity.AuthorEntity;
-import com.example.booksserver.entity.BookEntity;
-import com.example.booksserver.entity.image.ImageType;
+import com.example.booksserver.exception.ErrorResponseFactory;
+import com.example.booksserver.exception.InternalErrorCode;
+import com.example.booksserver.exception.ResponseBodyException;
+import com.example.booksserver.model.service.Author;
+import com.example.booksserver.model.service.Book;
+import com.example.booksserver.model.service.BookImage;
+import com.example.booksserver.model.service.Stock;
+import com.example.booksserver.model.entity.AuthorEntity;
+import com.example.booksserver.model.entity.BookEntity;
+import com.example.booksserver.model.entity.ImageType;
 import com.example.booksserver.map.AuthorMapper;
 import com.example.booksserver.map.BookMapper;
 import com.example.booksserver.repository.AuthorRepository;
 import com.example.booksserver.repository.BookRepository;
-import com.example.booksserver.userstate.filters.AuthorsFilters;
-import com.example.booksserver.userstate.filters.BooksFilters;
-import com.example.booksserver.userstate.response.ErrorResponse;
+import com.example.booksserver.model.dto.filters.AuthorsFilters;
+import com.example.booksserver.model.dto.filters.BooksFilters;
+import com.example.booksserver.model.dto.response.ErrorResponse;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -55,7 +55,7 @@ class ContentServiceTest {
     @Mock
     private ErrorResponseFactory errorResponseFactory;
     @InjectMocks
-    private ContentService contentService;
+    private ContentServiceImpl contentService;
 
     @Test
     void getBooks() {

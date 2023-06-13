@@ -1,7 +1,7 @@
 package com.example.booksserver.repository;
 
-import com.example.booksserver.entity.order.OrderEntity;
-import com.example.booksserver.entity.order.OrderStatus;
+import com.example.booksserver.model.entity.OrderEntity;
+import com.example.booksserver.model.entity.OrderStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

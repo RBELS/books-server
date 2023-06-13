@@ -1,25 +1,25 @@
 package com.example.booksserver.service.impl;
 
-import com.example.booksserver.components.ErrorResponseFactory;
-import com.example.booksserver.components.InternalErrorCode;
-import com.example.booksserver.config.ResponseBodyException;
-import com.example.booksserver.dto.Book;
-import com.example.booksserver.dto.Order;
-import com.example.booksserver.dto.OrderItem;
-import com.example.booksserver.dto.Stock;
-import com.example.booksserver.entity.BookEntity;
-import com.example.booksserver.entity.order.OrderEntity;
-import com.example.booksserver.external.FailPaymentException;
-import com.example.booksserver.external.IPaymentService;
-import com.example.booksserver.external.PaymentException;
-import com.example.booksserver.external.UnreachablePaymentException;
-import com.example.booksserver.external.response.PaymentsInfoResponse;
+import com.example.booksserver.exception.ErrorResponseFactory;
+import com.example.booksserver.exception.InternalErrorCode;
+import com.example.booksserver.exception.ResponseBodyException;
+import com.example.booksserver.model.service.Book;
+import com.example.booksserver.model.service.Order;
+import com.example.booksserver.model.service.OrderItem;
+import com.example.booksserver.model.service.Stock;
+import com.example.booksserver.model.entity.BookEntity;
+import com.example.booksserver.model.entity.OrderEntity;
+import com.example.booksserver.exception.FailPaymentException;
+import com.example.booksserver.rest.PaymentClient;
+import com.example.booksserver.exception.PaymentException;
+import com.example.booksserver.exception.UnreachablePaymentException;
+import com.example.booksserver.model.dto.response.PaymentsInfoResponse;
 import com.example.booksserver.map.OrderMapper;
 import com.example.booksserver.repository.BookRepository;
 import com.example.booksserver.repository.OrderRepository;
-import com.example.booksserver.service.IOrderTransactionService;
-import com.example.booksserver.userstate.CardInfo;
-import com.example.booksserver.userstate.response.ErrorResponse;
+import com.example.booksserver.service.OrderTransactionService;
+import com.example.booksserver.model.service.CardInfo;
+import com.example.booksserver.model.dto.response.ErrorResponse;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -46,16 +46,16 @@ class OrderServiceTest {
     @Mock
     private OrderMapper orderMapper;
     @Mock
-    private IPaymentService paymentsService;
+    private PaymentClient paymentsService;
     @Mock
     private BookRepository bookRepository;
     @Mock
     private ErrorResponseFactory errorResponseFactory;
     @Mock
-    private IOrderTransactionService orderTransactionService;
+    private OrderTransactionService orderTransactionService;
 
     @InjectMocks
-    private OrderService orderService;
+    private OrderServiceImpl orderService;
 
     @Test
     void createOrder() throws PaymentException {

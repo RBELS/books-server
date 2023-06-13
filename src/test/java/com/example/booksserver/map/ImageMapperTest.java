@@ -1,10 +1,10 @@
 package com.example.booksserver.map;
 
-import com.example.booksserver.dto.Book;
-import com.example.booksserver.dto.BookImage;
-import com.example.booksserver.entity.BookEntity;
-import com.example.booksserver.entity.image.BookImageEntity;
-import com.example.booksserver.entity.image.ImageType;
+import com.example.booksserver.model.service.Book;
+import com.example.booksserver.model.service.BookImage;
+import com.example.booksserver.model.entity.BookEntity;
+import com.example.booksserver.model.entity.BookImageEntity;
+import com.example.booksserver.model.entity.ImageType;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
