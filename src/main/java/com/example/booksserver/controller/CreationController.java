@@ -37,7 +37,7 @@ public class CreationController {
     public CreationController(ContentService contentService, ImageMapper imageMapper, AppConfig appConfig, ErrorResponseFactory errorResponseFactory) {
         this.contentService = contentService;
         this.imageMapper = imageMapper;
-        this.baseImageUrl = appConfig.getServerAddress() + "/static/image/";
+        this.baseImageUrl = appConfig.getFullServerAddress() + appConfig.getImageMapping();
         this.errorResponseFactory = errorResponseFactory;
     }
 

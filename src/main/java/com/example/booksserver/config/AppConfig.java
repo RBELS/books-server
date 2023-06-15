@@ -1,6 +1,9 @@
 package com.example.booksserver.config;
 
 import lombok.Getter;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
@@ -25,15 +28,31 @@ public class AppConfig implements WebMvcConfigurer {
     }
 
     @Getter
-    @Value("http://localhost:8080")
-    private String serverAddress;
+    @Value("${server.address}:${server.port}")
+    private String fullServerAddress;
+
+    @Getter
+    @Value("${mapping.image-path}")
+    private String imageMapping;
+
+    public HttpComponentsClientHttpRequestFactory httpComponentsClientHttpRequestFactory() {
+        PoolingHttpClientConnectionManager poolingHttpClientConnectionManager = new PoolingHttpClientConnectionManager();
+        poolingHttpClientConnectionManager.setMaxTotal(500);
+        poolingHttpClientConnectionManager.setDefaultMaxPerRoute(500);
+
+        CloseableHttpClient client = HttpClientBuilder.create().setConnectionManager(poolingHttpClientConnectionManager).build();
+
+        HttpComponentsClientHttpRequestFactory clientHttpRequestFactory = new HttpComponentsClientHttpRequestFactory(client);
+
+        clientHttpRequestFactory.setConnectionRequestTimeout(100);
+        return clientHttpRequestFactory;
+    }
 
     @Bean
     public RestTemplate restTemplate() {
         return new RestTemplateBuilder()
+                .requestFactory(this::httpComponentsClientHttpRequestFactory)
                 .setConnectTimeout(Duration.ofMillis(500))
-                .setReadTimeout(Duration.ofSeconds(20))
-                .requestFactory(HttpComponentsClientHttpRequestFactory.class)
                 .build();
     }
 }

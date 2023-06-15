@@ -11,20 +11,23 @@ import com.example.booksserver.model.service.CardInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.*;
 
-
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class PaymentClientImpl implements PaymentClient {
     @Value("${external.payment-service.host}")
     private String paymentServiceAddress;
     @Value("${external.payment-service.post-payment-mapping}")
     private String paymentsMapping;
     private final RestTemplate restTemplate;
+
+    public PaymentClientImpl(RestTemplateBuilder restTemplateBuilder) {
+        this.restTemplate = restTemplateBuilder.build();
+    }
 
     @Override
     public PaymentsInfoResponse processPayment(Order order, CardInfo cardInfo) throws FailPaymentException, UnreachablePaymentException {

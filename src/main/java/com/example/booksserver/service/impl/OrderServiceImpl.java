@@ -40,24 +40,17 @@ public class OrderServiceImpl implements OrderService {
         try {
             paymentService.processPayment(order, cardInfo);
             order.setStatus(OrderStatus.SUCCESS);
+            order = orderTransactionService.saveOrder(order);
         } catch (FailPaymentException e) {
             order.setStatus(OrderStatus.FAIL);
-        } catch (UnreachablePaymentException e) {
-            order.setStatus(OrderStatus.PENDING);
-        }
-
-        if (OrderStatus.FAIL.equals(order.getStatus())) {
             order = orderTransactionService.saveOrderReturnStock(order);
-        } else {
-            order = orderTransactionService.saveOrder(order);
-        }
-
-        if (OrderStatus.FAIL.equals(order.getStatus())) {
             HttpStatus status = HttpStatus.BAD_REQUEST;
             throw new ResponseBodyException(status,
                     errorResponseFactory.create(status, InternalErrorCode.PAYMENT_ERROR)
             );
-        } else if (OrderStatus.PENDING.equals(order.getStatus())) {
+        } catch (UnreachablePaymentException e) {
+            order.setStatus(OrderStatus.PENDING);
+            order = orderTransactionService.saveOrder(order);
             throw new ResponseBodyException(HttpStatus.OK, new PostOrdersResponse(order, "PENDING"));
         }
 
@@ -86,10 +79,6 @@ public class OrderServiceImpl implements OrderService {
             //for the situation when the payment was not process, Order is PENDING
             order.setStatus(OrderStatus.CANCELED);
         } catch (UnreachablePaymentException e) {
-            order.setStatus(OrderStatus.PENDING_CANCEL);
-        }
-
-        if (OrderStatus.PENDING_CANCEL.equals(order.getStatus())) {
             throw new ResponseBodyException(HttpStatus.OK, new CancelOrderResponse()
                     .setOrderNo(String.valueOf(order.getId()))
                     .setStatus("PENDING_CANCEL")

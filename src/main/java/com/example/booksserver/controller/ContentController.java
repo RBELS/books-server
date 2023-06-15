@@ -27,7 +27,7 @@ public class ContentController {
 
     public ContentController(ContentService contentService, AppConfig appConfig) {
         this.contentService = contentService;
-        this.baseImageUrl = appConfig.getServerAddress() + "/static/image/";
+        this.baseImageUrl = appConfig.getFullServerAddress() + appConfig.getImageMapping();
     }
 
     @GetMapping(value = "/books", produces = MediaType.APPLICATION_JSON_VALUE)

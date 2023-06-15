@@ -1,9 +1,15 @@
+server:
+  address: 127.0.0.1
+  port: 8080
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:32768/BooksDB
     username: postgres
     password: postgrespw
+    hikari:
+      maximum-pool-size: 20
+      connection-timeout: 250
   jpa:
     generate-ddl: true
     properties:
@@ -33,6 +39,8 @@ external:
   payment-service:
     host: http://localhost:3050
     post-payment-mapping: /payments
+mapping:
+  image-path: "/static/image/"
 responses:
   error:
     devMessages: '{
