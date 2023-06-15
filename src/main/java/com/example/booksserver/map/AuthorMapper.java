@@ -1,7 +1,7 @@
 package com.example.booksserver.map;
 
-import com.example.booksserver.dto.Author;
-import com.example.booksserver.entity.AuthorEntity;
+import com.example.booksserver.model.service.Author;
+import com.example.booksserver.model.entity.AuthorEntity;
 import org.mapstruct.Mapper;
 import org.springframework.data.domain.Page;
 

@@ -1,6 +1,6 @@
 package com.example.booksserver.repository;
 
-import com.example.booksserver.entity.AuthorEntity;
+import com.example.booksserver.model.entity.AuthorEntity;
 import lombok.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

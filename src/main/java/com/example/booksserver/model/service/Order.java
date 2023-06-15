@@ -1,0 +1,29 @@
+package com.example.booksserver.model.service;
+
+import com.example.booksserver.model.entity.OrderStatus;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
+
+import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
+
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@Accessors(chain = true)
+public class Order {
+    private Long id;
+    private String address;
+    private String phone;
+    private String name;
+    private String email;
+    @Builder.Default
+    private List<OrderItem> orderItems = new ArrayList<>();
+    private Date dateCreated;
+    private OrderStatus status;
+}

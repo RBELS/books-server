@@ -17,13 +17,16 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/authors**").hasRole(ResourceRole.ADMIN.name())
                         .requestMatchers(HttpMethod.POST, "/books**").hasRole(ResourceRole.ADMIN.name())
                         .anyRequest().permitAll()
+                )
+                .csrf().disable()
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(jwt -> jwt
+                                .jwtAuthenticationConverter(
+                                        new JwtWithRolesConverterFactory("books-server")
+                                                .createConverter()
+                                )
+                        )
                 );
-
-        http.csrf().disable();
-
-        http.oauth2ResourceServer(oauth2 -> oauth2
-                .jwt(jwt -> jwt
-                        .jwtAuthenticationConverter(new JwtWithRolesConverterFactory("books-server").createConverter())));
         return http.build();
     }
 }

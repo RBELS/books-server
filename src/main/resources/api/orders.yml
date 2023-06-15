@@ -44,7 +44,9 @@ paths:
                 properties:
                   status:
                     type: string
-                    example: SUCCESS
+                    enum:
+                      - SUCCESS
+                      - PENDING
                   orderNo:
                     type: string
         400:
@@ -119,6 +121,9 @@ components:
       properties:
         status:
           type: string
+          enum:
+            - "SUCCESS"
+            - "PENDING"
         orderNo:
           type: string
         books:

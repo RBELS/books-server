@@ -1,6 +1,6 @@
 package com.example.booksserver.repository;
 
-import com.example.booksserver.entity.AuthorEntity;
+import com.example.booksserver.model.entity.AuthorEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

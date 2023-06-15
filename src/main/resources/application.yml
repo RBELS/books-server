@@ -1,11 +1,20 @@
+server:
+  address: 127.0.0.1
+  port: 8080
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:32768/BooksDB
     username: postgres
     password: postgrespw
+    hikari:
+      maximum-pool-size: 20
+      connection-timeout: 250
   jpa:
     generate-ddl: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
   security:
     oauth2:
       client:
@@ -28,8 +37,10 @@ logging:
         security: DEBUG
 external:
   payment-service:
-    host: http://external.domain:8080
+    host: http://localhost:3050
     post-payment-mapping: /payments
+mapping:
+  image-path: "/static/image/"
 responses:
   error:
     devMessages: '{
@@ -46,7 +57,9 @@ responses:
       ORDER_NO_ITEMS: "Order items were not provided.",
       ORDER_ITEM_NOT_FOUND: "Some of the order items do not exist.",
       ORDER_ITEM_NOT_IN_STOCK: "Selected order items are not in stock in enough quantity.",
+      ORDER_NOT_FOUND: "Such order was not found.",
       PAYMENT_ERROR: "Payment can not be processed for some reason.",
+      PAYMENT_CANCEL_NOT_ALLOWED: "User is not allowed to cancel this order.",
       IMAGE_NOT_FOUND: "Image not found.",
       INTERNAL_ERROR_IMAGES: "Impossible to parse provided images."
     }'
@@ -64,7 +77,9 @@ responses:
       ORDER_NO_ITEMS: "Order items were not provided.",
       ORDER_ITEM_NOT_FOUND: "Some of the order items do not exist.",
       ORDER_ITEM_NOT_IN_STOCK: "Selected order items are not in stock in enough quantity.",
+      ORDER_NOT_FOUND: "Such order was not found.",
       PAYMENT_ERROR: "Payment can not be processed for some reason.",
+      PAYMENT_CANCEL_NOT_ALLOWED: "User is not allowed to cancel this order.",
       IMAGE_NOT_FOUND: "Image not found.",
       INTERNAL_ERROR_IMAGES: "Impossible to parse provided images."
     }'
@@ -82,7 +97,9 @@ responses:
       ORDER_NO_ITEMS: "Заказ не содежит ни одной позиции.",
       ORDER_ITEM_NOT_FOUND: "Неоторые позиции заказа не существуют.",
       ORDER_ITEM_NOT_IN_STOCK: "Некоторые позиции заказа не имеются в нужном количестве.",
+      ORDER_NOT_FOUND: "Заказ не найден.",
       PAYMENT_ERROR: "Ошибка оплаты.",
+      PAYMENT_CANCEL_NOT_ALLOWED: "Невозможно отменить данный заказ.",
       IMAGE_NOT_FOUND: "Изображение не найдено.",
       INTERNAL_ERROR_IMAGES: "Невозможно обработать переданные изображения."
     }'

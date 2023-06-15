@@ -1,21 +1,25 @@
 package com.example.booksserver.service.impl;
 
-import com.example.booksserver.components.ErrorResponseFactory;
-import com.example.booksserver.components.ResponseStatusWithBodyExceptionFactory;
-import com.example.booksserver.config.ResponseBodyException;
-import com.example.booksserver.dto.Book;
-import com.example.booksserver.dto.Order;
-import com.example.booksserver.dto.OrderItem;
-import com.example.booksserver.dto.Stock;
-import com.example.booksserver.entity.BookEntity;
-import com.example.booksserver.entity.order.OrderEntity;
-import com.example.booksserver.external.IPaymentsRequestService;
-import com.example.booksserver.external.PaymentException;
-import com.example.booksserver.external.response.PaymentsInfoResponse;
+import com.example.booksserver.exception.ErrorResponseFactory;
+import com.example.booksserver.exception.InternalErrorCode;
+import com.example.booksserver.exception.ResponseBodyException;
+import com.example.booksserver.model.service.Book;
+import com.example.booksserver.model.service.Order;
+import com.example.booksserver.model.service.OrderItem;
+import com.example.booksserver.model.service.Stock;
+import com.example.booksserver.model.entity.BookEntity;
+import com.example.booksserver.model.entity.OrderEntity;
+import com.example.booksserver.exception.FailPaymentException;
+import com.example.booksserver.rest.PaymentClient;
+import com.example.booksserver.exception.PaymentException;
+import com.example.booksserver.exception.UnreachablePaymentException;
+import com.example.booksserver.model.dto.response.PaymentsInfoResponse;
 import com.example.booksserver.map.OrderMapper;
 import com.example.booksserver.repository.BookRepository;
 import com.example.booksserver.repository.OrderRepository;
-import com.example.booksserver.userstate.CardInfo;
+import com.example.booksserver.service.OrderTransactionService;
+import com.example.booksserver.model.service.CardInfo;
+import com.example.booksserver.model.dto.response.ErrorResponse;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -25,9 +29,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -42,14 +46,16 @@ class OrderServiceTest {
     @Mock
     private OrderMapper orderMapper;
     @Mock
-    private IPaymentsRequestService paymentsService;
+    private PaymentClient paymentsService;
     @Mock
     private BookRepository bookRepository;
     @Mock
-    private ResponseStatusWithBodyExceptionFactory exceptionFactory;
+    private ErrorResponseFactory errorResponseFactory;
+    @Mock
+    private OrderTransactionService orderTransactionService;
 
     @InjectMocks
-    private OrderService orderService;
+    private OrderServiceImpl orderService;
 
     @Test
     void createOrder() throws PaymentException {
@@ -90,54 +96,48 @@ class OrderServiceTest {
                 .thenReturn(mock(OrderEntity.class));
         when(paymentsService.processPayment(any(Order.class), any(CardInfo.class)))
                 .thenReturn(mock(PaymentsInfoResponse.class));
-        when(exceptionFactory.create(any(HttpStatus.class), any(ErrorResponseFactory.InternalErrorCode.class)))
-                .thenReturn(mock(ResponseBodyException.class));
+        when(errorResponseFactory.create(any(HttpStatus.class), any(InternalErrorCode.class)))
+                .thenReturn(mock(ErrorResponse.class));
+
+        when(orderTransactionService.saveOrder(any(Order.class)))
+                .thenReturn(dto);
+        when(orderTransactionService.validateAndSetPending(any(Order.class)))
+                .thenReturn(dto);
 
         assertDoesNotThrow(() -> orderService.createOrder(dto, cardInfo));
+    }
 
-        assertThrows(ResponseBodyException.class, () -> orderService.createOrder(
-                dto
-                        .setName("  "),
-                cardInfo
-        ));
+    @Test
+    void cancelOrder() throws UnreachablePaymentException, FailPaymentException {
+        when(orderRepository.save(any(OrderEntity.class)))
+                .thenReturn(mock(OrderEntity.class));
+        when(orderMapper.entityToDto(any(OrderEntity.class)))
+                .thenReturn(mock(Order.class));
+        when(orderMapper.dtoToEntity(any(Order.class)))
+                .thenReturn(mock(OrderEntity.class));
+        when(errorResponseFactory.create(any(HttpStatus.class), any(InternalErrorCode.class)))
+                .thenReturn(mock(ErrorResponse.class));
 
-        assertThrows(ResponseBodyException.class, () -> orderService.createOrder(
-                dto
-                        .setName("Order Name")
-                        .setPhone("   "),
-                cardInfo
-        ));
+        when(paymentsService.cancelPayment(anyLong()))
+                .thenReturn(mock(PaymentsInfoResponse.class));
 
-        assertThrows(ResponseBodyException.class, () -> orderService.createOrder(
-                dto
-                        .setPhone("Order phone")
-                        .setEmail("   "),
-                cardInfo
-        ));
+        when(orderTransactionService.saveOrder(any(Order.class)))
+                .thenReturn(mock(Order.class));
 
-        assertThrows(ResponseBodyException.class, () -> orderService.createOrder(
-                dto
-                        .setEmail("Order email")
-                        .setAddress("  "),
-                cardInfo
-        ));
+        assertThrows(ResponseBodyException.class, () -> orderService.cancelOrder(10L));
+    }
 
-        assertThrows(ResponseBodyException.class, () -> orderService.createOrder(
-                dto
-                        .setAddress("Order address")
-                        .setOrderItems(
-                                Arrays.asList(
-                                        orderItem, null
-                                )
-                        ),
-                cardInfo
-        ));
+    @Test
+    void getOrderById() {
+        when(errorResponseFactory.create(any(HttpStatus.class), any(InternalErrorCode.class)))
+                .thenReturn(mock(ErrorResponse.class));
 
-        assertThrows(ResponseBodyException.class, () -> orderService.createOrder(
-                dto
-                        .setOrderItems(new ArrayList<>()),
-                cardInfo
-        ));
+        when(orderMapper.entityToDto(any(OrderEntity.class)))
+                .thenReturn(mock(Order.class));
+        when(orderRepository.findById(10L))
+                .thenReturn(Optional.of(mock(OrderEntity.class)));
 
+        assertDoesNotThrow(() -> orderService.getOrderById(10L));
+        assertThrows(ResponseBodyException.class, () -> orderService.getOrderById(20L));
     }
 }

@@ -1,12 +1,13 @@
 package com.example.booksserver.repository;
 
-import com.example.booksserver.entity.order.OrderEntity;
-import com.example.booksserver.entity.order.OrderStatus;
+import com.example.booksserver.model.entity.OrderEntity;
+import com.example.booksserver.model.entity.OrderStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
@@ -37,13 +38,13 @@ public class OrderRepositoryTest {
 
     @Test
     public void findAllByStatus() {
-        OrderStatus orderStatus = OrderStatus.PENDING;
+        List<OrderStatus> orderStatusList = Arrays.asList(OrderStatus.PENDING, OrderStatus.PENDING_CANCEL);
         List<OrderEntity> expected = orderRepository
                 .findAll()
                 .stream()
-                .filter(order -> order.getStatus() == orderStatus)
+                .filter(order -> orderStatusList.contains(order.getStatus()))
                 .toList();
-        List<OrderEntity> actual = orderRepository.findAllByStatus(orderStatus);
+        List<OrderEntity> actual = orderRepository.findAllByStatusIn(orderStatusList);
 
         assertThat(expected).isEqualTo(actual);
     }

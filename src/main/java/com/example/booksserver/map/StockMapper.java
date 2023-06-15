@@ -1,7 +1,7 @@
 package com.example.booksserver.map;
 
-import com.example.booksserver.dto.Stock;
-import com.example.booksserver.entity.StockEntity;
+import com.example.booksserver.model.service.Stock;
+import com.example.booksserver.model.entity.StockEntity;
 import org.mapstruct.Mapper;
 
 import java.util.List;

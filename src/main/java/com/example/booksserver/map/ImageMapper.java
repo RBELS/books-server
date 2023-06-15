@@ -1,9 +1,9 @@
 package com.example.booksserver.map;
 
-import com.example.booksserver.dto.Book;
-import com.example.booksserver.dto.BookImage;
-import com.example.booksserver.entity.image.BookImageEntity;
-import com.example.booksserver.entity.image.ImageType;
+import com.example.booksserver.model.service.Book;
+import com.example.booksserver.model.service.BookImage;
+import com.example.booksserver.model.entity.BookImageEntity;
+import com.example.booksserver.model.entity.ImageType;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.springframework.web.multipart.MultipartFile;
@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 public abstract class ImageMapper {
@@ -25,8 +26,10 @@ public abstract class ImageMapper {
 
     public List<BookImage> fileToDto(List<MultipartFile> imageFiles, ImageType imageType) throws IOException {
         List<BookImage> fileDtoList = new ArrayList<>();
-        for (MultipartFile file : imageFiles) {
-            fileDtoList.add(fileToDto(file, imageType));
+        if (!Objects.isNull(imageFiles)) {
+            for (MultipartFile file : imageFiles) {
+                fileDtoList.add(fileToDto(file, imageType));
+            }
         }
         return fileDtoList;
     }

@@ -1,21 +1,22 @@
 package com.example.booksserver.service.impl;
 
-import com.example.booksserver.components.ErrorResponseFactory;
-import com.example.booksserver.components.ResponseStatusWithBodyExceptionFactory;
-import com.example.booksserver.config.ResponseBodyException;
-import com.example.booksserver.dto.Author;
-import com.example.booksserver.dto.Book;
-import com.example.booksserver.dto.BookImage;
-import com.example.booksserver.dto.Stock;
-import com.example.booksserver.entity.AuthorEntity;
-import com.example.booksserver.entity.BookEntity;
-import com.example.booksserver.entity.image.ImageType;
+import com.example.booksserver.exception.ErrorResponseFactory;
+import com.example.booksserver.exception.InternalErrorCode;
+import com.example.booksserver.exception.ResponseBodyException;
+import com.example.booksserver.model.service.Author;
+import com.example.booksserver.model.service.Book;
+import com.example.booksserver.model.service.BookImage;
+import com.example.booksserver.model.service.Stock;
+import com.example.booksserver.model.entity.AuthorEntity;
+import com.example.booksserver.model.entity.BookEntity;
+import com.example.booksserver.model.entity.ImageType;
 import com.example.booksserver.map.AuthorMapper;
 import com.example.booksserver.map.BookMapper;
 import com.example.booksserver.repository.AuthorRepository;
 import com.example.booksserver.repository.BookRepository;
-import com.example.booksserver.userstate.filters.AuthorsFilters;
-import com.example.booksserver.userstate.filters.BooksFilters;
+import com.example.booksserver.model.dto.filters.AuthorsFilters;
+import com.example.booksserver.model.dto.filters.BooksFilters;
+import com.example.booksserver.model.dto.response.ErrorResponse;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -52,9 +53,9 @@ class ContentServiceTest {
     @Mock
     private BookMapper bookMapper;
     @Mock
-    private ResponseStatusWithBodyExceptionFactory exceptionFactory;
+    private ErrorResponseFactory errorResponseFactory;
     @InjectMocks
-    private ContentService contentService;
+    private ContentServiceImpl contentService;
 
     @Test
     void getBooks() {
@@ -174,8 +175,8 @@ class ContentServiceTest {
         when(authorMapper.entityToDto(any(AuthorEntity.class)))
                 .thenReturn(savedAuthor);
 
-        when(exceptionFactory.create(any(HttpStatus.class), any(ErrorResponseFactory.InternalErrorCode.class)))
-                .thenReturn(mock(ResponseBodyException.class));
+        when(errorResponseFactory.create(any(HttpStatus.class), any(InternalErrorCode.class)))
+                .thenReturn(mock(ErrorResponse.class));
 
         assertDoesNotThrow(() -> contentService.createAuthor(author));
         Author returnedAuthor = contentService.createAuthor(author);
@@ -193,7 +194,7 @@ class ContentServiceTest {
         Author someAuthor = new Author()
                 .setId(20L)
                 .setName("Author name");
-        Book.BookDTOBuilder builder = Book.builder()
+        Book.BookBuilder builder = Book.builder()
                 .id(null)
                 .name("book name")
                 .imagesFileList(new ArrayList<>())
@@ -212,8 +213,8 @@ class ContentServiceTest {
         when(bookMapper.entityToDto(any(BookEntity.class)))
                 .thenReturn(savedBook);
 
-        when(exceptionFactory.create(any(HttpStatus.class), any(ErrorResponseFactory.InternalErrorCode.class)))
-                .thenReturn(mock(ResponseBodyException.class));
+        when(errorResponseFactory.create(any(HttpStatus.class), any(InternalErrorCode.class)))
+                .thenReturn(mock(ErrorResponse.class));
 
         assertDoesNotThrow(() -> contentService.createBook(book));
         assertThrows(ResponseBodyException.class, () -> contentService.createBook(
