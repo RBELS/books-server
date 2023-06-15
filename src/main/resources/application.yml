@@ -15,6 +15,13 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+  task:
+    scheduling:
+      pool:
+        size: 2
+      cron:
+        pending-cancel: 1000
+        pending: 1000
   security:
     oauth2:
       client:

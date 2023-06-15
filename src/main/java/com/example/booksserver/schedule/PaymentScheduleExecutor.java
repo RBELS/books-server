@@ -15,46 +15,46 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-import java.util.List;
+import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class PaymentScheduleExecutor {
-    public static final List<OrderStatus> pendingStatusList = Arrays.asList(OrderStatus.PENDING, OrderStatus.PENDING_CANCEL);
-
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
     private final PaymentClient paymentClient;
     private final OrderTransactionService orderTransactionService;
 
-
-    @Scheduled(timeUnit = TimeUnit.SECONDS, fixedDelay = 1)
-    @Transactional
-    public void updateOrderStatuses() {
-        orderRepository
-                .findAllByStatusIn(
-                        pendingStatusList
-                )
-                .stream().map(orderMapper::entityToDto)
-                .forEach(this::updateOrderStatus);
+    private LocalDateTime getDateTime1DayBefore() {
+        return LocalDateTime.now().minusDays(1);
     }
 
-    public void updateOrderStatus(Order order) {
+    @Scheduled(fixedDelayString = "${spring.task.scheduling.cron.pending}")
+    @Transactional
+    public void updatePendingOrders() {
+        orderRepository
+                .findAllByStatusAndDateCreatedAfter(OrderStatus.PENDING, getDateTime1DayBefore())
+                .stream().map(orderMapper::entityToDto)
+                .forEach(this::updateOrderPending);
+    }
+
+    @Scheduled(fixedDelayString = "${spring.task.scheduling.cron.pending-cancel}")
+    @Transactional
+    public void updatePendingCancelOrders() {
+        orderRepository
+                .findAllByStatusAndDateCreatedAfter(OrderStatus.PENDING_CANCEL, getDateTime1DayBefore())
+                .stream().map(orderMapper::entityToDto)
+                .forEach(this::updateOrderPendingCancel);
+    }
+
+    public void updateOrderPending(Order order) {
         PaymentsInfoResponse response;
         try {
             response = paymentClient.getPaymentInfo(order.getId());
         } catch (FailPaymentException e) {
-            if (OrderStatus.PENDING.equals(order.getStatus())) {
-                order.setStatus(OrderStatus.FAIL);
-            } else if (OrderStatus.PENDING_CANCEL.equals(order.getStatus())) {
-                order.setStatus(OrderStatus.CANCELED);
-            } else {
-                throw new RuntimeException("Unknown order status.");
-            }
-            orderTransactionService.saveOrderReturnStock(order);
+            orderTransactionService.saveOrderReturnStock(order.setStatus(OrderStatus.FAIL));
             return;
         } catch (UnreachablePaymentException e) {
             return;
@@ -63,9 +63,25 @@ public class PaymentScheduleExecutor {
         switch (response.getStatus()) {
             case "SUCCESS" -> orderTransactionService.saveOrder(order.setStatus(OrderStatus.SUCCESS));
             case "UNSUCCESS" -> orderTransactionService.saveOrderReturnStock(order.setStatus(OrderStatus.FAIL));
-            case "CANCELED" -> orderTransactionService.saveOrderReturnStock(order.setStatus(OrderStatus.CANCELED));
             default -> log.error("Payment service returned an unknown status code.");
         }
     }
 
+    public void updateOrderPendingCancel(Order order) {
+        PaymentsInfoResponse response;
+        try {
+            response = paymentClient.getPaymentInfo(order.getId());
+        } catch (FailPaymentException e) {
+            orderTransactionService.saveOrderReturnStock(order.setStatus(OrderStatus.CANCELED));
+            return;
+        } catch (UnreachablePaymentException e) {
+            return;
+        }
+
+        switch (response.getStatus()) {
+            case "SUCCESS" -> orderTransactionService.saveOrder(order.setStatus(OrderStatus.SUCCESS));
+            case "UNSUCCESS", "CANCELED" -> orderTransactionService.saveOrderReturnStock(order.setStatus(OrderStatus.CANCELED));
+            default -> log.error("Payment service returned an unknown status code.");
+        }
+    }
 }

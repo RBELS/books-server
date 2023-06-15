@@ -23,14 +23,15 @@ public class PaymentClientImpl implements PaymentClient {
     private String paymentServiceAddress;
     @Value("${external.payment-service.post-payment-mapping}")
     private String paymentsMapping;
-    private final RestTemplate restTemplate;
+    private final RestTemplateBuilder restTemplateBuilder;
 
     public PaymentClientImpl(RestTemplateBuilder restTemplateBuilder) {
-        this.restTemplate = restTemplateBuilder.build();
+        this.restTemplateBuilder = restTemplateBuilder;
     }
 
     @Override
     public PaymentsInfoResponse processPayment(Order order, CardInfo cardInfo) throws FailPaymentException, UnreachablePaymentException {
+        RestTemplate restTemplate = restTemplateBuilder.build();
         ResponseEntity<PaymentsInfoResponse> infoResponse;
         String requestUrl = paymentServiceAddress + paymentsMapping;
 
@@ -49,6 +50,7 @@ public class PaymentClientImpl implements PaymentClient {
 
     @Override
     public PaymentsInfoResponse getPaymentInfo(long orderId) throws FailPaymentException, UnreachablePaymentException {
+        RestTemplate restTemplate = restTemplateBuilder.build();
         ResponseEntity<PaymentsInfoResponse> infoResponse;
         String requestUrl = String.format("%s%s/%d", paymentServiceAddress, paymentsMapping, orderId);
 
@@ -66,6 +68,7 @@ public class PaymentClientImpl implements PaymentClient {
 
     @Override
     public PaymentsInfoResponse cancelPayment(long orderId) throws FailPaymentException, UnreachablePaymentException {
+        RestTemplate restTemplate = restTemplateBuilder.build();
         PaymentsInfoResponse infoResponse;
         String requestUrl = String.format("%s%s/%d/cancel", paymentServiceAddress, paymentsMapping, orderId);
         try {
