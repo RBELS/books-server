@@ -95,7 +95,7 @@ public class OrderServiceImpl implements OrderService {
     public Order getOrderById(Long orderId) throws ResponseStatusException {
         return orderRepository
                 .findById(orderId)
-                .map(orderMapper::entityToDto)
+                .map(orderMapper::entityToService)
                 .orElseThrow(() -> {
                     HttpStatus status = HttpStatus.NOT_FOUND;
                     return new ResponseBodyException(status,

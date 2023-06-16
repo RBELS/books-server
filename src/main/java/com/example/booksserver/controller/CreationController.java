@@ -62,8 +62,8 @@ public class CreationController {
                         errorResponseFactory.create(status, InternalErrorCode.BOOK_BAD_IMAGES)
                 );
             }
-            mainImageDTO = imageMapper.fileToDto(mainImageFile, ImageType.MAIN);
-            contentImageDTOList = imageMapper.fileToDto(contentImageFileList, ImageType.CONTENT);
+            mainImageDTO = imageMapper.fileToService(mainImageFile, ImageType.MAIN);
+            contentImageDTOList = imageMapper.fileToService(contentImageFileList, ImageType.CONTENT);
         } catch (IOException e) {
             HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
             throw new ResponseBodyException(status,

@@ -22,7 +22,7 @@ public class FilesServiceImpl implements FilesService {
     @Override
     public BookImage getImageById(Long imageId) throws ResponseStatusException {
         return bookImageRepository.findById(imageId)
-                .map(imageMapper::entityToDto)
+                .map(imageMapper::entityToService)
                 .orElseThrow(() -> {
                     HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
                     return new ResponseBodyException(status,

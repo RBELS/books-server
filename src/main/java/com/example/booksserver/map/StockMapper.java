@@ -8,8 +8,8 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public abstract class StockMapper {
-    public abstract Stock entityToDto(StockEntity entity);
-    public abstract StockEntity dtoToEntity(Stock dto);
-    public abstract List<Stock> entityToDto(List<StockEntity> entity);
-    public abstract List<StockEntity> dtoToEntity(List<Stock> dto);
+    public abstract Stock entityToService(StockEntity entity);
+    public abstract StockEntity serviceToEntity(Stock serviceObj);
+    public abstract List<Stock> entityToService(List<StockEntity> entity);
+    public abstract List<StockEntity> serviceToEntity(List<Stock> serviceObjList);
 }

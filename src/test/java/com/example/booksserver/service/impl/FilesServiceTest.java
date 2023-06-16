@@ -47,7 +47,7 @@ class FilesServiceTest {
         entity.setContent(new byte[1024]);
 
         when(bookImageRepository.findById(1L)).thenReturn(Optional.of(entity));
-        when(imageMapper.entityToDto(any(BookImageEntity.class))).thenReturn(mock(BookImage.class));
+        when(imageMapper.entityToService(any(BookImageEntity.class))).thenReturn(mock(BookImage.class));
         when(errorResponseFactory.create(any(HttpStatus.class), any(InternalErrorCode.class)))
                 .thenReturn(mock(ErrorResponse.class));
 

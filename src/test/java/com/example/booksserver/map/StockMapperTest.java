@@ -37,7 +37,7 @@ class StockMapperTest {
                 .setInDelivery(2);
     }
 
-    private void compareEntityToDto(StockEntity entity, Stock dto) {
+    private void compareEntityToService(StockEntity entity, Stock dto) {
         assertThat(entity.getId()).isEqualTo(dto.getId());
         assertThat(entity.getAvailable()).isEqualTo(dto.getAvailable());
         assertThat(entity.getOrdered()).isEqualTo(dto.getOrdered());
@@ -45,38 +45,38 @@ class StockMapperTest {
     }
 
     @Test
-    void entityToDto() {
-        Stock dto = stockMapper.entityToDto(someEntity);
-        compareEntityToDto(someEntity, dto);
+    void entityToService() {
+        Stock dto = stockMapper.entityToService(someEntity);
+        compareEntityToService(someEntity, dto);
     }
 
     @Test
-    void dtoToEntity() {
-        StockEntity entity = stockMapper.dtoToEntity(someDto);
-        compareEntityToDto(entity, someDto);
+    void serviceToEntity() {
+        StockEntity entity = stockMapper.serviceToEntity(someDto);
+        compareEntityToService(entity, someDto);
     }
 
-    private void compareEntityToDtoList(List<StockEntity> entityList, List<Stock> dtoList) {
+    private void compareEntityToServiceList(List<StockEntity> entityList, List<Stock> dtoList) {
         assertThat(entityList).hasSameSizeAs(dtoList);
 
         for (int i = 0;i < entityList.size();i++) {
-            compareEntityToDto(entityList.get(i), dtoList.get(i));
+            compareEntityToService(entityList.get(i), dtoList.get(i));
         }
     }
 
     @Test
-    void entityToDtoList() {
+    void entityToServiceList() {
         List<StockEntity> entityList = Arrays.asList(someEntity, someEntity, someEntity);
-        List<Stock> dtoList = stockMapper.entityToDto(entityList);
+        List<Stock> dtoList = stockMapper.entityToService(entityList);
 
-        compareEntityToDtoList(entityList, dtoList);
+        compareEntityToServiceList(entityList, dtoList);
     }
 
     @Test
-    void dtoToEntityList() {
+    void serviceToEntityList() {
         List<Stock> dtoList = Arrays.asList(someDto, someDto, someDto);
-        List<StockEntity> entityList = stockMapper.dtoToEntity(dtoList);
+        List<StockEntity> entityList = stockMapper.serviceToEntity(dtoList);
 
-        compareEntityToDtoList(entityList, dtoList);
+        compareEntityToServiceList(entityList, dtoList);
     }
 }

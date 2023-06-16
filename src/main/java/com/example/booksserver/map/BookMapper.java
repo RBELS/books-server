@@ -24,16 +24,16 @@ public abstract class BookMapper {
     @Mapping(target = "mainFile", expression = "java(imageMapper.mapMainImage(entity.getImages()))")
     @Mapping(target = "imagesFileList", expression = "java(imageMapper.mapContentImages(entity.getImages()))")
     @Mapping(target = "stock", source = "stock")
-    public abstract Book entityToDto(BookEntity entity);
+    public abstract Book entityToService(BookEntity entity);
 
-    public abstract List<Book> entityToDto(List<BookEntity> entityList);
+    public abstract List<Book> entityToService(List<BookEntity> entityList);
 
-    @Mapping(target = "images", expression = "java(imageMapper.dtoToEntity(imageMapper.extractFromBookDto(dto)))")
+    @Mapping(target = "images", expression = "java(imageMapper.serviceToEntity(imageMapper.extractFromBookServiceObj(serviceObj)))")
     @Mapping(target = "stock", source = "stock")
-    public abstract BookEntity dtoToEntity(Book dto);
+    public abstract BookEntity serviceToEntity(Book serviceObj);
 
     @AfterMapping
-    public void afterDtoToEntity(Book source, @MappingTarget BookEntity target) {
+    public void afterServiceToEntity(Book source, @MappingTarget BookEntity target) {
         target.getImages().forEach(bookImage -> {
             if (Objects.isNull(bookImage.getBook())) {
                 bookImage.setBook(target);
@@ -41,7 +41,7 @@ public abstract class BookMapper {
         });
     }
 
-    public Page<Book> entityToDtoPage(Page<BookEntity> books) {
-        return books.map(this::entityToDto);
+    public Page<Book> entityToServicePage(Page<BookEntity> books) {
+        return books.map(this::entityToService);
     }
 }

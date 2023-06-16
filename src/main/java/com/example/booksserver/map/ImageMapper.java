@@ -15,48 +15,48 @@ import java.util.Objects;
 
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 public abstract class ImageMapper {
-    public abstract BookImage entityToDto(BookImageEntity entity);
-    public abstract List<BookImage> entityToDto(List<BookImageEntity> entityList);
-    public abstract BookImageEntity dtoToEntity(BookImage dto);
-    public abstract List<BookImageEntity> dtoToEntity(List<BookImage> dtoList);
+    public abstract BookImage entityToService(BookImageEntity entity);
+    public abstract List<BookImage> entityToService(List<BookImageEntity> entityList);
+    public abstract BookImageEntity serviceToEntity(BookImage serviceObj);
+    public abstract List<BookImageEntity> serviceToEntity(List<BookImage> serviceObjList);
 
-    public BookImage fileToDto(MultipartFile imageFile, ImageType imageType) throws IOException {
+    public BookImage fileToService(MultipartFile imageFile, ImageType imageType) throws IOException {
         return new BookImage(null, imageType, imageFile.getBytes());
     }
 
-    public List<BookImage> fileToDto(List<MultipartFile> imageFiles, ImageType imageType) throws IOException {
-        List<BookImage> fileDtoList = new ArrayList<>();
+    public List<BookImage> fileToService(List<MultipartFile> imageFiles, ImageType imageType) throws IOException {
+        List<BookImage> fileServiceObjList = new ArrayList<>();
         if (!Objects.isNull(imageFiles)) {
             for (MultipartFile file : imageFiles) {
-                fileDtoList.add(fileToDto(file, imageType));
+                fileServiceObjList.add(fileToService(file, imageType));
             }
         }
-        return fileDtoList;
+        return fileServiceObjList;
     }
 
     public BookImage mapMainImage(List<BookImageEntity> entityList) {
         for (BookImageEntity entity : entityList) {
             if (entity.getType() == ImageType.MAIN) {
-                return entityToDto(entity);
+                return entityToService(entity);
             }
         }
         return null;
     }
 
     public List<BookImage> mapContentImages(List<BookImageEntity> entityList) {
-        List<BookImage> dtoList = new ArrayList<>();
+        List<BookImage> serviceObjList = new ArrayList<>();
         for (BookImageEntity entity : entityList) {
             if (entity.getType() == ImageType.CONTENT) {
-                dtoList.add(entityToDto(entity));
+                serviceObjList.add(entityToService(entity));
             }
         }
-        return dtoList;
+        return serviceObjList;
     }
 
-    public List<BookImage> extractFromBookDto(Book dto) {
-        List<BookImage> imageDTOList = new ArrayList<>();
-        imageDTOList.add(dto.getMainFile());
-        imageDTOList.addAll(dto.getImagesFileList());
-        return imageDTOList;
+    public List<BookImage> extractFromBookServiceObj(Book serviceObj) {
+        List<BookImage> serviceObjList = new ArrayList<>();
+        serviceObjList.add(serviceObj.getMainFile());
+        serviceObjList.addAll(serviceObj.getImagesFileList());
+        return serviceObjList;
     }
 }

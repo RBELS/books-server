@@ -10,16 +10,16 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public abstract class AuthorMapper {
-    public abstract Author entityToDto(AuthorEntity entity);
-    public abstract List<Author> entityToDto(List<AuthorEntity> entityList);
-    public abstract AuthorEntity dtoToEntity(Author dto);
-    public abstract List<AuthorEntity> dtoToEntity(List<Author> dtoList);
+    public abstract Author entityToService(AuthorEntity entity);
+    public abstract List<Author> entityToService(List<AuthorEntity> entityList);
+    public abstract AuthorEntity serviceToEntity(Author serviceObj);
+    public abstract List<AuthorEntity> serviceToEntity(List<Author> serviceObjList);
 
-    public Page<Author> entityToDtoPage(Page<AuthorEntity> books) {
-        return books.map(this::entityToDto);
+    public Page<Author> entityToServicePage(Page<AuthorEntity> books) {
+        return books.map(this::entityToService);
     }
 
-    public Page<AuthorEntity> dtoToEntityPage(Page<Author> bookDTOS) {
-        return bookDTOS.map(this::dtoToEntity);
+    public Page<AuthorEntity> serviceToEntityPage(Page<Author> bookServiceObjects) {
+        return bookServiceObjects.map(this::serviceToEntity);
     }
 }

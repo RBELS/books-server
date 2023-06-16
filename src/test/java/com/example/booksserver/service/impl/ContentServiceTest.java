@@ -71,7 +71,7 @@ class ContentServiceTest {
         when(bookRepository.findAll(any(Pageable.class)))
                 .thenReturn(mockEntityPage);
 
-        when(bookMapper.entityToDtoPage(mockEntityPage))
+        when(bookMapper.entityToServicePage(mockEntityPage))
                 .thenReturn(mockDtoPage);
 
         List<Long> authorIdList = Arrays.asList(1L, 2L, 3L);
@@ -100,7 +100,7 @@ class ContentServiceTest {
         Page<Author> mockDtoPage = mock(PageImpl.class);
 
         when(authorRepository.findAll(any(Pageable.class))).thenReturn(mockEntityPage);
-        when(authorMapper.entityToDtoPage(mockEntityPage)).thenReturn(mockDtoPage);
+        when(authorMapper.entityToServicePage(mockEntityPage)).thenReturn(mockDtoPage);
 
         AuthorsFilters filters = new AuthorsFilters(0, 20);
         Page<Author> queriedPage = contentService.getAuthors(filters);
@@ -116,7 +116,7 @@ class ContentServiceTest {
         List<Author> dtoList = Arrays.asList(mockAuthor, mockAuthor, mockAuthor);
 
         when(authorRepository.findAll(any(Sort.class))).thenReturn(entityList);
-        when(authorMapper.entityToDto(entityList)).thenReturn(dtoList);
+        when(authorMapper.entityToService(entityList)).thenReturn(dtoList);
 
         List<Author> authors = contentService.getAllAuthors();
         assertThat(authors).hasSize(3);
@@ -128,7 +128,7 @@ class ContentServiceTest {
         Author mockAuthor = mock(Author.class);
 
         when(authorRepository.findById(1L)).thenReturn(Optional.of(mockAuthorEntity));
-        when(authorMapper.entityToDto(any(AuthorEntity.class))).thenReturn(mockAuthor);
+        when(authorMapper.entityToService(any(AuthorEntity.class))).thenReturn(mockAuthor);
 
         Author dto = contentService.getAuthorById(1L);
         assertThat(dto).isNotNull();
@@ -143,7 +143,7 @@ class ContentServiceTest {
         Book mockBook = mock(Book.class);
 
         when(bookRepository.findById(1L)).thenReturn(Optional.of(mockBookEntity));
-        when(bookMapper.entityToDto(any(BookEntity.class))).thenReturn(mockBook);
+        when(bookMapper.entityToService(any(BookEntity.class))).thenReturn(mockBook);
 
         Book dto = contentService.getBookById(1L);
         assertThat(dto).isNotNull();
@@ -168,11 +168,11 @@ class ContentServiceTest {
         Author author = new Author(null, "Author name");
         Author savedAuthor = new Author(10L, "Author name");
 
-        when(authorMapper.dtoToEntity(any(Author.class)))
+        when(authorMapper.serviceToEntity(any(Author.class)))
                 .thenReturn(mock(AuthorEntity.class));
         when(authorRepository.save(any(AuthorEntity.class)))
                 .thenReturn(mock(AuthorEntity.class));
-        when(authorMapper.entityToDto(any(AuthorEntity.class)))
+        when(authorMapper.entityToService(any(AuthorEntity.class)))
                 .thenReturn(savedAuthor);
 
         when(errorResponseFactory.create(any(HttpStatus.class), any(InternalErrorCode.class)))
@@ -206,11 +206,11 @@ class ContentServiceTest {
         Book book = builder.build();
         Book savedBook = builder.id(30L).build();
 
-        when(bookMapper.dtoToEntity(any(Book.class)))
+        when(bookMapper.serviceToEntity(any(Book.class)))
                 .thenReturn(mock(BookEntity.class));
         when(bookRepository.save(any(BookEntity.class)))
                 .thenReturn(mock(BookEntity.class));
-        when(bookMapper.entityToDto(any(BookEntity.class)))
+        when(bookMapper.entityToService(any(BookEntity.class)))
                 .thenReturn(savedBook);
 
         when(errorResponseFactory.create(any(HttpStatus.class), any(InternalErrorCode.class)))

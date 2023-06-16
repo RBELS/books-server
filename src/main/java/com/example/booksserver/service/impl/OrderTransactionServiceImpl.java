@@ -36,7 +36,7 @@ public class OrderTransactionServiceImpl implements OrderTransactionService {
             int moveModifier = isReverse ? -1 : 1;
             stock.setAvailable(stock.getAvailable() - moveModifier * orderItem.getCount());
             stock.setInDelivery(stock.getInDelivery() + moveModifier * orderItem.getCount());
-            StockEntity stockEntity = stockMapper.dtoToEntity(stock);
+            StockEntity stockEntity = stockMapper.serviceToEntity(stock);
             stockRepository.save(stockEntity);
         });
     }
@@ -45,7 +45,7 @@ public class OrderTransactionServiceImpl implements OrderTransactionService {
         order.getOrderItems().forEach(orderItem -> {
             Stock prevStock = orderItem.getBook().getStock();
             orderItem.getBook().setStock(
-                    stockMapper.entityToDto(
+                    stockMapper.entityToService(
                             stockRepository
                                     .findById(prevStock.getId())
                                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR))
@@ -106,9 +106,9 @@ public class OrderTransactionServiceImpl implements OrderTransactionService {
         validateOrder(order);
         order.setStatus(OrderStatus.PENDING);
         moveAndSaveStock(order, false);
-        return orderMapper.entityToDto(
+        return orderMapper.entityToService(
                 orderRepository.save(
-                    orderMapper.dtoToEntity(order)
+                    orderMapper.serviceToEntity(order)
                 )
         );
     }
@@ -116,9 +116,9 @@ public class OrderTransactionServiceImpl implements OrderTransactionService {
     @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.SERIALIZABLE)
     @Override
     public Order saveOrder(Order order) {
-        OrderEntity orderEntity = orderMapper.dtoToEntity(order);
+        OrderEntity orderEntity = orderMapper.serviceToEntity(order);
         orderEntity = orderRepository.save(orderEntity);
-        return orderMapper.entityToDto(orderEntity);
+        return orderMapper.entityToService(orderEntity);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.SERIALIZABLE)
@@ -126,8 +126,8 @@ public class OrderTransactionServiceImpl implements OrderTransactionService {
     public Order saveOrderReturnStock(Order order) {
         updateOrderStock(order);
         moveAndSaveStock(order, true);
-        OrderEntity orderEntity = orderMapper.dtoToEntity(order);
+        OrderEntity orderEntity = orderMapper.serviceToEntity(order);
         orderEntity = orderRepository.save(orderEntity);
-        return orderMapper.entityToDto(orderEntity);
+        return orderMapper.entityToService(orderEntity);
     }
 }

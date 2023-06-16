@@ -64,7 +64,7 @@ public class ContentServiceImpl implements ContentService {
             }
         }
 
-        return bookMapper.entityToDtoPage(entityPage);
+        return bookMapper.entityToServicePage(entityPage);
     }
 
     private static final Sort AUTHORS_ASC_SORT = Sort.by("name", "id").ascending();
@@ -73,23 +73,23 @@ public class ContentServiceImpl implements ContentService {
         Page<AuthorEntity> entityPage = authorRepository.findAll(
                 PageRequest.of(filters.getPage(), filters.getCount(), AUTHORS_ASC_SORT)
         );
-        return authorMapper.entityToDtoPage(entityPage);
+        return authorMapper.entityToServicePage(entityPage);
     }
 
     public List<Author> getAllAuthors() {
         List<AuthorEntity> entityList = authorRepository.findAll(AUTHORS_ASC_SORT);
-        return authorMapper.entityToDto(entityList);
+        return authorMapper.entityToService(entityList);
     }
 
     public Author getAuthorById(Long authorId) {
         Optional<AuthorEntity> entity = authorRepository.findById(authorId);
-        return authorMapper.entityToDto(entity.orElse(null));
+        return authorMapper.entityToService(entity.orElse(null));
     }
 
     @Transactional
     public Book getBookById(Long bookId) {
         Optional<BookEntity> entity = bookRepository.findById(bookId);
-        return bookMapper.entityToDto(entity.orElse(null));
+        return bookMapper.entityToService(entity.orElse(null));
     }
 
     public List<BigDecimal> getMinMaxPrices() {
@@ -107,9 +107,9 @@ public class ContentServiceImpl implements ContentService {
 
     public Author createAuthor(Author newAuthor) throws ResponseStatusException {
         validateAuthor(newAuthor);
-        AuthorEntity authorEntity = authorMapper.dtoToEntity(newAuthor);
+        AuthorEntity authorEntity = authorMapper.serviceToEntity(newAuthor);
         authorEntity = authorRepository.save(authorEntity);
-        return authorMapper.entityToDto(authorEntity);
+        return authorMapper.entityToService(authorEntity);
     }
 
     private void validateBook(Book book) throws ResponseStatusException {
@@ -138,8 +138,8 @@ public class ContentServiceImpl implements ContentService {
 
     public Book createBook(Book newBook) throws ResponseStatusException {
         validateBook(newBook);
-        BookEntity entity = bookMapper.dtoToEntity(newBook);
+        BookEntity entity = bookMapper.serviceToEntity(newBook);
         entity = bookRepository.save(entity);
-        return bookMapper.entityToDto(entity);
+        return bookMapper.entityToService(entity);
     }
 }

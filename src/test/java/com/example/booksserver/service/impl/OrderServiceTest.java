@@ -29,8 +29,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -77,7 +77,7 @@ class OrderServiceTest {
                 .setPhone("Some Phone")
                 .setEmail("Some Email")
                 .setAddress("Some Address")
-                .setDateCreated(new Date(System.currentTimeMillis()))
+                .setDateCreated(LocalDateTime.now())
                 .setOrderItems(Arrays.asList(
                         orderItem, orderItem
                 ));
@@ -86,9 +86,9 @@ class OrderServiceTest {
                 .setNumber("1111222233334444")
                 .setCvv("123");
 
-        when(orderMapper.dtoToEntity(any(Order.class)))
+        when(orderMapper.serviceToEntity(any(Order.class)))
                 .thenReturn(mock(OrderEntity.class));
-        when(orderMapper.entityToDto(any(OrderEntity.class)))
+        when(orderMapper.entityToService(any(OrderEntity.class)))
                 .thenReturn(dto);
         when(bookRepository.save(any(BookEntity.class)))
                 .thenReturn(mock(BookEntity.class));
@@ -111,9 +111,9 @@ class OrderServiceTest {
     void cancelOrder() throws UnreachablePaymentException, FailPaymentException {
         when(orderRepository.save(any(OrderEntity.class)))
                 .thenReturn(mock(OrderEntity.class));
-        when(orderMapper.entityToDto(any(OrderEntity.class)))
+        when(orderMapper.entityToService(any(OrderEntity.class)))
                 .thenReturn(mock(Order.class));
-        when(orderMapper.dtoToEntity(any(Order.class)))
+        when(orderMapper.serviceToEntity(any(Order.class)))
                 .thenReturn(mock(OrderEntity.class));
         when(errorResponseFactory.create(any(HttpStatus.class), any(InternalErrorCode.class)))
                 .thenReturn(mock(ErrorResponse.class));
@@ -132,7 +132,7 @@ class OrderServiceTest {
         when(errorResponseFactory.create(any(HttpStatus.class), any(InternalErrorCode.class)))
                 .thenReturn(mock(ErrorResponse.class));
 
-        when(orderMapper.entityToDto(any(OrderEntity.class)))
+        when(orderMapper.entityToService(any(OrderEntity.class)))
                 .thenReturn(mock(Order.class));
         when(orderRepository.findById(10L))
                 .thenReturn(Optional.of(mock(OrderEntity.class)));

@@ -59,58 +59,58 @@ class ImageMapperTest {
         );
     }
 
-    private void compareEntityToDto(BookImageEntity entity, BookImage dto) {
-        assertThat(entity.getId()).isEqualTo(dto.getId());
-        assertThat(entity.getContent()).isEqualTo(dto.getContent());
-        assertThat(entity.getType()).isEqualTo(dto.getType());
+    private void compareEntityToService(BookImageEntity entity, BookImage serviceObj) {
+        assertThat(entity.getId()).isEqualTo(serviceObj.getId());
+        assertThat(entity.getContent()).isEqualTo(serviceObj.getContent());
+        assertThat(entity.getType()).isEqualTo(serviceObj.getType());
     }
 
     @Test
-    void entityToDto() {
-        BookImage dto = imageMapper.entityToDto(someEntityMain);
-        compareEntityToDto(someEntityMain, dto);
+    void entityToService() {
+        BookImage serviceObj = imageMapper.entityToService(someEntityMain);
+        compareEntityToService(someEntityMain, serviceObj);
     }
 
-    private void compareEntityToDtoList(List<BookImageEntity> entityList, List<BookImage> dtoList) {
-        assertThat(entityList).hasSameSizeAs(dtoList);
+    private void compareEntityToServiceList(List<BookImageEntity> entityList, List<BookImage> serviceList) {
+        assertThat(entityList).hasSameSizeAs(serviceList);
         for (int i = 0;i < entityList.size();i++) {
-            compareEntityToDto(entityList.get(i), dtoList.get(i));
+            compareEntityToService(entityList.get(i), serviceList.get(i));
         }
     }
 
     @Test
-    void entityToDtoList() {
+    void entityToServiceList() {
         List<BookImageEntity> entityList = Arrays.asList(someEntityMain, someEntityMain, someEntityMain);
-        List<BookImage> dtoList = imageMapper.entityToDto(entityList);
-        compareEntityToDtoList(entityList, dtoList);
+        List<BookImage> dtoList = imageMapper.entityToService(entityList);
+        compareEntityToServiceList(entityList, dtoList);
     }
 
     @Test
-    void dtoToEntity() {
-        BookImageEntity entity = imageMapper.dtoToEntity(someDtoMain);
-        compareEntityToDto(entity, someDtoMain);
+    void serviceToEntity() {
+        BookImageEntity entity = imageMapper.serviceToEntity(someDtoMain);
+        compareEntityToService(entity, someDtoMain);
     }
 
     @Test
-    void dtoToEntityList() {
+    void serviceToEntityList() {
         List<BookImage> dtoList = Arrays.asList(someDtoMain, someDtoMain, someDtoMain);
-        List<BookImageEntity> entityList = imageMapper.dtoToEntity(dtoList);
-        compareEntityToDtoList(entityList, dtoList);
+        List<BookImageEntity> entityList = imageMapper.serviceToEntity(dtoList);
+        compareEntityToServiceList(entityList, dtoList);
     }
 
     @Test
-    void fileToDto() throws IOException {
+    void fileToService() throws IOException {
         ImageType checkType = ImageType.CONTENT;
-        BookImage dto = imageMapper.fileToDto(someFile, checkType);
+        BookImage dto = imageMapper.fileToService(someFile, checkType);
         assertThat(dto.getType()).isEqualTo(checkType);
         assertThat(dto.getContent()).isEqualTo(someFile.getBytes());
     }
 
     @Test
-    void fileToDtoList() throws IOException {
+    void fileToServiceList() throws IOException {
         ImageType checkType = ImageType.MAIN;
         List<MultipartFile> fileList = Arrays.asList(someFile, someFile, someFile);
-        List<BookImage> dtoList = imageMapper.fileToDto(fileList, checkType);
+        List<BookImage> dtoList = imageMapper.fileToService(fileList, checkType);
 
         assertThat(fileList.size()).isEqualTo(dtoList.size());
         for (int i = 0;i < fileList.size();i++) {
@@ -127,7 +127,7 @@ class ImageMapperTest {
         List<BookImageEntity> entityList = Arrays.asList(someEntityContent, someEntityContent, someEntityMain);
         BookImage mainImageDTO = imageMapper.mapMainImage(entityList);
 
-        compareEntityToDto(someEntityMain, mainImageDTO);
+        compareEntityToService(someEntityMain, mainImageDTO);
     }
 
     @Test
@@ -139,11 +139,11 @@ class ImageMapperTest {
                 .filter(bookImage -> bookImage.getType().equals(ImageType.CONTENT))
                 .toList();
 
-        compareEntityToDtoList(contentEntityList, contentDtoList);
+        compareEntityToServiceList(contentEntityList, contentDtoList);
     }
 
     @Test
-    void extractFromBookDto() {
+    void extractFromBookService() {
         List<BookImage> contentImageDtoList = Arrays.asList(
                 someDtoContent, someDtoContent
         );
@@ -152,7 +152,7 @@ class ImageMapperTest {
                 .setMainFile(someDtoMain)
                 .setImagesFileList(contentImageDtoList);
 
-        List<BookImage> allImageDTOList = imageMapper.extractFromBookDto(book);
+        List<BookImage> allImageDTOList = imageMapper.extractFromBookServiceObj(book);
         assertThat(allImageDTOList.size()).isEqualTo(book.getImagesFileList().size() + 1);
         assertThat(allImageDTOList).containsExactlyInAnyOrder(someDtoMain, someDtoContent, someDtoContent);
     }

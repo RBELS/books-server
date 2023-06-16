@@ -36,45 +36,45 @@ class OrderItemMapperTest {
                 .setCount(2);
     }
 
-    private void compareEntityToDto(OrderItemEntity entity, OrderItem dto) {
-        assertThat(entity.getId()).isEqualTo(dto.getId());
-        assertThat(entity.getCount()).isEqualTo(dto.getCount());
-        assertThat(entity.getPrice()).isEqualTo(dto.getPrice());
+    private void compareEntityToService(OrderItemEntity entity, OrderItem serviceObj) {
+        assertThat(entity.getId()).isEqualTo(serviceObj.getId());
+        assertThat(entity.getCount()).isEqualTo(serviceObj.getCount());
+        assertThat(entity.getPrice()).isEqualTo(serviceObj.getPrice());
     }
 
     @Test
-    void entityToDto() {
-        OrderItem dto = orderItemMapper.entityToDto(someEntity);
-        compareEntityToDto(someEntity, dto);
+    void entityToService() {
+        OrderItem serviceObj = orderItemMapper.entityToService(someEntity);
+        compareEntityToService(someEntity, serviceObj);
     }
 
     @Test
-    void dtoToEntity() {
-        OrderItemEntity entity = orderItemMapper.dtoToEntity(someDto);
-        compareEntityToDto(entity, someDto);
+    void serviceToEntity() {
+        OrderItemEntity entity = orderItemMapper.serviceToEntity(someDto);
+        compareEntityToService(entity, someDto);
     }
 
-    private void compareEntityToDtoList(List<OrderItemEntity> entityList, List<OrderItem> dtoList) {
-        assertThat(entityList).hasSameSizeAs(dtoList);
+    private void compareEntityToServiceList(List<OrderItemEntity> entityList, List<OrderItem> serviceList) {
+        assertThat(entityList).hasSameSizeAs(serviceList);
 
         for (int i = 0;i < entityList.size();i++) {
-            compareEntityToDto(entityList.get(i), dtoList.get(i));
+            compareEntityToService(entityList.get(i), serviceList.get(i));
         }
     }
 
     @Test
-    void entityToDtoList() {
+    void entityToServiceList() {
         List<OrderItemEntity> entityList = Arrays.asList(someEntity, someEntity, someEntity);
-        List<OrderItem> dtoList = orderItemMapper.entityToDto(entityList);
+        List<OrderItem> dtoList = orderItemMapper.entityToService(entityList);
 
-        compareEntityToDtoList(entityList, dtoList);
+        compareEntityToServiceList(entityList, dtoList);
     }
 
     @Test
     void dtoToEntityList() {
         List<OrderItem> dtoList = Arrays.asList(someDto, someDto, someDto);
-        List<OrderItemEntity> entityList = orderItemMapper.dtoToEntity(dtoList);
+        List<OrderItemEntity> entityList = orderItemMapper.serviceToEntity(dtoList);
 
-        compareEntityToDtoList(entityList, dtoList);
+        compareEntityToServiceList(entityList, dtoList);
     }
 }

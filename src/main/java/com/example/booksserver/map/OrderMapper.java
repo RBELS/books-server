@@ -8,8 +8,8 @@ import java.util.List;
 
 @Mapper(componentModel = "spring", uses = {OrderItemMapper.class})
 public abstract class OrderMapper {
-    public abstract Order entityToDto(OrderEntity entity);
-    public abstract OrderEntity dtoToEntity(Order dto);
-    public abstract List<Order> entityToDto(List<OrderEntity> entity);
-    public abstract List<OrderEntity> dtoToEntity(List<Order> dto);
+    public abstract Order entityToService(OrderEntity entity);
+    public abstract OrderEntity serviceToEntity(Order serviceObj);
+    public abstract List<Order> entityToService(List<OrderEntity> entity);
+    public abstract List<OrderEntity> serviceToEntity(List<Order> serviceObjList);
 }

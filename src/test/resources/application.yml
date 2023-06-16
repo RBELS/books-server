@@ -1,16 +1,50 @@
+server:
+  address: 127.0.0.1
+  port: 8080
 spring:
   datasource:
     driver-class-name: org.h2.Driver
     url: jdbc:h2:mem:db;DB_CLOSE_DELAY=-1
     username: test
     password: testpw
+    hikari:
+      maximum-pool-size: 20
+      connection-timeout: 250
   jpa:
     generate-ddl: true
-
+  task:
+    scheduling:
+      pool:
+        size: 2
+      cron:
+        pending-cancel: 1000
+        pending: 1000
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            client-id: books-server
+            authorization-grant-type: authorization_code
+            scope: openid
+        provider:
+          keycloak:
+            user-name-attribute: preferred_username
+      resourceserver:
+        jwt:
+          issuer-uri: http://192.168.64.11:8080/realms/BookServerKeycloak
+          jwk-set-uri: http://192.168.64.11:8080/realms/BookServerKeycloak/protocol/openid-connect/certs
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
 external:
   payment-service:
-    host: http://external.domain:8080
+    host: http://localhost:3050
     post-payment-mapping: /payments
+mapping:
+  image-path: "/static/image/"
 responses:
   error:
     devMessages: '{

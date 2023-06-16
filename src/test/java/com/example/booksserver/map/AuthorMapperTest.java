@@ -28,7 +28,7 @@ public class AuthorMapperTest {
     private AuthorMapper authorMapper;
 
     @Test
-    public void entityToDto() {
+    public void entityToService() {
         AuthorEntity entity = new AuthorEntity()
                 .setId(20L)
                 .setName("Arthur Morgan");
@@ -36,18 +36,18 @@ public class AuthorMapperTest {
         entity.getBooks().add(mock(BookEntity.class));
         entity.getBooks().add(mock(BookEntity.class));
 
-        Author dto = authorMapper.entityToDto(entity);
+        Author dto = authorMapper.entityToService(entity);
 
         assertThat(dto.getName()).isEqualTo(entity.getName());
         assertThat(dto.getId()).isEqualTo(entity.getId());
     }
 
     @Test
-    public void dtoToEntity() {
+    public void serviceToEntity() {
         Author dto = new Author()
                 .setId(20L)
                 .setName("Arthur Morgan");
-        AuthorEntity entity = authorMapper.dtoToEntity(dto);
+        AuthorEntity entity = authorMapper.serviceToEntity(dto);
 
         assertThat(entity.getName()).isEqualTo(dto.getName());
         assertThat(entity.getId()).isEqualTo(dto.getId());
@@ -56,12 +56,12 @@ public class AuthorMapperTest {
         assertThat(entity.getBooks()).isEmpty();
     }
 
-    private void compareEntityToDtoList(List<AuthorEntity> entityList, List<Author> dtoList) {
-        assertThat(dtoList).hasSameSizeAs(entityList);
+    private void compareEntityToServiceList(List<AuthorEntity> entityList, List<Author> serviceObjList) {
+        assertThat(serviceObjList).hasSameSizeAs(entityList);
 
         for (int i = 0;i < entityList.size();i++) {
             AuthorEntity entity = entityList.get(i);
-            Author dto = dtoList.get(i);
+            Author dto = serviceObjList.get(i);
 
             assertThat(entity.getId()).isEqualTo(dto.getId());
             assertThat(entity.getName()).isEqualTo(dto.getName());
@@ -71,37 +71,37 @@ public class AuthorMapperTest {
     }
 
     @Test
-    public void entityToDtoList() {
+    public void entityToServiceList() {
         List<AuthorEntity> entityList = Arrays.asList(
                 new AuthorEntity().setId(20L).setName("name1"),
                 new AuthorEntity().setId(30L).setName("name2"),
                 new AuthorEntity().setId(40L).setName("name3")
         );
-        List<Author> dtoList = authorMapper.entityToDto(entityList);
-        compareEntityToDtoList(entityList, dtoList);
+        List<Author> dtoList = authorMapper.entityToService(entityList);
+        compareEntityToServiceList(entityList, dtoList);
     }
 
     @Test
-    public void dtoToEntityList() {
+    public void serviceToEntityList() {
         List<Author> dtoList = Arrays.asList(
                 new Author().setId(20L).setName("name1"),
                 new Author().setId(30L).setName("name2"),
                 new Author().setId(40L).setName("name3")
         );
-        List<AuthorEntity> entityList = authorMapper.dtoToEntity(dtoList);
-        compareEntityToDtoList(entityList, dtoList);
+        List<AuthorEntity> entityList = authorMapper.serviceToEntity(dtoList);
+        compareEntityToServiceList(entityList, dtoList);
     }
 
-    private void compareEntityToDtoPage(Page<AuthorEntity> entityPage, Page<Author> dtoPage) {
-        assertThat(dtoPage.getNumber()).isEqualTo(entityPage.getNumber());
-        assertThat(dtoPage.getSize()).isEqualTo(entityPage.getSize());
-        assertThat(dtoPage.getTotalElements()).isEqualTo(entityPage.getTotalElements());
-        assertThat(dtoPage.getTotalPages()).isEqualTo(entityPage.getTotalPages());
-        compareEntityToDtoList(entityPage.getContent(), dtoPage.getContent());
+    private void compareEntityToServicePage(Page<AuthorEntity> entityPage, Page<Author> servicePage) {
+        assertThat(servicePage.getNumber()).isEqualTo(entityPage.getNumber());
+        assertThat(servicePage.getSize()).isEqualTo(entityPage.getSize());
+        assertThat(servicePage.getTotalElements()).isEqualTo(entityPage.getTotalElements());
+        assertThat(servicePage.getTotalPages()).isEqualTo(entityPage.getTotalPages());
+        compareEntityToServiceList(entityPage.getContent(), servicePage.getContent());
     }
 
     @Test
-    public void entityToDtoPage() {
+    public void entityToServicePage() {
         List<AuthorEntity> entityList = Arrays.asList(
                 new AuthorEntity().setId(20L).setName("name1"),
                 new AuthorEntity().setId(30L).setName("name2"),
@@ -110,13 +110,13 @@ public class AuthorMapperTest {
         Pageable pageable = PageRequest.of(0, 3);
         long total = 100;
         Page<AuthorEntity> entityPage = new PageImpl<>(entityList, pageable, total);
-        Page<Author> dtoPage = authorMapper.entityToDtoPage(entityPage);
+        Page<Author> dtoPage = authorMapper.entityToServicePage(entityPage);
 
-        compareEntityToDtoPage(entityPage, dtoPage);
+        compareEntityToServicePage(entityPage, dtoPage);
     }
 
     @Test
-    public void dtoToEntityPage() {
+    public void serviceToEntityPage() {
         List<Author> dtoList = Arrays.asList(
                 new Author().setId(20L).setName("name1"),
                 new Author().setId(30L).setName("name2"),
@@ -125,8 +125,8 @@ public class AuthorMapperTest {
         Pageable pageable = PageRequest.of(0, 3);
         long total = 100;
         Page<Author> dtoPage = new PageImpl<>(dtoList, pageable, total);
-        Page<AuthorEntity> entityPage = authorMapper.dtoToEntityPage(dtoPage);
+        Page<AuthorEntity> entityPage = authorMapper.serviceToEntityPage(dtoPage);
 
-        compareEntityToDtoPage(entityPage, dtoPage);
+        compareEntityToServicePage(entityPage, dtoPage);
     }
 }

@@ -59,52 +59,52 @@ class BookMapperTest {
                 .setAuthors(Arrays.asList(mock(Author.class), mock(Author.class)));
     }
 
-    private void compareEntityToDto(BookEntity entity, Book dto) {
-        assertThat(dto).isNotNull();
-        assertThat(entity.getId()).isEqualTo(dto.getId());
-        assertThat(entity.getName()).isEqualTo(dto.getName());
-        assertThat(entity.getReleaseYear()).isEqualTo(dto.getReleaseYear());
-        assertThat(entity.getPrice()).isEqualTo(dto.getPrice());
+    private void compareEntityToService(BookEntity entity, Book serviceObj) {
+        assertThat(serviceObj).isNotNull();
+        assertThat(entity.getId()).isEqualTo(serviceObj.getId());
+        assertThat(entity.getName()).isEqualTo(serviceObj.getName());
+        assertThat(entity.getReleaseYear()).isEqualTo(serviceObj.getReleaseYear());
+        assertThat(entity.getPrice()).isEqualTo(serviceObj.getPrice());
 
-        assertThat(dto.getStock()).isNotNull();
-        assertThat(dto.getImagesFileList()).isNotNull();
-        assertThat(dto.getAuthors()).isNotNull();
+        assertThat(serviceObj.getStock()).isNotNull();
+        assertThat(serviceObj.getImagesFileList()).isNotNull();
+        assertThat(serviceObj.getAuthors()).isNotNull();
 
-        assertThat(dto.getMainFile()).isNotNull();
-        assertThat(dto.getImagesFileList()).isNotNull();
+        assertThat(serviceObj.getMainFile()).isNotNull();
+        assertThat(serviceObj.getImagesFileList()).isNotNull();
     }
 
     @Test
-    void entityToDto() {
-        Book dto = bookMapper.entityToDto(someBookEntity);
-        compareEntityToDto(someBookEntity, dto);
+    void entityToService() {
+        Book serviceObj = bookMapper.entityToService(someBookEntity);
+        compareEntityToService(someBookEntity, serviceObj);
     }
 
-    private void compareEntityToDtoList(List<BookEntity> entityList, List<Book> dtoList) {
-        assertThat(entityList).hasSameSizeAs(dtoList);
+    private void compareEntityToDtoList(List<BookEntity> entityList, List<Book> serviceObjList) {
+        assertThat(entityList).hasSameSizeAs(serviceObjList);
 
         for (int i = 0;i < entityList.size();i++) {
-            compareEntityToDto(entityList.get(i), dtoList.get(i));
+            compareEntityToService(entityList.get(i), serviceObjList.get(i));
         }
     }
 
     @Test
-    void entityToDtoList() {
+    void entityToServiceList() {
         List<BookEntity> entityList = Arrays.asList(someBookEntity, someBookEntity);
-        List<Book> dtoList = bookMapper.entityToDto(entityList);
+        List<Book> dtoList = bookMapper.entityToService(entityList);
 
         compareEntityToDtoList(entityList, dtoList);
     }
 
     @Test
-    void dtoToEntity() {
-        BookEntity entity = bookMapper.dtoToEntity(someBook);
+    void serviceToEntity() {
+        BookEntity entity = bookMapper.serviceToEntity(someBook);
 
-        compareEntityToDto(entity, someBook);
+        compareEntityToService(entity, someBook);
     }
 
     @Test
-    void entityToDtoPage() {
+    void entityToServicePage() {
         List<BookEntity> entityList = Arrays.asList(
                 someBookEntity,
                 someBookEntity,
@@ -113,7 +113,7 @@ class BookMapperTest {
         Pageable pageable = PageRequest.of(0, 3);
         long total = 100;
         Page<BookEntity> entityPage = new PageImpl<>(entityList, pageable, total);
-        Page<Book> dtoPage = bookMapper.entityToDtoPage(entityPage);
+        Page<Book> dtoPage = bookMapper.entityToServicePage(entityPage);
 
         assertThat(dtoPage.getNumber()).isEqualTo(entityPage.getNumber());
         assertThat(dtoPage.getSize()).isEqualTo(entityPage.getSize());

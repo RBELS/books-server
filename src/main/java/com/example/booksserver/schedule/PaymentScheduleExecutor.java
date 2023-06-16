@@ -16,7 +16,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
@@ -36,7 +35,7 @@ public class PaymentScheduleExecutor {
     public void updatePendingOrders() {
         orderRepository
                 .findAllByStatusAndDateCreatedAfter(OrderStatus.PENDING, getDateTime1DayBefore())
-                .stream().map(orderMapper::entityToDto)
+                .stream().map(orderMapper::entityToService)
                 .forEach(this::updateOrderPending);
     }
 
@@ -45,7 +44,7 @@ public class PaymentScheduleExecutor {
     public void updatePendingCancelOrders() {
         orderRepository
                 .findAllByStatusAndDateCreatedAfter(OrderStatus.PENDING_CANCEL, getDateTime1DayBefore())
-                .stream().map(orderMapper::entityToDto)
+                .stream().map(orderMapper::entityToService)
                 .forEach(this::updateOrderPendingCancel);
     }
 
