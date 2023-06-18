@@ -27,12 +27,12 @@ public class CreationController {
     @PostMapping(value = "/books", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PostBooksResponse> createBook(
             @RequestBody PostBooksRequest request
-            ) {
+    ) {
         List<Author> authorList = request.getAuthorIdList().stream().map(contentService::getAuthorById).toList();
 
         Book dto = new Book(
                 null, request.getBookName(), request.getReleaseYear(), request.getPrice(), authorList,
-                new Stock(null, 10, 0, 0)
+                new Stock(null, 1000, 0, 0)
         );
         dto = contentService.createBook(dto);
 

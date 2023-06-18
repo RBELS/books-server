@@ -30,7 +30,7 @@ public class PaymentScheduleExecutor {
         return LocalDateTime.now().minusDays(1);
     }
 
-    @Scheduled(fixedDelayString = "${spring.task.scheduling.cron.pending}")
+    @Scheduled(fixedDelayString = "${spring.task.scheduling.delay.pending}")
     @Transactional
     public void updatePendingOrders() {
         orderRepository
@@ -39,7 +39,7 @@ public class PaymentScheduleExecutor {
                 .forEach(this::updateOrderPending);
     }
 
-    @Scheduled(fixedDelayString = "${spring.task.scheduling.cron.pending-cancel}")
+    @Scheduled(fixedDelayString = "${spring.task.scheduling.delay.pending-cancel}")
     @Transactional
     public void updatePendingCancelOrders() {
         orderRepository

@@ -1,9 +1,11 @@
 package com.example.booksserver.config;
 
 import lombok.Getter;
+import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
+import org.apache.hc.core5.util.Timeout;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
@@ -35,24 +37,28 @@ public class AppConfig implements WebMvcConfigurer {
     @Value("${mapping.image-path}")
     private String imageMapping;
 
+    @Bean
     public HttpComponentsClientHttpRequestFactory httpComponentsClientHttpRequestFactory() {
         PoolingHttpClientConnectionManager poolingHttpClientConnectionManager = new PoolingHttpClientConnectionManager();
         poolingHttpClientConnectionManager.setMaxTotal(40);
-        poolingHttpClientConnectionManager.setDefaultMaxPerRoute(4);
 
-        CloseableHttpClient client = HttpClientBuilder.create().setConnectionManager(poolingHttpClientConnectionManager).build();
+        CloseableHttpClient client = HttpClientBuilder
+                .create()
+                .setConnectionManager(poolingHttpClientConnectionManager)
+                .setDefaultRequestConfig(RequestConfig.custom()
+                        .setConnectionRequestTimeout(Timeout.ofMilliseconds(200))
+                        .build()
+                )
+                .build();
 
-        HttpComponentsClientHttpRequestFactory clientHttpRequestFactory = new HttpComponentsClientHttpRequestFactory(client);
-
-        clientHttpRequestFactory.setConnectionRequestTimeout(500);
-        return clientHttpRequestFactory;
+        return new HttpComponentsClientHttpRequestFactory(client);
     }
 
     @Bean
     public RestTemplate restTemplate() {
         return new RestTemplateBuilder()
                 .requestFactory(this::httpComponentsClientHttpRequestFactory)
-                .setConnectTimeout(Duration.ofMillis(200))
+                .setConnectTimeout(Duration.ofMillis(500))
                 .build();
     }
 }

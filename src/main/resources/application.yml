@@ -19,10 +19,11 @@ spring:
     scheduling:
       pool:
         size: 2
-      cron:
+      delay:
         pending-cancel: 1000
         pending: 1000
   security:
+    enabled: false
     oauth2:
       client:
         registration:
