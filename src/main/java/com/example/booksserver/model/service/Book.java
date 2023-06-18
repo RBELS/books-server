@@ -19,9 +19,6 @@ public class Book {
     private String name = "";
     private Integer releaseYear;
     private BigDecimal price;
-    private BookImage mainFile;
-    @Builder.Default
-    private List<BookImage> imagesFileList = new ArrayList<>();
     @Builder.Default
     private List<Author> authors = new ArrayList<>();
     private Stock stock;

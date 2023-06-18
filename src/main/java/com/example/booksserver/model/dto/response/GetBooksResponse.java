@@ -32,9 +32,9 @@ public class GetBooksResponse extends PaginatedResponse {
     private ResponseFilters filters;
     private List<BookDTO> content;
 
-    public GetBooksResponse(BooksFilters booksFilters, Page<Book> content, String baseImgUrl) {
+    public GetBooksResponse(BooksFilters booksFilters, Page<Book> content) {
         super(content);
         this.filters = new ResponseFilters(booksFilters);
-        this.content = content.stream().map(bookDTO -> new BookDTO(bookDTO, baseImgUrl)).toList();
+        this.content = content.stream().map(BookDTO::new).toList();
     }
 }

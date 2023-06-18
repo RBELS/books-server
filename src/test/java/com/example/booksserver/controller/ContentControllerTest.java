@@ -3,9 +3,7 @@ package com.example.booksserver.controller;
 import com.example.booksserver.config.security.SecurityConfig;
 import com.example.booksserver.model.service.Author;
 import com.example.booksserver.model.service.Book;
-import com.example.booksserver.model.service.BookImage;
 import com.example.booksserver.model.service.Stock;
-import com.example.booksserver.model.entity.ImageType;
 import com.example.booksserver.service.impl.ContentServiceImpl;
 import com.example.booksserver.model.dto.AuthorDTO;
 import com.example.booksserver.model.dto.response.UserBaseFiltersResponse;
@@ -65,12 +63,6 @@ class ContentControllerTest {
                                 .setAvailable(10)
                                 .setOrdered(5)
                                 .setInDelivery(2)
-                )
-                .setMainFile(
-                        new BookImage()
-                                .setId(3L)
-                                .setType(ImageType.MAIN)
-                                .setContent(new byte[1024])
                 );
     }
 

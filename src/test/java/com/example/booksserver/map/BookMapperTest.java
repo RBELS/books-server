@@ -2,13 +2,10 @@ package com.example.booksserver.map;
 
 import com.example.booksserver.model.service.Author;
 import com.example.booksserver.model.service.Book;
-import com.example.booksserver.model.service.BookImage;
 import com.example.booksserver.model.service.Stock;
 import com.example.booksserver.model.entity.AuthorEntity;
 import com.example.booksserver.model.entity.BookEntity;
 import com.example.booksserver.model.entity.StockEntity;
-import com.example.booksserver.model.entity.BookImageEntity;
-import com.example.booksserver.model.entity.ImageType;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -37,14 +34,11 @@ class BookMapperTest {
     private final BookEntity someBookEntity;
     private final Book someBook;
     {
-        BookImageEntity mainImageMock = mock(BookImageEntity.class);
-        when(mainImageMock.getType()).thenReturn(ImageType.MAIN);
         someBookEntity = new BookEntity()
                 .setId(20L)
                 .setName("Book name")
                 .setReleaseYear(2020)
                 .setPrice(new BigDecimal("10.00"))
-                .setImages(Arrays.asList(mainImageMock, mock(BookImageEntity.class)))
                 .setStock(mock(StockEntity.class))
                 .setAuthors(Arrays.asList(mock(AuthorEntity.class), mock(AuthorEntity.class)));
 
@@ -53,8 +47,6 @@ class BookMapperTest {
                 .setName("Book name")
                 .setReleaseYear(2020)
                 .setPrice(new BigDecimal("10.00"))
-                .setMainFile(mock(BookImage.class))
-                .setImagesFileList(Arrays.asList(mock(BookImage.class), mock(BookImage.class), mock(BookImage.class)))
                 .setStock(mock(Stock.class))
                 .setAuthors(Arrays.asList(mock(Author.class), mock(Author.class)));
     }
@@ -67,11 +59,7 @@ class BookMapperTest {
         assertThat(entity.getPrice()).isEqualTo(serviceObj.getPrice());
 
         assertThat(serviceObj.getStock()).isNotNull();
-        assertThat(serviceObj.getImagesFileList()).isNotNull();
         assertThat(serviceObj.getAuthors()).isNotNull();
-
-        assertThat(serviceObj.getMainFile()).isNotNull();
-        assertThat(serviceObj.getImagesFileList()).isNotNull();
     }
 
     @Test

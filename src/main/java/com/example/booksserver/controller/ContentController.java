@@ -1,6 +1,5 @@
 package com.example.booksserver.controller;
 
-import com.example.booksserver.config.AppConfig;
 import com.example.booksserver.model.service.Author;
 import com.example.booksserver.model.service.Book;
 import com.example.booksserver.service.ContentService;
@@ -10,6 +9,7 @@ import com.example.booksserver.model.dto.filters.BooksFilters;
 import com.example.booksserver.model.dto.response.UserBaseFiltersResponse;
 import com.example.booksserver.model.dto.response.GetAuthorsResponse;
 import com.example.booksserver.model.dto.response.GetBooksResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.convert.Delimiter;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
@@ -21,14 +21,9 @@ import java.math.BigDecimal;
 import java.util.*;
 
 @RestController
+@RequiredArgsConstructor
 public class ContentController {
     private final ContentService contentService;
-    private final String baseImageUrl;
-
-    public ContentController(ContentService contentService, AppConfig appConfig) {
-        this.contentService = contentService;
-        this.baseImageUrl = appConfig.getFullServerAddress() + appConfig.getImageMapping();
-    }
 
     @GetMapping(value = "/books", produces = MediaType.APPLICATION_JSON_VALUE)
     public GetBooksResponse getBooks(
@@ -40,7 +35,7 @@ public class ContentController {
     ) {
         BooksFilters filters = new BooksFilters(authors, minPrice, maxPrice, page, count);
         Page<Book> books = contentService.getBooks(filters);
-        return new GetBooksResponse(filters, books, baseImageUrl);
+        return new GetBooksResponse(filters, books);
     }
 
     @GetMapping(value = "/authors", produces = MediaType.APPLICATION_JSON_VALUE)

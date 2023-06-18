@@ -76,7 +76,7 @@ public class OrderServiceImpl implements OrderService {
             paymentService.cancelPayment(order.getId());
             order.setStatus(OrderStatus.CANCELED);
         } catch (FailPaymentException e) {
-            //for the situation when the payment was not process, Order is PENDING
+            //for the situation when the payment was not processed, Order is PENDING
             order.setStatus(OrderStatus.CANCELED);
         } catch (UnreachablePaymentException e) {
             throw new ResponseBodyException(HttpStatus.OK, new CancelOrderResponse()

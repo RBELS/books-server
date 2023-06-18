@@ -11,8 +11,8 @@ public class PostBooksResponse {
     private String status;
     private BookDTO book;
 
-    public PostBooksResponse(Book book, String baseImgUrl) {
+    public PostBooksResponse(Book book) {
         this.status = "SUCCESS";
-        this.book = new BookDTO(book, baseImgUrl);
+        this.book = new BookDTO(book);
     }
 }

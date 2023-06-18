@@ -41,7 +41,7 @@ public class ContentServiceImpl implements ContentService {
     @Transactional
     public Page<Book> getBooks(BooksFilters filters) {
         int page = Objects.isNull(filters.getPage()) ? 0 : filters.getPage();
-        int count = Objects.isNull(filters.getCount()) ? BooksFilters.DEFAULT_COUNT_PER_PAGE : filters.getCount();
+        int count = Objects.isNull(filters.getCount()) ? BooksFilters.DEFAULT_COUNT : filters.getCount();
         PageRequest pageRequest = PageRequest.of(page, count);
 
         Page<BookEntity> entityPage;

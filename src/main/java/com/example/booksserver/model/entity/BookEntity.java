@@ -31,9 +31,6 @@ public class BookEntity {
     @JoinTable
     private List<AuthorEntity> authors = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "book")
-    private List<BookImageEntity> images = new ArrayList<>();
-
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "stock_id", referencedColumnName = "id")
     private StockEntity stock;

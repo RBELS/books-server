@@ -5,11 +5,9 @@ import com.example.booksserver.exception.InternalErrorCode;
 import com.example.booksserver.exception.ResponseBodyException;
 import com.example.booksserver.model.service.Author;
 import com.example.booksserver.model.service.Book;
-import com.example.booksserver.model.service.BookImage;
 import com.example.booksserver.model.service.Stock;
 import com.example.booksserver.model.entity.AuthorEntity;
 import com.example.booksserver.model.entity.BookEntity;
-import com.example.booksserver.model.entity.ImageType;
 import com.example.booksserver.map.AuthorMapper;
 import com.example.booksserver.map.BookMapper;
 import com.example.booksserver.repository.AuthorRepository;
@@ -197,11 +195,9 @@ class ContentServiceTest {
         Book.BookBuilder builder = Book.builder()
                 .id(null)
                 .name("book name")
-                .imagesFileList(new ArrayList<>())
                 .price(new BigDecimal("100.00"))
                 .releaseYear(2022)
                 .stock(mock(Stock.class))
-                .mainFile(new BookImage(10L, ImageType.MAIN, new byte[1024]))
                 .authors(Arrays.asList(someAuthor));
         Book book = builder.build();
         Book savedBook = builder.id(30L).build();

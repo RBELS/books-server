@@ -37,14 +37,14 @@ public class AppConfig implements WebMvcConfigurer {
 
     public HttpComponentsClientHttpRequestFactory httpComponentsClientHttpRequestFactory() {
         PoolingHttpClientConnectionManager poolingHttpClientConnectionManager = new PoolingHttpClientConnectionManager();
-        poolingHttpClientConnectionManager.setMaxTotal(500);
-        poolingHttpClientConnectionManager.setDefaultMaxPerRoute(500);
+        poolingHttpClientConnectionManager.setMaxTotal(40);
+        poolingHttpClientConnectionManager.setDefaultMaxPerRoute(4);
 
         CloseableHttpClient client = HttpClientBuilder.create().setConnectionManager(poolingHttpClientConnectionManager).build();
 
         HttpComponentsClientHttpRequestFactory clientHttpRequestFactory = new HttpComponentsClientHttpRequestFactory(client);
 
-        clientHttpRequestFactory.setConnectionRequestTimeout(100);
+        clientHttpRequestFactory.setConnectionRequestTimeout(500);
         return clientHttpRequestFactory;
     }
 
@@ -52,7 +52,7 @@ public class AppConfig implements WebMvcConfigurer {
     public RestTemplate restTemplate() {
         return new RestTemplateBuilder()
                 .requestFactory(this::httpComponentsClientHttpRequestFactory)
-                .setConnectTimeout(Duration.ofMillis(500))
+                .setConnectTimeout(Duration.ofMillis(200))
                 .build();
     }
 }

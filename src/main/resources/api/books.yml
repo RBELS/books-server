@@ -154,7 +154,6 @@ components:
         - price
         - releaseYear
         - available
-        - mainImage
       properties:
         id:
           type: integer
@@ -175,9 +174,6 @@ components:
         available:
           type: integer
           example: 13
-        mainImage:
-          type: string
-          example: https://s3-goods.ozstatic.by/480/225/831/10/10831225_0_Finansist_Teodor_Drayzer.jpg
     errorStatus:
       type: object
       properties:
@@ -198,7 +194,7 @@ components:
     newBook:
       required: true
       content:
-        multipart/form-data:
+        application/json:
           schema:
             type: object
             required:
@@ -206,7 +202,6 @@ components:
               - name
               - releaseYear
               - price
-              - mainImage
               - images
             properties:
               authors:
@@ -228,10 +223,6 @@ components:
                 description: Price for the book
                 format: double
                 example: 10.99
-              mainImage:
-                type: string
-                format: binary
-                description: Book main image. Displayed in the content screen.
               images:
                 type: string
                 format: binary

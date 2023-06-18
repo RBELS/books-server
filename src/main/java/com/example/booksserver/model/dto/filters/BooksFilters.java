@@ -9,7 +9,7 @@ import java.util.Objects;
 
 @Getter
 public class BooksFilters extends PaginatedFilters {
-    public static final int DEFAULT_COUNT_PER_PAGE = 20;
+    public static final int DEFAULT_COUNT = 20;
 
     private final List<Long> authorIdList;
     private final BigDecimal minPrice;
@@ -27,6 +27,6 @@ public class BooksFilters extends PaginatedFilters {
 
     @Override
     protected int getDefaultCount() {
-        return 20;
+        return DEFAULT_COUNT;
     }
 }
