@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.RoundingMode;
 import java.util.List;
 
 @RestController
@@ -23,20 +24,21 @@ import java.util.List;
 public class CreationController {
     private final ContentService contentService;
 
-
     @PostMapping(value = "/books", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PostBooksResponse> createBook(
             @RequestBody PostBooksRequest request
     ) {
         List<Author> authorList = request.getAuthorIdList().stream().map(contentService::getAuthorById).toList();
 
-        Book dto = new Book(
-                null, request.getBookName(), request.getReleaseYear(), request.getPrice(), authorList,
-                new Stock(null, 1000, 0, 0)
-        );
-        dto = contentService.createBook(dto);
+        Book book = new Book()
+                .setName(request.getBookName())
+                .setReleaseYear(request.getReleaseYear())
+                .setPrice(request.getPrice().setScale(2, RoundingMode.DOWN))
+                .setAuthors(authorList)
+                .setStock(new Stock(null, 1000, 0, 0));
+        book = contentService.createBook(book);
 
-        return new ResponseEntity<>(new PostBooksResponse(dto), HttpStatus.OK);
+        return new ResponseEntity<>(new PostBooksResponse(book), HttpStatus.OK);
     }
 
     @PostMapping(value = "/authors", consumes = MediaType.APPLICATION_JSON_VALUE)
