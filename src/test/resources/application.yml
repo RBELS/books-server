@@ -40,6 +40,13 @@ logging:
     org:
       springframework:
         security: DEBUG
+rest-template:
+  timeout:
+    pool: 6000
+    connect: 4000
+    socket: 8000
+  size:
+    pool-size: 40
 external:
   payment-service:
     host: http://localhost:3050

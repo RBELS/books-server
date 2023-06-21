@@ -1,8 +1,7 @@
 package com.example.booksserver.service.impl;
 
-import com.example.booksserver.exception.ErrorResponseFactory;
-import com.example.booksserver.exception.InternalErrorCode;
-import com.example.booksserver.exception.ResponseBodyException;
+import com.example.booksserver.exception.*;
+import com.example.booksserver.model.dto.response.PaymentsInfoResponse;
 import com.example.booksserver.model.service.Order;
 import com.example.booksserver.model.service.Stock;
 import com.example.booksserver.model.entity.StockEntity;
@@ -12,6 +11,7 @@ import com.example.booksserver.map.OrderMapper;
 import com.example.booksserver.map.StockMapper;
 import com.example.booksserver.repository.OrderRepository;
 import com.example.booksserver.repository.StockRepository;
+import com.example.booksserver.rest.PaymentClient;
 import com.example.booksserver.service.OrderTransactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -99,7 +99,7 @@ public class OrderTransactionServiceImpl implements OrderTransactionService {
         });
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.SERIALIZABLE)
+    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.REPEATABLE_READ)
     @Override
     public Order validateAndSetPending(Order order) throws ResponseStatusException {
         updateOrderStock(order);
@@ -113,7 +113,7 @@ public class OrderTransactionServiceImpl implements OrderTransactionService {
         );
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.SERIALIZABLE)
+    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.REPEATABLE_READ)
     @Override
     public Order saveOrder(Order order) {
         OrderEntity orderEntity = orderMapper.serviceToEntity(order);
@@ -121,7 +121,7 @@ public class OrderTransactionServiceImpl implements OrderTransactionService {
         return orderMapper.entityToService(orderEntity);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.SERIALIZABLE)
+    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.REPEATABLE_READ)
     @Override
     public Order saveOrderReturnStock(Order order) {
         updateOrderStock(order);

@@ -38,7 +38,7 @@ public class ContentServiceImpl implements ContentService {
     private final BookMapper bookMapper;
     private final ErrorResponseFactory errorResponseFactory;
 
-    @Transactional
+//    @Transactional
     public Page<Book> getBooks(BooksFilters filters) {
         int page = Objects.isNull(filters.getPage()) ? 0 : filters.getPage();
         int count = Objects.isNull(filters.getCount()) ? BooksFilters.DEFAULT_COUNT : filters.getCount();
@@ -86,7 +86,7 @@ public class ContentServiceImpl implements ContentService {
         return authorMapper.entityToService(entity.orElse(null));
     }
 
-    @Transactional
+//    @Transactional
     public Book getBookById(Long bookId) {
         Optional<BookEntity> entity = bookRepository.findById(bookId);
         return bookMapper.entityToService(entity.orElse(null));

@@ -91,7 +91,6 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    @Transactional
     public Order getOrderById(Long orderId) throws ResponseStatusException {
         return orderRepository
                 .findById(orderId)
