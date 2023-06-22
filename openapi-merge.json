@@ -7,9 +7,6 @@
       "inputFile": "./src/main/resources/api/authors.yml"
     },
     {
-      "inputFile": "./src/main/resources/api/files.yml"
-    },
-    {
       "inputFile": "./src/main/resources/api/orders.yml"
     }
   ],
