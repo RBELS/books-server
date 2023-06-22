@@ -30,7 +30,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderMapper orderMapper;
     private final ErrorResponseFactory errorResponseFactory;
     private final OrderTransactionService orderTransactionService;
-    private final PaymentClient paymentService;
+    private final PaymentClient paymentClient;
 
     @Override
     @Transactional
@@ -38,7 +38,7 @@ public class OrderServiceImpl implements OrderService {
         order = orderTransactionService.validateAndSetPending(order);
 
         try {
-            paymentService.processPayment(order, cardInfo);
+            paymentClient.processPayment(order, cardInfo);
             order.setStatus(OrderStatus.SUCCESS);
             order = orderTransactionService.saveOrder(order);
         } catch (FailPaymentException e) {
@@ -73,7 +73,7 @@ public class OrderServiceImpl implements OrderService {
         order = orderTransactionService.saveOrder(order);
 
         try {
-            paymentService.cancelPayment(order.getId());
+            paymentClient.cancelPayment(order.getId());
             order.setStatus(OrderStatus.CANCELED);
         } catch (FailPaymentException e) {
             //for the situation when the payment was not processed, Order is PENDING

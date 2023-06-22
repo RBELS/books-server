@@ -44,7 +44,7 @@ public class BookTest {
     private WebApplicationContext webApplicationContext;
 
     private PostBooksResponse defaultBookResponse;
-    private static final PostBooksRequest defaultRequest;
+    public static final PostBooksRequest defaultRequest;
     static {
         defaultRequest = new PostBooksRequest()
                 .setBookName("Book name")
