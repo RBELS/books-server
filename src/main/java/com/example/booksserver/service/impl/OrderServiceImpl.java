@@ -59,8 +59,8 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
-    public Order cancelOrder(Long orderId) throws ResponseStatusException {
-        Order order = getOrderById(orderId);
+    public Order cancelOrder(Order order) throws ResponseStatusException {
+        order = getOrderById(order.getId());
 
         if (!OrderStatus.SUCCESS.equals(order.getStatus()) && !OrderStatus.PENDING.equals(order.getStatus())) {
             HttpStatus status = HttpStatus.BAD_REQUEST;

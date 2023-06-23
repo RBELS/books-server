@@ -69,6 +69,8 @@ public class OrderTest {
     }
     private static final PaymentsInfoResponse successResponse;
     private static final PaymentsErrorResponse errorResponse;
+    private static final PaymentsInfoResponse cancelResponse;
+
     static {
         successResponse = new PaymentsInfoResponse()
                 .setId("1")
@@ -85,6 +87,12 @@ public class OrderTest {
                         .setLangEn("Eng message")
                         .setLangRu("Сообщение на русском")
                 );
+        cancelResponse = new PaymentsInfoResponse()
+                .setId("1")
+                .setExternalId("101")
+                .setStatus("CANCELED")
+                .setSum(new BigDecimal("19.99"))
+                .setCard(mock(CardInfo.class));
     }
 
     private PostOrdersRequest.OrdersBookDTO ordersBookDTO;
@@ -105,13 +113,12 @@ public class OrderTest {
                 .setCount(3);
     }
 
-    @Test
-    public void createOrderWithSuccess() throws Exception {
-        when(paymentClient.processPayment(any(Order.class), any(CardInfo.class)))
-                .thenReturn(successResponse);
-        when(paymentClient.getPaymentInfo(anyLong()))
-                .thenReturn(successResponse);
-
+    public static PostOrdersResponse createOrderForOk(
+            PostOrdersRequest postOrdersRequest,
+            PostOrdersRequest.OrdersBookDTO ordersBookDTO,
+            MockMvc mockMvc,
+            ObjectMapper objectMapper
+    ) throws Exception {
         postOrdersRequest.getInfo().setBooks(Arrays.asList(ordersBookDTO));
         String postOrdersResponseStr = mockMvc
                 .perform(post("/orders")
@@ -123,7 +130,18 @@ public class OrderTest {
                 .getResponse()
                 .getContentAsString();
 
-        PostOrdersResponse postOrdersResponse = objectMapper.readValue(postOrdersResponseStr, PostOrdersResponse.class);
+        return objectMapper.readValue(postOrdersResponseStr, PostOrdersResponse.class);
+    }
+
+    @Test
+    public void postOrderWithSuccess() throws Exception {
+        when(paymentClient.processPayment(any(Order.class), any(CardInfo.class)))
+                .thenReturn(successResponse);
+        when(paymentClient.getPaymentInfo(anyLong()))
+                .thenReturn(successResponse);
+
+        PostOrdersResponse postOrdersResponse = createOrderForOk(postOrdersRequest, ordersBookDTO, mockMvc, objectMapper);
+
         assertThat(postOrdersResponse.getBooks().get(0).getCount()).isEqualTo(ordersBookDTO.getCount());
         assertThat(postOrdersResponse.getBooks().get(0).getId()).isEqualTo(ordersBookDTO.getId());
 
@@ -134,13 +152,12 @@ public class OrderTest {
         assertThat(orderEntity.getStatus()).isEqualTo(OrderStatus.SUCCESS);
     }
 
-    @Test
-    public void createOrderWithFail() throws Exception {
-        when(paymentClient.processPayment(any(Order.class), any(CardInfo.class)))
-                .thenThrow(new FailPaymentException(errorResponse));
-        when(paymentClient.getPaymentInfo(anyLong()))
-                .thenThrow(new FailPaymentException(errorResponse));
-
+    public static ErrorResponse createOrderForError(
+            PostOrdersRequest postOrdersRequest,
+            PostOrdersRequest.OrdersBookDTO ordersBookDTO,
+            MockMvc mockMvc,
+            ObjectMapper objectMapper
+    ) throws Exception {
         postOrdersRequest.getInfo().setBooks(Arrays.asList(ordersBookDTO));
         String postOrdersResponseStr = mockMvc
                 .perform(post("/orders")
@@ -152,7 +169,17 @@ public class OrderTest {
                 .getResponse()
                 .getContentAsString();
 
-        ErrorResponse postOrdersResponse = objectMapper.readValue(postOrdersResponseStr, ErrorResponse.class);
+        return objectMapper.readValue(postOrdersResponseStr, ErrorResponse.class);
+    }
+
+    @Test
+    public void postOrderWithFail() throws Exception {
+        when(paymentClient.processPayment(any(Order.class), any(CardInfo.class)))
+                .thenThrow(new FailPaymentException(errorResponse));
+        when(paymentClient.getPaymentInfo(anyLong()))
+                .thenThrow(new FailPaymentException(errorResponse));
+
+        ErrorResponse postOrdersResponse = createOrderForError(postOrdersRequest, ordersBookDTO, mockMvc, objectMapper);
         assertThat(postOrdersResponse.getInternalCode()).isEqualTo(String.valueOf(InternalErrorCode.PAYMENT_ERROR.getValue()));
 
         OrderEntity orderEntity = orderRepository.findAll().get(0);
@@ -160,24 +187,14 @@ public class OrderTest {
     }
 
     @Test
-    public void createOrderWithUnreached() throws Exception {
+    public void postOrderWithUnreached() throws Exception {
         when(paymentClient.processPayment(any(Order.class), any(CardInfo.class)))
                 .thenThrow(new UnreachablePaymentException());
         when(paymentClient.getPaymentInfo(anyLong()))
                 .thenThrow(new UnreachablePaymentException());
 
-        postOrdersRequest.getInfo().setBooks(Arrays.asList(ordersBookDTO));
-        String postOrdersResponseStr = mockMvc
-                .perform(post("/orders")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(postOrdersRequest))
-                )
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
+        PostOrdersResponse postOrdersResponse = createOrderForOk(postOrdersRequest, ordersBookDTO, mockMvc, objectMapper);
 
-        PostOrdersResponse postOrdersResponse = objectMapper.readValue(postOrdersResponseStr, PostOrdersResponse.class);
         assertThat(postOrdersResponse.getBooks().get(0).getCount()).isEqualTo(ordersBookDTO.getCount());
         assertThat(postOrdersResponse.getBooks().get(0).getId()).isEqualTo(ordersBookDTO.getId());
 
@@ -187,4 +204,90 @@ public class OrderTest {
         OrderEntity orderEntity = orderRepository.findById(orderId).orElseThrow();
         assertThat(orderEntity.getStatus()).isEqualTo(OrderStatus.PENDING);
     }
+
+    @Test
+    public void cancelSuccessOrder() throws Exception {
+        when(paymentClient.processPayment(any(Order.class), any(CardInfo.class)))
+                .thenReturn(successResponse);
+        when(paymentClient.getPaymentInfo(anyLong()))
+                .thenReturn(successResponse);
+
+        when(paymentClient.cancelPayment(anyLong()))
+                .thenReturn(cancelResponse);
+
+        PostOrdersResponse postOrdersResponse = createOrderForOk(postOrdersRequest, ordersBookDTO, mockMvc, objectMapper);
+
+        String cancelOrderResponseStr = mockMvc
+                .perform(patch(String.format("/orders/%s/cancel", postOrdersResponse.getOrderNo())))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        CancelOrderResponse cancelOrderResponse = objectMapper.readValue(cancelOrderResponseStr, CancelOrderResponse.class);
+
+        assertThat(cancelOrderResponse.getOrderNo()).isEqualTo(postOrdersResponse.getOrderNo());
+        assertThat(cancelOrderResponse.getStatus()).isEqualTo("CANCELED");
+
+        long orderId = Long.parseLong(postOrdersResponse.getOrderNo());
+        OrderEntity orderEntity = orderRepository.findById(orderId).orElseThrow();
+        assertThat(orderEntity.getStatus()).isEqualTo(OrderStatus.CANCELED);
+    }
+
+    @Test
+    public void cancelPendingOrderPendingCancel() throws Exception {
+        when(paymentClient.processPayment(any(Order.class), any(CardInfo.class)))
+                .thenThrow(new UnreachablePaymentException());
+        when(paymentClient.getPaymentInfo(anyLong()))
+                .thenThrow(new UnreachablePaymentException());
+
+        when(paymentClient.cancelPayment(anyLong()))
+                .thenThrow(new UnreachablePaymentException());
+
+        PostOrdersResponse postOrdersResponse = createOrderForOk(postOrdersRequest, ordersBookDTO, mockMvc, objectMapper);
+
+        String cancelOrderResponseStr = mockMvc
+                .perform(patch(String.format("/orders/%s/cancel", postOrdersResponse.getOrderNo())))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        CancelOrderResponse cancelOrderResponse = objectMapper.readValue(cancelOrderResponseStr, CancelOrderResponse.class);
+        assertThat(cancelOrderResponse.getOrderNo()).isEqualTo(postOrdersResponse.getOrderNo());
+        assertThat(cancelOrderResponse.getStatus()).isEqualTo(OrderStatus.PENDING_CANCEL.name());
+
+        long orderId = Long.parseLong(postOrdersResponse.getOrderNo());
+        OrderEntity orderEntity = orderRepository.findById(orderId).orElseThrow();
+        assertThat(orderEntity.getStatus()).isEqualTo(OrderStatus.PENDING_CANCEL);
+    }
+
+    @Test
+    public void cancelPendingOrderErrorCancel() throws Exception {
+        when(paymentClient.processPayment(any(Order.class), any(CardInfo.class)))
+                .thenThrow(new UnreachablePaymentException());
+        when(paymentClient.getPaymentInfo(anyLong()))
+                .thenThrow(new UnreachablePaymentException());
+
+        when(paymentClient.cancelPayment(anyLong()))
+                .thenThrow(new FailPaymentException(errorResponse));
+
+        PostOrdersResponse postOrdersResponse = createOrderForOk(postOrdersRequest, ordersBookDTO, mockMvc, objectMapper);
+
+        String cancelOrderResponseStr = mockMvc
+                .perform(patch(String.format("/orders/%s/cancel", postOrdersResponse.getOrderNo())))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        CancelOrderResponse cancelOrderResponse = objectMapper.readValue(cancelOrderResponseStr, CancelOrderResponse.class);
+        assertThat(cancelOrderResponse.getOrderNo()).isEqualTo(postOrdersResponse.getOrderNo());
+        assertThat(cancelOrderResponse.getStatus()).isEqualTo(OrderStatus.CANCELED.name());
+
+        long orderId = Long.parseLong(postOrdersResponse.getOrderNo());
+        OrderEntity orderEntity = orderRepository.findById(orderId).orElseThrow();
+        assertThat(orderEntity.getStatus()).isEqualTo(OrderStatus.CANCELED);
+    }
+
 }

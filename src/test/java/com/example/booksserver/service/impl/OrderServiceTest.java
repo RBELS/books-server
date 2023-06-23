@@ -57,21 +57,25 @@ class OrderServiceTest {
     @InjectMocks
     private OrderServiceImpl orderService;
 
-    @Test
-    void createOrder() throws PaymentException {
-        Stock stock = new Stock()
+    private static final Stock stock;
+    private static final Book book;
+    private static final OrderItem orderItem;
+    private static final Order dto;
+    private static final CardInfo cardInfo;
+    static {
+        stock = new Stock()
                 .setId(30L)
                 .setAvailable(10)
                 .setOrdered(10)
                 .setInDelivery(10);
-        Book book = new Book()
+        book = new Book()
                 .setStock(stock);
-        OrderItem orderItem = new OrderItem()
+        orderItem = new OrderItem()
                 .setId(20L)
                 .setCount(10)
                 .setPrice(new BigDecimal("10.00"))
                 .setBook(book);
-        Order dto = new Order()
+        dto = new Order()
                 .setId(10L)
                 .setName("Name")
                 .setPhone("Some Phone")
@@ -81,10 +85,15 @@ class OrderServiceTest {
                 .setOrderItems(Arrays.asList(
                         orderItem, orderItem
                 ));
-        CardInfo cardInfo = new CardInfo()
+        cardInfo = new CardInfo()
                 .setName("Holder name")
                 .setNumber("1111222233334444")
                 .setCvv("123");
+    }
+
+    @Test
+    void createOrder() throws PaymentException {
+
 
         when(orderMapper.serviceToEntity(any(Order.class)))
                 .thenReturn(mock(OrderEntity.class));
@@ -124,7 +133,7 @@ class OrderServiceTest {
         when(orderTransactionService.saveOrder(any(Order.class)))
                 .thenReturn(mock(Order.class));
 
-        assertThrows(ResponseBodyException.class, () -> orderService.cancelOrder(10L));
+        assertThrows(ResponseBodyException.class, () -> orderService.cancelOrder(dto));
     }
 
     @Test
