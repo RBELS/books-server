@@ -1,6 +1,6 @@
 package com.example.booksserver.controller;
 
-import com.example.booksserver.config.security.SecurityConfig;
+import com.example.booksserver.config.security.SecurityConfiguration;
 import com.example.booksserver.model.service.Author;
 import com.example.booksserver.model.service.Book;
 import com.example.booksserver.model.service.Stock;
@@ -32,7 +32,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(ContentController.class)
-@Import(SecurityConfig.class)
+@Import(SecurityConfiguration.class)
 class ContentControllerTest {
     @MockBean
     private JwtDecoder jwtDecoder;

@@ -38,6 +38,8 @@ spring:
         jwt:
           issuer-uri: http://192.168.64.11:8080/realms/BookServerKeycloak
           jwk-set-uri: http://192.168.64.11:8080/realms/BookServerKeycloak/protocol/openid-connect/certs
+  hazelcast:
+    config: classpath:hazelcast.yml
 logging:
   level:
     org:

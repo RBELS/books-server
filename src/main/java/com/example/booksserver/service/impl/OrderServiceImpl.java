@@ -18,10 +18,7 @@ import com.example.booksserver.model.dto.response.PostOrdersResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-
 
 @Service
 @RequiredArgsConstructor
@@ -33,7 +30,6 @@ public class OrderServiceImpl implements OrderService {
     private final PaymentClient paymentClient;
 
     @Override
-    @Transactional
     public Order createOrder(Order order, CardInfo cardInfo) throws ResponseStatusException {
         order = orderTransactionService.validateAndSetPending(order);
 
@@ -58,7 +54,6 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    @Transactional(isolation = Isolation.SERIALIZABLE)
     public Order cancelOrder(Order order) throws ResponseStatusException {
         order = getOrderById(order.getId());
 
