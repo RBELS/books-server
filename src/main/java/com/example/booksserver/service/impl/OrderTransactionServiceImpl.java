@@ -30,15 +30,7 @@ public class OrderTransactionServiceImpl implements OrderTransactionService {
         order.getOrderItems().forEach(orderItem -> {
             Stock stock = orderItem.getBook().getStock();
             int moveMultiplier = isReverse ? -1 : 1;
-            stock.setAvailable(stock.getAvailable() - moveMultiplier * orderItem.getCount());
-            stock.setInDelivery(stock.getInDelivery() + moveMultiplier * orderItem.getCount());
-            orderItem.getBook().setStock(
-                    stockMapper.entityToService(
-                            stockRepository.save(
-                                    stockMapper.serviceToEntity(stock)
-                            )
-                    )
-            );
+            stockRepository.updateAvailableAndInDeliveryCountById(stock.getId(), moveMultiplier*orderItem.getCount());
         });
     }
 
@@ -103,10 +95,10 @@ public class OrderTransactionServiceImpl implements OrderTransactionService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     public Order validateAndSetPending(Order order) throws ResponseStatusException {
-        updateOrderStock(order);
+        updateOrderStock(order); //lock stock before validation
         validateOrder(order);
         order.setStatus(OrderStatus.PENDING);
-        moveAndSaveStock(order, false);
+        moveAndSaveStock(order, false); //update query
         return orderMapper.entityToService(
                 orderRepository.save(
                         orderMapper.serviceToEntity(order)
@@ -125,8 +117,6 @@ public class OrderTransactionServiceImpl implements OrderTransactionService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     public Order saveOrderReturnStock(Order order) {
-        orderRepository.findByIdLocked(order.getId());
-        updateOrderStock(order);
         moveAndSaveStock(order, true);
         OrderEntity orderEntity = orderMapper.serviceToEntity(order);
         orderEntity = orderRepository.save(orderEntity);

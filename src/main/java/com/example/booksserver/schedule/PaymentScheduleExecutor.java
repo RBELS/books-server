@@ -24,11 +24,15 @@ public class PaymentScheduleExecutor {
         return LocalDateTime.now().minusDays(1);
     }
 
+    private LocalDateTime getDateTime1MinuteBefore() {
+        return LocalDateTime.now().minusMinutes(1);
+    }
+
     @Scheduled(fixedDelayString = "${spring.task.scheduling.delay.pending}")
     @Transactional
     public void updatePendingOrders() {
         orderRepository
-                .findAllByStatusAndDateCreatedAfter(OrderStatus.PENDING, getDateTime1DayBefore())
+                .findAllByStatusAndDateCreatedBetween(OrderStatus.PENDING, getDateTime1DayBefore(), getDateTime1MinuteBefore())
                 .stream().map(orderMapper::entityToService)
                 .forEach(orderStatusUpdateService::updateOrderPending);
     }
@@ -37,7 +41,7 @@ public class PaymentScheduleExecutor {
     @Transactional
     public void updatePendingCancelOrders() {
         orderRepository
-                .findAllByStatusAndDateCreatedAfter(OrderStatus.PENDING_CANCEL, getDateTime1DayBefore())
+                .findAllByStatusAndDateCreatedBetween(OrderStatus.PENDING_CANCEL, getDateTime1DayBefore(), getDateTime1MinuteBefore())
                 .stream().map(orderMapper::entityToService)
                 .forEach(orderStatusUpdateService::updateOrderPendingCancel);
     }
