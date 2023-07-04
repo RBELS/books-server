@@ -13,6 +13,6 @@ import java.util.Optional;
 public interface OrderRepository extends ListCrudRepository<OrderEntity, Long> {
     List<OrderEntity> findAllByStatusIn(List<OrderStatus> statusList);
     List<OrderEntity> findAllByStatusAndDateCreatedBetween(OrderStatus status, LocalDateTime startDate, LocalDateTime endDate);
-
+    List<OrderEntity> findAllByStatusAndDateCanceledBetween(OrderStatus status, LocalDateTime startDate, LocalDateTime endDate);
     Optional<OrderEntity> findByIdAndDateCreatedBefore(Long orderId, LocalDateTime dateBefore);
 }

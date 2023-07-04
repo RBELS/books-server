@@ -41,7 +41,7 @@ public class PaymentScheduleExecutor {
     @Transactional
     public void updatePendingCancelOrders() {
         orderRepository
-                .findAllByStatusAndDateCreatedBetween(OrderStatus.PENDING_CANCEL, getDateTime1DayBefore(), getDateTime1MinuteBefore())
+                .findAllByStatusAndDateCanceledBetween(OrderStatus.PENDING_CANCEL, getDateTime1DayBefore(), getDateTime1MinuteBefore())
                 .stream().map(orderMapper::entityToService)
                 .forEach(orderStatusUpdateService::updateOrderPendingCancel);
     }

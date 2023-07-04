@@ -7,7 +7,6 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -39,6 +38,9 @@ public class OrderEntity {
     @Column(nullable = false, updatable = false)
     @CreationTimestamp
     private LocalDateTime dateCreated;
+
+    @Column
+    private LocalDateTime dateCanceled;
 
     @Enumerated(EnumType.ORDINAL)
     @Column(nullable = false)

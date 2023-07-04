@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,5 +25,6 @@ public class Order {
     @Builder.Default
     private List<OrderItem> orderItems = new ArrayList<>();
     private LocalDateTime dateCreated;
+    private LocalDateTime dateCanceled;
     private OrderStatus status;
 }

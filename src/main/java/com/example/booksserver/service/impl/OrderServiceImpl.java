@@ -66,7 +66,9 @@ public class OrderServiceImpl implements OrderService {
         }
 
         order = orderTransactionService.saveOrder(
-                order.setStatus(OrderStatus.PENDING_CANCEL)
+                order
+                        .setStatus(OrderStatus.PENDING_CANCEL)
+                        .setDateCanceled(LocalDateTime.now())
         );
 
         try {
