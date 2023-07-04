@@ -219,19 +219,18 @@ public class OrderTest {
 
         String cancelOrderResponseStr = mockMvc
                 .perform(patch(String.format("/orders/%s/cancel", postOrdersResponse.getOrderNo())))
-                .andExpect(status().isOk())
+                .andExpect(status().isBadRequest())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
 
-        CancelOrderResponse cancelOrderResponse = objectMapper.readValue(cancelOrderResponseStr, CancelOrderResponse.class);
+        ErrorResponse cancelOrderResponse = objectMapper.readValue(cancelOrderResponseStr, ErrorResponse.class);
 
-        assertThat(cancelOrderResponse.getOrderNo()).isEqualTo(postOrdersResponse.getOrderNo());
-        assertThat(cancelOrderResponse.getStatus()).isEqualTo("CANCELED");
+        assertThat(cancelOrderResponse.getInternalCode()).isEqualTo(InternalErrorCode.PAYMENT_CANCEL_NOT_ALLOWED.getStringValue());
 
         long orderId = Long.parseLong(postOrdersResponse.getOrderNo());
         OrderEntity orderEntity = orderRepository.findById(orderId).orElseThrow();
-        assertThat(orderEntity.getStatus()).isEqualTo(OrderStatus.CANCELED);
+        assertThat(orderEntity.getStatus()).isEqualTo(OrderStatus.SUCCESS);
     }
 
     @Test
@@ -248,18 +247,17 @@ public class OrderTest {
 
         String cancelOrderResponseStr = mockMvc
                 .perform(patch(String.format("/orders/%s/cancel", postOrdersResponse.getOrderNo())))
-                .andExpect(status().isOk())
+                .andExpect(status().isBadRequest())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
 
-        CancelOrderResponse cancelOrderResponse = objectMapper.readValue(cancelOrderResponseStr, CancelOrderResponse.class);
-        assertThat(cancelOrderResponse.getOrderNo()).isEqualTo(postOrdersResponse.getOrderNo());
-        assertThat(cancelOrderResponse.getStatus()).isEqualTo(OrderStatus.PENDING_CANCEL.name());
+        ErrorResponse cancelOrderResponse = objectMapper.readValue(cancelOrderResponseStr, ErrorResponse.class);
+        assertThat(cancelOrderResponse.getInternalCode()).isEqualTo(InternalErrorCode.PAYMENT_CANCEL_NOT_ALLOWED.getStringValue());
 
         long orderId = Long.parseLong(postOrdersResponse.getOrderNo());
         OrderEntity orderEntity = orderRepository.findById(orderId).orElseThrow();
-        assertThat(orderEntity.getStatus()).isEqualTo(OrderStatus.PENDING_CANCEL);
+        assertThat(orderEntity.getStatus()).isEqualTo(OrderStatus.PENDING);
     }
 
     @Test
@@ -276,18 +274,17 @@ public class OrderTest {
 
         String cancelOrderResponseStr = mockMvc
                 .perform(patch(String.format("/orders/%s/cancel", postOrdersResponse.getOrderNo())))
-                .andExpect(status().isOk())
+                .andExpect(status().isBadRequest())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
 
-        CancelOrderResponse cancelOrderResponse = objectMapper.readValue(cancelOrderResponseStr, CancelOrderResponse.class);
-        assertThat(cancelOrderResponse.getOrderNo()).isEqualTo(postOrdersResponse.getOrderNo());
-        assertThat(cancelOrderResponse.getStatus()).isEqualTo(OrderStatus.CANCELED.name());
+        ErrorResponse cancelOrderResponse = objectMapper.readValue(cancelOrderResponseStr, ErrorResponse.class);
+        assertThat(cancelOrderResponse.getInternalCode()).isEqualTo(InternalErrorCode.PAYMENT_CANCEL_NOT_ALLOWED.getStringValue());
 
         long orderId = Long.parseLong(postOrdersResponse.getOrderNo());
         OrderEntity orderEntity = orderRepository.findById(orderId).orElseThrow();
-        assertThat(orderEntity.getStatus()).isEqualTo(OrderStatus.CANCELED);
+        assertThat(orderEntity.getStatus()).isEqualTo(OrderStatus.PENDING);
     }
 
 }

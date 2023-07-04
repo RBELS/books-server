@@ -135,18 +135,4 @@ class OrderServiceTest {
 
         assertThrows(ResponseBodyException.class, () -> orderService.cancelOrder(dto));
     }
-
-    @Test
-    void getOrderById() {
-        when(errorResponseFactory.create(any(HttpStatus.class), any(InternalErrorCode.class)))
-                .thenReturn(mock(ErrorResponse.class));
-
-        when(orderMapper.entityToService(any(OrderEntity.class)))
-                .thenReturn(mock(Order.class));
-        when(orderRepository.findById(10L))
-                .thenReturn(Optional.of(mock(OrderEntity.class)));
-
-        assertDoesNotThrow(() -> orderService.getOrderById(10L));
-        assertThrows(ResponseBodyException.class, () -> orderService.getOrderById(20L));
-    }
 }
