@@ -20,6 +20,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
@@ -55,8 +58,6 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Order cancelOrder(Order order) throws ResponseStatusException {
-        order = getOrderById(order.getId());
-
         if (!OrderStatus.SUCCESS.equals(order.getStatus()) && !OrderStatus.PENDING.equals(order.getStatus())) {
             HttpStatus status = HttpStatus.BAD_REQUEST;
             throw new ResponseBodyException(status,
@@ -64,8 +65,9 @@ public class OrderServiceImpl implements OrderService {
             );
         }
 
-        order.setStatus(OrderStatus.PENDING_CANCEL);
-        order = orderTransactionService.saveOrder(order);
+        order = orderTransactionService.saveOrder(
+                order.setStatus(OrderStatus.PENDING_CANCEL)
+        );
 
         try {
             paymentClient.cancelPayment(order.getId());
@@ -86,15 +88,9 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Order getOrderById(Long orderId) throws ResponseStatusException {
+    public Optional<Order> getOrderById1MinuteAfterCreation(Long orderId) {
         return orderRepository
-                .findById(orderId)
-                .map(orderMapper::entityToService)
-                .orElseThrow(() -> {
-                    HttpStatus status = HttpStatus.NOT_FOUND;
-                    return new ResponseBodyException(status,
-                            errorResponseFactory.create(status, InternalErrorCode.ORDER_NOT_FOUND)
-                    );
-                });
+                .findByIdAndDateCreatedBefore(orderId, LocalDateTime.now().minusMinutes(1))
+                .map(orderMapper::entityToService);
     }
 }

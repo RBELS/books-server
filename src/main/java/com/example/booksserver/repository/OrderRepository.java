@@ -7,9 +7,12 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface OrderRepository extends ListCrudRepository<OrderEntity, Long> {
     List<OrderEntity> findAllByStatusIn(List<OrderStatus> statusList);
     List<OrderEntity> findAllByStatusAndDateCreatedBetween(OrderStatus status, LocalDateTime startDate, LocalDateTime endDate);
+
+    Optional<OrderEntity> findByIdAndDateCreatedBefore(Long orderId, LocalDateTime dateBefore);
 }
