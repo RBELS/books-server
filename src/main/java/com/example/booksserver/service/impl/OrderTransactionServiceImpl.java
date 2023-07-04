@@ -5,7 +5,6 @@ import com.example.booksserver.model.service.Order;
 import com.example.booksserver.model.entity.OrderEntity;
 import com.example.booksserver.model.entity.OrderStatus;
 import com.example.booksserver.map.OrderMapper;
-import com.example.booksserver.map.StockMapper;
 import com.example.booksserver.model.service.Stock;
 import com.example.booksserver.repository.OrderRepository;
 import com.example.booksserver.repository.StockRepository;
@@ -24,26 +23,23 @@ public class OrderTransactionServiceImpl implements OrderTransactionService {
     private final StockRepository stockRepository;
     private final OrderRepository orderRepository;
     private final ErrorResponseFactory errorResponseFactory;
-    private final StockMapper stockMapper;
 
     public void moveAndSaveStock(Order order, boolean isReverse) {
         order.getOrderItems().forEach(orderItem -> {
             Stock stock = orderItem.getBook().getStock();
-            int moveMultiplier = isReverse ? -1 : 1;
-            stockRepository.updateAvailableAndInDeliveryCountById(stock.getId(), moveMultiplier*orderItem.getCount());
-        });
-    }
+            Integer updatedStockEntityCount;
+            if (!isReverse) {
+                updatedStockEntityCount = stockRepository.updateStockMoveAvailable(stock.getId(), orderItem.getCount());
+            } else {
+                updatedStockEntityCount = stockRepository.updateStockMoveInDelivery(stock.getId(), orderItem.getCount());
+            }
 
-    @Override
-    public void updateOrderStock(Order order) {
-        order.getOrderItems().forEach(orderItem -> {
-            Stock oldStock = orderItem.getBook().getStock();
-            orderItem.getBook().setStock(
-                    stockRepository
-                            .findByIdLocked(oldStock.getId())
-                            .map(stockMapper::entityToService)
-                            .orElseThrow()
-            );
+            if (updatedStockEntityCount == 0) {
+                HttpStatus status = HttpStatus.BAD_REQUEST;
+                throw new ResponseBodyException(status,
+                        errorResponseFactory.create(status, InternalErrorCode.ORDER_ITEM_NOT_IN_STOCK)
+                );
+            }
         });
     }
 
@@ -79,24 +75,12 @@ public class OrderTransactionServiceImpl implements OrderTransactionService {
                     errorResponseFactory.create(status, InternalErrorCode.ORDER_ITEM_NOT_FOUND)
             );
         }
-
-        order.getOrderItems().forEach(orderItem -> {
-            int availableBooks = orderItem.getBook().getStock().getAvailable();
-            int orderBooks = orderItem.getCount();
-            if (orderBooks > availableBooks) {
-                HttpStatus status = HttpStatus.BAD_REQUEST;
-                throw new ResponseBodyException(status,
-                        errorResponseFactory.create(status, InternalErrorCode.ORDER_ITEM_NOT_IN_STOCK)
-                );
-            }
-        });
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     public Order validateAndSetPending(Order order) throws ResponseStatusException {
-        updateOrderStock(order); //lock stock before validation
-        validateOrder(order);
+        validateOrder(order); // stock items are not validated here, not in stock exception is thrown with `moveAndSaveStock`
         order.setStatus(OrderStatus.PENDING);
         moveAndSaveStock(order, false); //update query
         return orderMapper.entityToService(
