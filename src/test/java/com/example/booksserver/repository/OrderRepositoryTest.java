@@ -38,7 +38,7 @@ public class OrderRepositoryTest {
 
     @Test
     public void findAllByStatus() {
-        List<OrderStatus> orderStatusList = Arrays.asList(OrderStatus.PENDING, OrderStatus.PENDING_CANCEL);
+        List<OrderStatus> orderStatusList = Arrays.asList(OrderStatus.PENDING);
         List<OrderEntity> expected = orderRepository
                 .findAll()
                 .stream()

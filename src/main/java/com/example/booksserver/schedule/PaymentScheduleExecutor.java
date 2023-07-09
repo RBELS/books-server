@@ -43,7 +43,7 @@ public class PaymentScheduleExecutor {
     @Transactional
     public void updateRequestCancelOrders() {
         orderRepository
-                .findDistinctByStatusNotInAndOrderCancelStatus_StatusInAndDateCreatedAfter(Arrays.asList(OrderStatus.PENDING), Arrays.asList(CancelStatus.REQUEST), getDateTime1DayBefore())
+                .findDistinctByStatusInAndOrderCancelStatus_StatusInAndDateCreatedAfter(Arrays.asList(OrderStatus.SUCCESS, OrderStatus.FAIL, OrderStatus.CANCELED), Arrays.asList(CancelStatus.REQUEST), getDateTime1DayBefore())
                 .stream().map(orderMapper::entityToService)
                 .forEach(orderStatusUpdateService::updateOrderCancelRequest);
     }
@@ -52,7 +52,7 @@ public class PaymentScheduleExecutor {
     @Transactional
     public void updatePendingCancelOrders() {
         orderRepository
-                .findDistinctByStatusNotInAndOrderCancelStatus_StatusInAndOrderCancelStatus_DateRequestedBetween(Arrays.asList(OrderStatus.PENDING), Arrays.asList(CancelStatus.PENDING), getDateTime1DayBefore(), getDateTime1MinuteBefore())
+                .findDistinctByStatusInAndOrderCancelStatus_StatusInAndOrderCancelStatus_DateRequestedBetween(Arrays.asList(OrderStatus.SUCCESS, OrderStatus.FAIL, OrderStatus.CANCELED), Arrays.asList(CancelStatus.PENDING), getDateTime1DayBefore(), getDateTime1MinuteBefore())
                 .stream().map(orderMapper::entityToService)
                 .forEach(orderStatusUpdateService::updateOrderCancelPending);
     }

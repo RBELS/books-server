@@ -11,4 +11,5 @@ public interface OrderTransactionService {
     Order saveOrderReturnStock(Order order);
     Order saveOrderWithCancelStatusReturnStock(Order order);
     OrderCancelStatus saveOrderCancelStatus(OrderCancelStatus orderCancelStatus);
+    void deleteOrderCancelStatus(Order order);
 }

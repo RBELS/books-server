@@ -43,6 +43,10 @@ public class OrderStatusUpdateServiceImpl implements OrderStatusUpdateService {
 
     @Override
     public void updateOrderCancelRequest(Order order) {
+        if (OrderStatus.FAIL.equals(order.getStatus()) || OrderStatus.CANCELED.equals(order.getStatus())) {
+            orderTransactionService.deleteOrderCancelStatus(order);
+        }
+
         order
                 .getOrderCancelStatus()
                 .setDateRequested(LocalDateTime.now())

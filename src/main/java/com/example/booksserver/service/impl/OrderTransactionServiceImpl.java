@@ -20,6 +20,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Objects;
+
 @Service
 @RequiredArgsConstructor
 public class OrderTransactionServiceImpl implements OrderTransactionService {
@@ -156,5 +158,13 @@ public class OrderTransactionServiceImpl implements OrderTransactionService {
                         orderCancelStatusMapper.serviceToEntity(orderCancelStatus)
                 )
         );
+    }
+
+    @Override
+    public void deleteOrderCancelStatus(Order order) {
+        if (!Objects.isNull(order.getOrderCancelStatus())) {
+            orderCancelStatusRepository.deleteById(order.getOrderCancelStatus().getId());
+            order.setOrderCancelStatus(null);
+        }
     }
 }
