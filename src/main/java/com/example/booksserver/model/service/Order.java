@@ -25,6 +25,6 @@ public class Order {
     @Builder.Default
     private List<OrderItem> orderItems = new ArrayList<>();
     private LocalDateTime dateCreated;
-    private LocalDateTime dateCanceled;
     private OrderStatus status;
+    private OrderCancelStatus orderCancelStatus;
 }

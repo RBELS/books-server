@@ -3,12 +3,13 @@ package com.example.booksserver.map;
 import com.example.booksserver.model.service.Author;
 import com.example.booksserver.model.entity.AuthorEntity;
 import org.mapstruct.Mapper;
+import org.mapstruct.MappingConstants;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
 
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public abstract class AuthorMapper {
     public abstract Author entityToService(AuthorEntity entity);
     public abstract List<Author> entityToService(List<AuthorEntity> entityList);

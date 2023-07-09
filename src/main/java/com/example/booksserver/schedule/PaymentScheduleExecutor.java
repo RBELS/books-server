@@ -1,5 +1,6 @@
 package com.example.booksserver.schedule;
 
+import com.example.booksserver.model.entity.CancelStatus;
 import com.example.booksserver.model.entity.OrderStatus;
 import com.example.booksserver.map.OrderMapper;
 import com.example.booksserver.repository.OrderRepository;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 
 @Slf4j
 @Component
@@ -39,10 +41,19 @@ public class PaymentScheduleExecutor {
 
     @Scheduled(fixedDelayString = "${spring.task.scheduling.delay.pending-cancel}")
     @Transactional
+    public void updateRequestCancelOrders() {
+        orderRepository
+                .findDistinctByStatusNotInAndOrderCancelStatus_StatusInAndDateCreatedAfter(Arrays.asList(OrderStatus.PENDING), Arrays.asList(CancelStatus.REQUEST), getDateTime1DayBefore())
+                .stream().map(orderMapper::entityToService)
+                .forEach(orderStatusUpdateService::updateOrderCancelRequest);
+    }
+
+    @Scheduled(fixedDelayString = "${spring.task.scheduling.delay.pending-cancel}")
+    @Transactional
     public void updatePendingCancelOrders() {
         orderRepository
-                .findAllByStatusAndDateCanceledBetween(OrderStatus.PENDING_CANCEL, getDateTime1DayBefore(), getDateTime1MinuteBefore())
+                .findDistinctByStatusNotInAndOrderCancelStatus_StatusInAndOrderCancelStatus_DateRequestedBetween(Arrays.asList(OrderStatus.PENDING), Arrays.asList(CancelStatus.PENDING), getDateTime1DayBefore(), getDateTime1MinuteBefore())
                 .stream().map(orderMapper::entityToService)
-                .forEach(orderStatusUpdateService::updateOrderPendingCancel);
+                .forEach(orderStatusUpdateService::updateOrderCancelPending);
     }
 }

@@ -18,7 +18,7 @@ spring:
   task:
     scheduling:
       pool:
-        size: 2
+        size: 5
       delay:
         pending-cancel: 1000
         pending: 1000

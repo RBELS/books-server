@@ -1,5 +1,6 @@
 package com.example.booksserver.repository;
 
+import com.example.booksserver.model.entity.CancelStatus;
 import com.example.booksserver.model.entity.OrderEntity;
 import com.example.booksserver.model.entity.OrderStatus;
 import org.springframework.data.repository.ListCrudRepository;
@@ -13,6 +14,9 @@ import java.util.Optional;
 public interface OrderRepository extends ListCrudRepository<OrderEntity, Long> {
     List<OrderEntity> findAllByStatusIn(List<OrderStatus> statusList);
     List<OrderEntity> findAllByStatusAndDateCreatedBetween(OrderStatus status, LocalDateTime startDate, LocalDateTime endDate);
-    List<OrderEntity> findAllByStatusAndDateCanceledBetween(OrderStatus status, LocalDateTime startDate, LocalDateTime endDate);
+    List<OrderEntity> findAllByStatusAndOrderCancelStatus_DateRequestedBetween(OrderStatus status, LocalDateTime startDate, LocalDateTime endDate);
     Optional<OrderEntity> findByIdAndDateCreatedBefore(Long orderId, LocalDateTime dateBefore);
+
+    List<OrderEntity> findDistinctByStatusNotInAndOrderCancelStatus_StatusInAndDateCreatedAfter(List<OrderStatus> orderStatusNotInList, List<CancelStatus> cancelStatusInList, LocalDateTime startDate);
+    List<OrderEntity> findDistinctByStatusNotInAndOrderCancelStatus_StatusInAndOrderCancelStatus_DateRequestedBetween(List<OrderStatus> orderStatusNotInList, List<CancelStatus> cancelStatusInList, LocalDateTime startDate, LocalDateTime endDate);
 }

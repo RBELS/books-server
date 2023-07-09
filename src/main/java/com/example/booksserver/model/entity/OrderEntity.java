@@ -11,7 +11,6 @@ import java.util.List;
 
 @Entity
 @Data
-@NoArgsConstructor
 @Table(name = "`order`")
 @Accessors(chain = true)
 public class OrderEntity {
@@ -39,10 +38,11 @@ public class OrderEntity {
     @CreationTimestamp
     private LocalDateTime dateCreated;
 
-    @Column
-    private LocalDateTime dateCanceled;
-
     @Enumerated(EnumType.ORDINAL)
     @Column(nullable = false)
     private OrderStatus status;
+
+    @OneToOne(orphanRemoval = true)
+    @PrimaryKeyJoinColumn
+    private OrderCancelStatusEntity orderCancelStatus;
 }
